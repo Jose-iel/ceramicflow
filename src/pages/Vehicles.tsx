@@ -9,6 +9,7 @@ import { Vehicle, VehicleStatus, VehicleType } from '@/types';
 import { Filter, Search, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import VehicleCard from '@/components/vehicle/VehicleCard';
+import VehicleDialog from '@/components/vehicle/VehicleDialog';
 import { useToast } from '@/hooks/use-toast';
 
 // Mock data for vehicles
@@ -58,7 +59,7 @@ const VehiclesPage = () => {
   const [type, setType] = useState<string>('all');
   const [status, setStatus] = useState<string>('all');
   const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
-  const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
+  const [showDialog, setShowDialog] = useState(false);
   
   // Filter vehicles
   const filteredVehicles = vehicles.filter(vehicle => {
@@ -70,6 +71,10 @@ const VehiclesPage = () => {
     
     return matchesSearch && matchesType && matchesStatus;
   });
+
+  const handleSaveVehicle = (vehicle: Vehicle) => {
+    setVehicles(prev => [...prev, vehicle]);
+  };
 
   const handleDeleteVehicle = (id: string) => {
     if (confirm("Tem certeza que deseja excluir este veículo?")) {
@@ -115,7 +120,7 @@ const VehiclesPage = () => {
                 <Filter className="w-4 h-4" />
                 Filtrar
               </Button>
-              <Button className="gap-2">
+              <Button className="gap-2" onClick={() => setShowDialog(true)}>
                 <Plus className="w-4 h-4" />
                 Novo Veículo
               </Button>
@@ -132,11 +137,13 @@ const VehiclesPage = () => {
                 onChange={(e) => setType(e.target.value)}
               >
                 <option value="all">Todos</option>
-                <option value={VehicleType.GAS}>Gás</option>
-                <option value={VehicleType.ELECTRIC}>Elétrica</option>
+                <option value={VehicleType.GAS}>Empilhadeira Gás</option>
+                <option value={VehicleType.ELECTRIC}>Empilhadeira Elétrica</option>
                 <option value={VehicleType.TRUCK}>Caminhão</option>
                 <option value={VehicleType.TRACTOR}>Trator</option>
-                <option value={VehicleType.RETRACTABLE}>Retrátil</option>
+                <option value={VehicleType.RETRACTABLE}>Empilhadeira Retrátil</option>
+                <option value={VehicleType.LOADER}>Pá Carregadeira</option>
+                <option value={VehicleType.EXCAVATOR}>Retro Escavadeira</option>
               </select>
             </div>
             <div className="space-y-2">
@@ -172,6 +179,12 @@ const VehiclesPage = () => {
           )}
         </main>
       </div>
+      
+      <VehicleDialog
+        open={showDialog}
+        onOpenChange={setShowDialog}
+        onSave={handleSaveVehicle}
+      />
     </div>
   );
 };

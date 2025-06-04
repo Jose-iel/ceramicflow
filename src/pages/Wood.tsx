@@ -9,6 +9,8 @@ import { WoodConsumption, WoodPurchase } from '@/types';
 import { TreePine, Plus, TrendingUp, Package } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import WoodConsumptionDialog from '@/components/wood/WoodConsumptionDialog';
+import WoodPurchaseDialog from '@/components/wood/WoodPurchaseDialog';
 import { useToast } from '@/hooks/use-toast';
 
 // Mock data
@@ -45,14 +47,24 @@ const mockPurchases: WoodPurchase[] = [
 const WoodPage = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
-  const [consumptions] = useState<WoodConsumption[]>(mockConsumptions);
-  const [purchases] = useState<WoodPurchase[]>(mockPurchases);
+  const [consumptions, setConsumptions] = useState<WoodConsumption[]>(mockConsumptions);
+  const [purchases, setPurchases] = useState<WoodPurchase[]>(mockPurchases);
+  const [showConsumptionDialog, setShowConsumptionDialog] = useState(false);
+  const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
   
   const totalMonthlyConsumption = consumptions.reduce((sum, item) => sum + item.quantity, 0);
   const totalMonthlyPurchases = purchases.reduce((sum, item) => sum + item.quantity, 0);
   const averageUnitPrice = purchases.length > 0 
     ? purchases.reduce((sum, item) => sum + item.unitPrice, 0) / purchases.length 
     : 0;
+
+  const handleSaveConsumption = (consumption: WoodConsumption) => {
+    setConsumptions(prev => [...prev, consumption]);
+  };
+
+  const handleSavePurchase = (purchase: WoodPurchase) => {
+    setPurchases(prev => [...prev, purchase]);
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -124,11 +136,11 @@ const WoodPage = () => {
               </TabsList>
               
               <div className="flex gap-2">
-                <Button className="gap-2">
+                <Button className="gap-2" onClick={() => setShowConsumptionDialog(true)}>
                   <Plus className="w-4 h-4" />
                   Registrar Consumo
                 </Button>
-                <Button variant="outline" className="gap-2">
+                <Button variant="outline" className="gap-2" onClick={() => setShowPurchaseDialog(true)}>
                   <Plus className="w-4 h-4" />
                   Nova Compra
                 </Button>
@@ -199,6 +211,18 @@ const WoodPage = () => {
           </Tabs>
         </main>
       </div>
+      
+      <WoodConsumptionDialog
+        open={showConsumptionDialog}
+        onOpenChange={setShowConsumptionDialog}
+        onSave={handleSaveConsumption}
+      />
+      
+      <WoodPurchaseDialog
+        open={showPurchaseDialog}
+        onOpenChange={setShowPurchaseDialog}
+        onSave={handleSavePurchase}
+      />
     </div>
   );
 };

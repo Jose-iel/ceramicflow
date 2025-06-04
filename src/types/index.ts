@@ -5,7 +5,9 @@ export enum VehicleType {
   ELECTRIC = "Elétrica", 
   RETRACTABLE = "Retrátil",
   TRUCK = "Caminhão",
-  TRACTOR = "Trator"
+  TRACTOR = "Trator",
+  LOADER = "Pá Carregadeira",
+  EXCAVATOR = "Retro Escavadeira"
 }
 
 export enum VehicleStatus {
@@ -115,8 +117,22 @@ export interface ClayConsumption {
   trucksQuantity: number;
   supplier?: string;
   origin?: string;
+  truckId?: string;
   recordedBy: string;
   notes?: string;
+}
+
+// Gas Supply Type
+export interface GasSupply {
+  id: string;
+  date: string;
+  vehicleId: string;
+  vehicleModel: string;
+  quantity: number;
+  unitPrice: number;
+  totalValue: number;
+  supplier?: string;
+  recordedBy: string;
 }
 
 // Dashboard Types

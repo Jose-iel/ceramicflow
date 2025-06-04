@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { ClayConsumption } from '@/types';
 import { Mountain, Plus, Truck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import ClayConsumptionDialog from '@/components/rawmaterial/ClayConsumptionDialog';
 import { useToast } from '@/hooks/use-toast';
 
 // Mock data
@@ -18,6 +19,7 @@ const mockClayConsumptions: ClayConsumption[] = [
     trucksQuantity: 8,
     supplier: 'Barreiro Central',
     origin: 'Fazenda Santa Maria',
+    truckId: 'CAM-001',
     recordedBy: 'Carlos Oliveira',
     notes: 'Barro de boa qualidade'
   },
@@ -26,6 +28,7 @@ const mockClayConsumptions: ClayConsumption[] = [
     date: '2023-12-02',
     trucksQuantity: 6,
     supplier: 'Extração Norte',
+    truckId: 'CAM-002',
     recordedBy: 'Ana Costa',
   }
 ];
@@ -33,12 +36,17 @@ const mockClayConsumptions: ClayConsumption[] = [
 const RawMaterialPage = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
-  const [clayConsumptions] = useState<ClayConsumption[]>(mockClayConsumptions);
+  const [clayConsumptions, setClayConsumptions] = useState<ClayConsumption[]>(mockClayConsumptions);
+  const [showDialog, setShowDialog] = useState(false);
   
   const totalMonthlyTrucks = clayConsumptions.reduce((sum, item) => sum + item.trucksQuantity, 0);
   const averageDailyConsumption = clayConsumptions.length > 0 
     ? totalMonthlyTrucks / clayConsumptions.length 
     : 0;
+
+  const handleSaveConsumption = (consumption: ClayConsumption) => {
+    setClayConsumptions(prev => [...prev, consumption]);
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -89,7 +97,7 @@ const RawMaterialPage = () => {
 
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold">Consumo de Barro</h2>
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={() => setShowDialog(true)}>
               <Plus className="w-4 h-4" />
               Registrar Consumo
             </Button>
@@ -120,6 +128,11 @@ const RawMaterialPage = () => {
                           Origem: {consumption.origin}
                         </p>
                       )}
+                      {consumption.truckId && (
+                        <p className="text-sm text-muted-foreground">
+                          Caminhão: {consumption.truckId}
+                        </p>
+                      )}
                       {consumption.notes && (
                         <p className="text-sm text-muted-foreground mt-1">{consumption.notes}</p>
                       )}
@@ -137,6 +150,12 @@ const RawMaterialPage = () => {
           </Card>
         </main>
       </div>
+      
+      <ClayConsumptionDialog
+        open={showDialog}
+        onOpenChange={setShowDialog}
+        onSave={handleSaveConsumption}
+      />
     </div>
   );
 };
