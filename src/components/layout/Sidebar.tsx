@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
-  Truck, Users, ClipboardList, Fuel, 
-  Settings, FileText, LayoutDashboard, Menu, X
+  Truck, Users, ClipboardList, TreePine, 
+  Settings, FileText, LayoutDashboard, Menu, X, Mountain
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -46,11 +46,12 @@ const Sidebar: React.FC = () => {
   
   const links = [
     { to: "/", icon: LayoutDashboard, label: "Dashboard" },
-    { to: "/forklifts", icon: Truck, label: "Empilhadeiras" },
-    { to: "/operators", icon: Users, label: "Operadores" },
+    { to: "/vehicles", icon: Truck, label: "Frota" },
+    { to: "/employees", icon: Users, label: "Funcionários" },
     { to: "/operations", icon: ClipboardList, label: "Operações" },
     { to: "/maintenance", icon: Settings, label: "Manutenção" },
-    { to: "/gas-supply", icon: Fuel, label: "Abastecimento" },
+    { to: "/wood", icon: TreePine, label: "Lenha" },
+    { to: "/raw-material", icon: Mountain, label: "Matéria-Prima" },
     { to: "/reports", icon: FileText, label: "Relatórios" },
   ];
 
@@ -85,7 +86,7 @@ const Sidebar: React.FC = () => {
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}
           <div className="flex items-center justify-between px-4 py-5">
-            <h1 className="text-xl font-bold text-sidebar-foreground">Forklift Manager</h1>
+            <h1 className="text-xl font-bold text-sidebar-foreground">Gestão Cerâmica</h1>
             {isMobile && (
               <button
                 onClick={closeSidebar}

@@ -1,31 +1,35 @@
 
-// Forklift Types
-export enum ForkliftType {
+// Vehicle Types (previously Forklift)
+export enum VehicleType {
   GAS = "Gás",
-  ELECTRIC = "Elétrica",
-  RETRACTABLE = "Retrátil"
+  ELECTRIC = "Elétrica", 
+  RETRACTABLE = "Retrátil",
+  TRUCK = "Caminhão",
+  TRACTOR = "Trator"
 }
 
-export enum ForkliftStatus {
+export enum VehicleStatus {
   OPERATIONAL = "Em Operação",
   STOPPED = "Parada",
   MAINTENANCE = "Aguardando Manutenção"
 }
 
-export interface Forklift {
+export interface Vehicle {
   id: string;
   model: string;
-  type: ForkliftType;
-  capacity: string;
+  type: VehicleType;
   acquisitionDate: string;
   lastMaintenance: string;
-  status: ForkliftStatus;
+  status: VehicleStatus;
   hourMeter: number;
 }
 
-// User/Operator Types
-export enum UserRole {
-  OPERATOR = "Operador",
+// Employee Types (previously User/Operator)
+export enum EmployeeRole {
+  FORNEIRO = "Forneiro",
+  MOTORISTA = "Motorista", 
+  OPERADOR_MAQUINAS = "Operador de Máquinas",
+  ADMINISTRATIVO = "Administrativo",
   SUPERVISOR = "Supervisor",
   ADMIN = "Administrador"
 }
@@ -36,10 +40,10 @@ export enum CertificateStatus {
   EXPIRED = "Vencido"
 }
 
-export interface User {
+export interface Employee {
   id: string;
   name: string;
-  role: UserRole;
+  role: EmployeeRole;
   cpf: string;
   contact: string;
   shift: string;
@@ -53,14 +57,13 @@ export interface User {
 // Operation Types
 export interface Operation {
   id: string;
-  operatorId: string;
-  operatorName: string;
-  forkliftId: string;
-  forkliftModel: string;
+  employeeId: string;
+  employeeName: string;
+  vehicleId: string;
+  vehicleModel: string;
   sector: string;
   initialHourMeter: number;
   currentHourMeter?: number;
-  gasConsumption?: number;
   startTime: string;
   endTime?: string;
   status: "active" | "completed";
@@ -69,14 +72,14 @@ export interface Operation {
 // Maintenance Types
 export enum MaintenanceStatus {
   WAITING = "Aguardando",
-  IN_PROGRESS = "Em andamento",
+  IN_PROGRESS = "Em andamento", 
   COMPLETED = "Concluído"
 }
 
 export interface Maintenance {
   id: string;
-  forkliftId: string;
-  forkliftModel: string;
+  vehicleId: string;
+  vehicleModel: string;
   issue: string;
   reportedBy: string;
   reportedDate: string;
@@ -84,30 +87,52 @@ export interface Maintenance {
   completedDate?: string;
 }
 
-// Gas Supply Types
-export interface GasSupply {
+// Wood Management Types
+export interface WoodConsumption {
   id: string;
   date: string;
-  forkliftId: string;
-  forkliftModel: string;
-  quantity: number;
-  hourMeterBefore: number;
-  hourMeterAfter: number;
-  operator: string;
+  quantity: number; // em m³
+  sector: string;
+  recordedBy: string;
+  notes?: string;
+}
+
+export interface WoodPurchase {
+  id: string;
+  date: string;
+  supplier: string;
+  quantity: number; // em m³
+  unitPrice: number; // valor por m³
+  totalValue: number;
+  invoiceNumber?: string;
+  notes?: string;
+}
+
+// Raw Material Types
+export interface ClayConsumption {
+  id: string;
+  date: string;
+  trucksQuantity: number;
+  supplier?: string;
+  origin?: string;
+  recordedBy: string;
+  notes?: string;
 }
 
 // Dashboard Types
 export interface DashboardStats {
-  totalForklifts: number;
-  operationalForklifts: number;
-  stoppedForklifts: number;
-  maintenanceForklifts: number;
-  totalOperators: number;
-  operatorsWithValidCertificates: number;
-  operatorsWithWarningCertificates: number;
-  operatorsWithExpiredCertificates: number;
+  totalVehicles: number;
+  operationalVehicles: number;
+  stoppedVehicles: number;
+  maintenanceVehicles: number;
+  totalEmployees: number;
+  employeesWithValidCertificates: number;
+  employeesWithWarningCertificates: number;
+  employeesWithExpiredCertificates: number;
   activeOperations: number;
   pendingMaintenances: number;
+  monthlyWoodConsumption: number; // m³
+  monthlyClayConsumption: number; // trucks
 }
 
 // Common Component Props
@@ -121,3 +146,10 @@ export interface StatusCardProps {
     trend: "up" | "down" | "neutral";
   };
 }
+
+// Legacy compatibility exports
+export type Forklift = Vehicle;
+export type User = Employee;
+export const ForkliftType = VehicleType;
+export const ForkliftStatus = VehicleStatus;
+export const UserRole = EmployeeRole;
