@@ -3,51 +3,47 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
-import ForkliftCard from '@/components/forklift/ForkliftCard';
-import { Forklift, ForkliftStatus, ForkliftType } from '@/types';
+import VehicleCard from '@/components/vehicle/VehicleCard';
+import { Vehicle, VehicleStatus, VehicleType } from '@/types';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
 // Mock data for the dashboard
-const mockForklifts: Forklift[] = [
+const mockVehicles: Vehicle[] = [
   {
     id: 'G001',
     model: 'Toyota 8FGU25',
-    type: ForkliftType.GAS,
-    capacity: '2.500 kg',
+    type: VehicleType.GAS,
     acquisitionDate: '10/05/2022',
     lastMaintenance: '15/09/2023',
-    status: ForkliftStatus.OPERATIONAL,
+    status: VehicleStatus.OPERATIONAL,
     hourMeter: 12583,
   },
   {
     id: 'E002',
     model: 'Hyster E50XN',
-    type: ForkliftType.ELECTRIC,
-    capacity: '2.250 kg',
+    type: VehicleType.ELECTRIC,
     acquisitionDate: '22/11/2021',
     lastMaintenance: '30/10/2023',
-    status: ForkliftStatus.OPERATIONAL,
+    status: VehicleStatus.OPERATIONAL,
     hourMeter: 8452,
   },
   {
-    id: 'R003',
-    model: 'Crown RR5725',
-    type: ForkliftType.RETRACTABLE,
-    capacity: '1.800 kg',
+    id: 'T003',
+    model: 'John Deere 6110B',
+    type: VehicleType.TRACTOR,
     acquisitionDate: '04/03/2022',
     lastMaintenance: '12/08/2023',
-    status: ForkliftStatus.MAINTENANCE,
+    status: VehicleStatus.MAINTENANCE,
     hourMeter: 10974,
   },
   {
-    id: 'G004',
-    model: 'Yale GLP050',
-    type: ForkliftType.GAS,
-    capacity: '2.200 kg',
+    id: 'C004',
+    model: 'Mercedes Atego',
+    type: VehicleType.TRUCK,
     acquisitionDate: '18/07/2022',
     lastMaintenance: '05/11/2023',
-    status: ForkliftStatus.STOPPED,
+    status: VehicleStatus.STOPPED,
     hourMeter: 6782,
   },
 ];
@@ -91,18 +87,18 @@ const Index = () => {
           
           <section className="mt-8 slide-enter" style={{ animationDelay: '0.4s' }}>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">Empilhadeiras Em Destaque</h2>
+              <h2 className="text-2xl font-semibold">Veículos Em Destaque</h2>
               <button className="text-sm text-primary hover:underline">
-                Ver todas
+                Ver todos
               </button>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {mockForklifts.map((forklift) => (
-                <ForkliftCard 
-                  key={forklift.id} 
-                  forklift={forklift} 
-                  onClick={() => console.log(`Clicked on ${forklift.id}`)}
+              {mockVehicles.map((vehicle) => (
+                <VehicleCard 
+                  key={vehicle.id} 
+                  vehicle={vehicle} 
+                  onClick={() => console.log(`Clicked on ${vehicle.id}`)}
                 />
               ))}
             </div>
