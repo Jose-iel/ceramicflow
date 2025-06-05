@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Forklift, ForkliftStatus } from '@/types';
+import { Forklift, VehicleStatus } from '@/types';
 import { cn } from '@/lib/utils';
 import Badge from '@/components/common/Badge';
 import { Clock, Settings, Calendar } from 'lucide-react';
@@ -12,13 +12,13 @@ interface ForkliftCardProps {
 
 const ForkliftCard: React.FC<ForkliftCardProps> = ({ forklift, onClick }) => {
   // Determine the status variant for the badge
-  const getStatusVariant = (status: ForkliftStatus) => {
+  const getStatusVariant = (status: VehicleStatus) => {
     switch (status) {
-      case ForkliftStatus.OPERATIONAL:
+      case VehicleStatus.OPERATIONAL:
         return 'success';
-      case ForkliftStatus.MAINTENANCE:
+      case VehicleStatus.MAINTENANCE:
         return 'warning';
-      case ForkliftStatus.STOPPED:
+      case VehicleStatus.STOPPED:
         return 'outline';
       default:
         return 'default';
@@ -38,7 +38,7 @@ const ForkliftCard: React.FC<ForkliftCardProps> = ({ forklift, onClick }) => {
           <h3 className="text-lg font-semibold">{forklift.id}</h3>
           <p className="text-muted-foreground text-sm">{forklift.model}</p>
         </div>
-        <Badge variant={getStatusVariant(forklift.status)} withDot={forklift.status === ForkliftStatus.OPERATIONAL}>
+        <Badge variant={getStatusVariant(forklift.status)} withDot={forklift.status === VehicleStatus.OPERATIONAL}>
           {forklift.status}
         </Badge>
       </div>

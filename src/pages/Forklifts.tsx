@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
-import { Forklift, ForkliftStatus, ForkliftType } from '@/types';
+import { Forklift, VehicleStatus, VehicleType } from '@/types';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -18,81 +18,81 @@ const initialForklifts: Forklift[] = [
   {
     id: 'G001',
     model: 'Toyota 8FGU25',
-    type: ForkliftType.GAS,
+    type: VehicleType.GAS,
     capacity: '2.500 kg',
     acquisitionDate: '10/05/2022',
     lastMaintenance: '15/09/2023',
-    status: ForkliftStatus.OPERATIONAL,
+    status: VehicleStatus.OPERATIONAL,
     hourMeter: 12583,
   },
   {
     id: 'E002',
     model: 'Hyster E50XN',
-    type: ForkliftType.ELECTRIC,
+    type: VehicleType.ELECTRIC,
     capacity: '2.250 kg',
     acquisitionDate: '22/11/2021',
     lastMaintenance: '30/10/2023',
-    status: ForkliftStatus.OPERATIONAL,
+    status: VehicleStatus.OPERATIONAL,
     hourMeter: 8452,
   },
   {
     id: 'R003',
     model: 'Crown RR5725',
-    type: ForkliftType.RETRACTABLE,
+    type: VehicleType.RETRACTABLE,
     capacity: '1.800 kg',
     acquisitionDate: '04/03/2022',
     lastMaintenance: '12/08/2023',
-    status: ForkliftStatus.MAINTENANCE,
+    status: VehicleStatus.MAINTENANCE,
     hourMeter: 10974,
   },
   {
     id: 'G004',
     model: 'Yale GLP050',
-    type: ForkliftType.GAS,
+    type: VehicleType.GAS,
     capacity: '2.200 kg',
     acquisitionDate: '18/07/2022',
     lastMaintenance: '05/11/2023',
-    status: ForkliftStatus.STOPPED,
+    status: VehicleStatus.STOPPED,
     hourMeter: 6782,
   },
   {
     id: 'E005',
     model: 'Toyota 8FBMT30',
-    type: ForkliftType.ELECTRIC,
+    type: VehicleType.ELECTRIC,
     capacity: '3.000 kg',
     acquisitionDate: '25/02/2023',
     lastMaintenance: '10/11/2023',
-    status: ForkliftStatus.OPERATIONAL,
+    status: VehicleStatus.OPERATIONAL,
     hourMeter: 3209,
   },
   {
     id: 'G006',
     model: 'Caterpillar DP40',
-    type: ForkliftType.GAS,
+    type: VehicleType.GAS,
     capacity: '4.000 kg',
     acquisitionDate: '12/08/2021',
     lastMaintenance: '22/09/2023',
-    status: ForkliftStatus.OPERATIONAL,
+    status: VehicleStatus.OPERATIONAL,
     hourMeter: 15842,
   },
   {
     id: 'R007',
     model: 'Jungheinrich ETR340',
-    type: ForkliftType.RETRACTABLE,
+    type: VehicleType.RETRACTABLE,
     capacity: '1.400 kg',
     acquisitionDate: '30/05/2022',
     lastMaintenance: '17/10/2023',
-    status: ForkliftStatus.STOPPED,
+    status: VehicleStatus.STOPPED,
     hourMeter: 7632,
   },
   {
     id: 'E008',
     model: 'Linde E20PH',
-    type: ForkliftType.ELECTRIC,
+    type: VehicleType.ELECTRIC,
     capacity: '2.000 kg',
     acquisitionDate: '05/11/2022',
     lastMaintenance: '01/11/2023',
-    status: ForkliftStatus.MAINTENANCE,
+    status: VehicleStatus.MAINTENANCE,
     hourMeter: 5216,
   },
 ];
@@ -102,8 +102,8 @@ const ForkliftsPage = () => {
   const { toast } = useToast();
   const [forklifts, setForklifts] = useState<Forklift[]>(initialForklifts);
   const [currentDate, setCurrentDate] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<ForkliftStatus | 'all'>('all');
-  const [typeFilter, setTypeFilter] = useState<ForkliftType | 'all'>('all');
+  const [statusFilter, setStatusFilter] = useState<VehicleStatus | 'all'>('all');
+  const [typeFilter, setTypeFilter] = useState<VehicleType | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
   // Dialog states
@@ -252,12 +252,12 @@ const ForkliftsPage = () => {
                 <select 
                   className="h-10 w-full rounded-md border border-input bg-background px-3 py-2"
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as ForkliftStatus | 'all')}
+                  onChange={(e) => setStatusFilter(e.target.value as VehicleStatus | 'all')}
                 >
                   <option value="all">Todos os Status</option>
-                  <option value={ForkliftStatus.OPERATIONAL}>{ForkliftStatus.OPERATIONAL}</option>
-                  <option value={ForkliftStatus.MAINTENANCE}>{ForkliftStatus.MAINTENANCE}</option>
-                  <option value={ForkliftStatus.STOPPED}>{ForkliftStatus.STOPPED}</option>
+                  <option value={VehicleStatus.OPERATIONAL}>{VehicleStatus.OPERATIONAL}</option>
+                  <option value={VehicleStatus.MAINTENANCE}>{VehicleStatus.MAINTENANCE}</option>
+                  <option value={VehicleStatus.STOPPED}>{VehicleStatus.STOPPED}</option>
                 </select>
               </div>
               
@@ -266,12 +266,12 @@ const ForkliftsPage = () => {
                 <select 
                   className="h-10 w-full rounded-md border border-input bg-background px-3 py-2"
                   value={typeFilter}
-                  onChange={(e) => setTypeFilter(e.target.value as ForkliftType | 'all')}
+                  onChange={(e) => setTypeFilter(e.target.value as VehicleType | 'all')}
                 >
                   <option value="all">Todos os Tipos</option>
-                  <option value={ForkliftType.GAS}>{ForkliftType.GAS}</option>
-                  <option value={ForkliftType.ELECTRIC}>{ForkliftType.ELECTRIC}</option>
-                  <option value={ForkliftType.RETRACTABLE}>{ForkliftType.RETRACTABLE}</option>
+                  <option value={VehicleType.GAS}>{VehicleType.GAS}</option>
+                  <option value={VehicleType.ELECTRIC}>{VehicleType.ELECTRIC}</option>
+                  <option value={VehicleType.RETRACTABLE}>{VehicleType.RETRACTABLE}</option>
                 </select>
               </div>
             </div>

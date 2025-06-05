@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Forklift, ForkliftStatus } from '@/types';
+import { Forklift, VehicleStatus } from '@/types';
 import { Trash2 } from 'lucide-react';
 
 interface ForkliftListProps {
@@ -16,13 +15,13 @@ const ForkliftList: React.FC<ForkliftListProps> = ({
   onDeleteForklift 
 }) => {
   // Get status color classes
-  const getStatusColor = (status: ForkliftStatus) => {
+  const getStatusColor = (status: VehicleStatus) => {
     switch (status) {
-      case ForkliftStatus.OPERATIONAL:
+      case VehicleStatus.OPERATIONAL:
         return 'bg-status-operational text-status-operational';
-      case ForkliftStatus.MAINTENANCE:
+      case VehicleStatus.MAINTENANCE:
         return 'bg-status-maintenance text-status-maintenance';
-      case ForkliftStatus.STOPPED:
+      case VehicleStatus.STOPPED:
         return 'bg-status-warning text-status-warning';
       default:
         return 'bg-muted text-muted-foreground';

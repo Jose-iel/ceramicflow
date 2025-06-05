@@ -168,9 +168,11 @@ export interface StatusCardProps {
   };
 }
 
-// Legacy compatibility exports
+// Legacy compatibility exports for Forklift components
 export type Forklift = Vehicle;
 export type User = Employee;
+export type ForkliftType = VehicleType;
+export type ForkliftStatus = VehicleStatus;
 export const ForkliftType = VehicleType;
 export const ForkliftStatus = VehicleStatus;
 export const UserRole = EmployeeRole;
