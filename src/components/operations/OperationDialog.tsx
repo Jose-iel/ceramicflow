@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from '@/hooks/use-toast';
+import { Textarea } from "@/components/ui/textarea";
 
 interface OperationDialogProps {
   open: boolean;
@@ -36,11 +37,13 @@ const OperationDialog = ({
   
   // Form state
   const [formData, setFormData] = useState<Partial<Operation>>({
-    operatorId: '',
-    operatorName: '',
-    forkliftId: '',
-    forkliftModel: '',
-    sector: '',
+    employeeId: '',
+    employeeName: '',
+    vehicleId: '',
+    vehicleModel: '',
+    operationType: 'manual',
+    location: '',
+    description: '',
     initialHourMeter: 0,
     currentHourMeter: 0,
     startTime: new Date().toISOString().slice(0, 16),
@@ -58,11 +61,13 @@ const OperationDialog = ({
     } else {
       // Reset form for new operation
       setFormData({
-        operatorId: '',
-        operatorName: '',
-        forkliftId: '',
-        forkliftModel: '',
-        sector: '',
+        employeeId: '',
+        employeeName: '',
+        vehicleId: '',
+        vehicleModel: '',
+        operationType: 'manual',
+        location: '',
+        description: '',
         initialHourMeter: 0,
         currentHourMeter: 0,
         startTime: new Date().toISOString().slice(0, 16),
@@ -72,7 +77,7 @@ const OperationDialog = ({
   }, [operation, open]);
 
   // Handle input changes
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     
     setFormData(prev => ({
@@ -81,28 +86,43 @@ const OperationDialog = ({
     }));
   };
 
-  // Handle operator selection
-  const handleOperatorChange = (operatorId: string) => {
-    const selectedOperator = availableOperators.find(op => op.id === operatorId);
-    if (selectedOperator) {
+  // Handle employee selection
+  const handleEmployeeChange = (employeeId: string) => {
+    const selectedEmployee = availableOperators.find(op => op.id === employeeId);
+    if (selectedEmployee) {
       setFormData(prev => ({
         ...prev,
-        operatorId,
-        operatorName: selectedOperator.name
+        employeeId,
+        employeeName: selectedEmployee.name
       }));
     }
   };
 
-  // Handle forklift selection
-  const handleForkliftChange = (forkliftId: string) => {
-    const selectedForklift = availableForklifts.find(f => f.id === forkliftId);
-    if (selectedForklift) {
+  // Handle vehicle selection
+  const handleVehicleChange = (vehicleId: string) => {
+    const selectedVehicle = availableForklifts.find(f => f.id === vehicleId);
+    if (selectedVehicle) {
       setFormData(prev => ({
         ...prev,
-        forkliftId,
-        forkliftModel: selectedForklift.model
+        vehicleId,
+        vehicleModel: selectedVehicle.model
       }));
     }
+  };
+
+  // Handle operation type change
+  const handleOperationTypeChange = (operationType: 'vehicle' | 'manual') => {
+    setFormData(prev => ({
+      ...prev,
+      operationType,
+      // Clear vehicle data if switching to manual
+      ...(operationType === 'manual' && {
+        vehicleId: '',
+        vehicleModel: '',
+        initialHourMeter: 0,
+        currentHourMeter: 0
+      })
+    }));
   };
 
   // Handle form submission
@@ -110,10 +130,20 @@ const OperationDialog = ({
     e.preventDefault();
     
     // Validate form
-    if (!formData.operatorId || !formData.forkliftId || !formData.sector || !formData.startTime) {
+    if (!formData.employeeId || !formData.location || !formData.description || !formData.startTime) {
       toast({
         title: "Erro de validação",
         description: "Por favor, preencha todos os campos obrigatórios.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // For vehicle operations, vehicle is required
+    if (formData.operationType === 'vehicle' && !formData.vehicleId) {
+      toast({
+        title: "Erro de validação",
+        description: "Para operações com veículo, selecione um veículo.",
         variant: "destructive"
       });
       return;
@@ -165,13 +195,13 @@ const OperationDialog = ({
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="operatorId">Operador</Label>
+              <Label htmlFor="employeeId">Funcionário</Label>
               <Select 
-                value={formData.operatorId} 
-                onValueChange={handleOperatorChange}
+                value={formData.employeeId} 
+                onValueChange={handleEmployeeChange}
               >
-                <SelectTrigger id="operatorId">
-                  <SelectValue placeholder="Selecione um operador" />
+                <SelectTrigger id="employeeId">
+                  <SelectValue placeholder="Selecione um funcionário" />
                 </SelectTrigger>
                 <SelectContent>
                   {availableOperators.map(operator => (
@@ -184,59 +214,91 @@ const OperationDialog = ({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="forkliftId">Empilhadeira</Label>
+              <Label htmlFor="operationType">Tipo de Operação</Label>
               <Select 
-                value={formData.forkliftId}
-                onValueChange={handleForkliftChange}
+                value={formData.operationType}
+                onValueChange={handleOperationTypeChange}
               >
-                <SelectTrigger id="forkliftId">
-                  <SelectValue placeholder="Selecione uma empilhadeira" />
+                <SelectTrigger id="operationType">
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableForklifts.map(forklift => (
-                    <SelectItem key={forklift.id} value={forklift.id}>
-                      {forklift.model} ({forklift.id})
+                  <SelectItem value="manual">Operação Manual</SelectItem>
+                  <SelectItem value="vehicle">Operação com Veículo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {formData.operationType === 'vehicle' && (
+            <div className="space-y-2">
+              <Label htmlFor="vehicleId">Veículo</Label>
+              <Select 
+                value={formData.vehicleId}
+                onValueChange={handleVehicleChange}
+              >
+                <SelectTrigger id="vehicleId">
+                  <SelectValue placeholder="Selecione um veículo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableForklifts.map(vehicle => (
+                    <SelectItem key={vehicle.id} value={vehicle.id}>
+                      {vehicle.model} ({vehicle.id})
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-          </div>
+          )}
           
           <div className="space-y-2">
-            <Label htmlFor="sector">Setor</Label>
+            <Label htmlFor="location">Local</Label>
             <Input
-              id="sector"
-              name="sector"
-              value={formData.sector}
+              id="location"
+              name="location"
+              value={formData.location}
               onChange={handleChange}
-              placeholder="Ex: Armazém A, Expedição, etc."
+              placeholder="Ex: Barreiro Norte, Forno 1, Armazém A..."
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Descrição da Operação</Label>
+            <Textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Descreva o que está sendo realizado..."
+              rows={3}
             />
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="initialHourMeter">Horímetro Inicial</Label>
-              <Input
-                id="initialHourMeter"
-                name="initialHourMeter"
-                type="number"
-                value={formData.initialHourMeter}
-                onChange={handleChange}
-              />
+          {formData.operationType === 'vehicle' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="initialHourMeter">Horímetro Inicial</Label>
+                <Input
+                  id="initialHourMeter"
+                  name="initialHourMeter"
+                  type="number"
+                  value={formData.initialHourMeter || 0}
+                  onChange={handleChange}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="currentHourMeter">Horímetro Atual</Label>
+                <Input
+                  id="currentHourMeter"
+                  name="currentHourMeter"
+                  type="number"
+                  value={formData.currentHourMeter || formData.initialHourMeter || 0}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="currentHourMeter">Horímetro Atual</Label>
-              <Input
-                id="currentHourMeter"
-                name="currentHourMeter"
-                type="number"
-                value={formData.currentHourMeter || formData.initialHourMeter}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
+          )}
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -265,7 +327,7 @@ const OperationDialog = ({
             )}
           </div>
           
-          {isEditing && (
+          {isEditing && formData.operationType === 'vehicle' && (
             <div className="space-y-2">
               <Label htmlFor="gasConsumption">Consumo de Combustível (L)</Label>
               <Input

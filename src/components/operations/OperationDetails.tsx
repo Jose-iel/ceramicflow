@@ -11,8 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Operation } from '@/types';
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Gauge, Info, Map, Settings, Truck, User, Wrench } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Calendar, Clock, Gauge, Info, MapPin, Settings, Truck, User, Wrench } from 'lucide-react';
 
 interface OperationDetailsProps {
   open: boolean;
@@ -68,7 +67,7 @@ const OperationDetails = ({ open, onOpenChange, operation, onEdit }: OperationDe
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <span className="text-xl">Operação #{operation.id}</span>
-            <Badge variant={operation.status === 'active' ? 'success' : 'default'}>
+            <Badge variant={operation.status === 'active' ? 'default' : 'outline'}>
               {operation.status === 'active' ? 'Em Andamento' : 'Concluída'}
             </Badge>
           </DialogTitle>
@@ -88,25 +87,37 @@ const OperationDetails = ({ open, onOpenChange, operation, onEdit }: OperationDe
               <div className="flex items-center justify-between border-b pb-2">
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">Operador</span>
+                  <span className="text-sm">Funcionário</span>
                 </div>
-                <span className="text-sm font-medium">{operation.operatorName}</span>
+                <span className="text-sm font-medium">{operation.employeeName}</span>
               </div>
               
               <div className="flex items-center justify-between border-b pb-2">
                 <div className="flex items-center gap-2">
-                  <Truck className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">Empilhadeira</span>
+                  <Settings className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">Tipo</span>
                 </div>
-                <span className="text-sm font-medium">{operation.forkliftModel} ({operation.forkliftId})</span>
+                <span className="text-sm font-medium">
+                  {operation.operationType === 'vehicle' ? 'Com Veículo' : 'Manual'}
+                </span>
               </div>
+
+              {operation.vehicleModel && (
+                <div className="flex items-center justify-between border-b pb-2">
+                  <div className="flex items-center gap-2">
+                    <Truck className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">Veículo</span>
+                  </div>
+                  <span className="text-sm font-medium">{operation.vehicleModel} ({operation.vehicleId})</span>
+                </div>
+              )}
               
               <div className="flex items-center justify-between border-b pb-2">
                 <div className="flex items-center gap-2">
-                  <Map className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">Setor</span>
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">Local</span>
                 </div>
-                <span className="text-sm font-medium">{operation.sector}</span>
+                <span className="text-sm font-medium">{operation.location}</span>
               </div>
             </div>
           </div>
@@ -137,40 +148,53 @@ const OperationDetails = ({ open, onOpenChange, operation, onEdit }: OperationDe
             </div>
           </div>
         </div>
-        
+
         <div className="mt-4 space-y-4">
           <div className="flex items-center gap-2">
-            <Gauge className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Horímetro</span>
+            <Info className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Descrição</span>
           </div>
           
-          <div className="grid grid-cols-2 gap-4 p-3 bg-muted/20 rounded-md">
-            <div>
-              <span className="text-sm text-muted-foreground">Inicial</span>
-              <div className="text-lg font-medium">{operation.initialHourMeter}</div>
-            </div>
-            <div>
-              <span className="text-sm text-muted-foreground">Atual/Final</span>
-              <div className="text-lg font-medium">{operation.currentHourMeter || operation.initialHourMeter}</div>
-            </div>
+          <div className="p-3 bg-muted/20 rounded-md">
+            <p className="text-sm">{operation.description}</p>
           </div>
-          
-          {operation.gasConsumption && (
-            <div className="mt-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Wrench className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Consumo de Combustível</span>
-              </div>
-              
-              <div className="p-3 bg-muted/20 rounded-md">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm">Consumo Total</span>
-                  <span className="text-sm font-medium">{operation.gasConsumption} L</span>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
+        
+        {operation.operationType === 'vehicle' && operation.initialHourMeter && (
+          <div className="mt-4 space-y-4">
+            <div className="flex items-center gap-2">
+              <Gauge className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Horímetro</span>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 p-3 bg-muted/20 rounded-md">
+              <div>
+                <span className="text-sm text-muted-foreground">Inicial</span>
+                <div className="text-lg font-medium">{operation.initialHourMeter}</div>
+              </div>
+              <div>
+                <span className="text-sm text-muted-foreground">Atual/Final</span>
+                <div className="text-lg font-medium">{operation.currentHourMeter || operation.initialHourMeter}</div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {operation.gasConsumption && (
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Wrench className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Consumo de Combustível</span>
+            </div>
+            
+            <div className="p-3 bg-muted/20 rounded-md">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm">Consumo Total</span>
+                <span className="text-sm font-medium">{operation.gasConsumption} L</span>
+              </div>
+            </div>
+          </div>
+        )}
         
         <DialogFooter className="gap-2 mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>

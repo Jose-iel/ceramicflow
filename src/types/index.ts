@@ -24,6 +24,7 @@ export interface Vehicle {
   lastMaintenance: string;
   status: VehicleStatus;
   hourMeter: number;
+  capacity?: string; // Optional for backwards compatibility
 }
 
 // Employee Types (previously User/Operator)
@@ -31,6 +32,7 @@ export enum EmployeeRole {
   FORNEIRO = "Forneiro",
   MOTORISTA = "Motorista", 
   OPERADOR_MAQUINAS = "Operador de Máquinas",
+  OPERATOR = "Operador", // For backwards compatibility
   ADMINISTRATIVO = "Administrativo",
   SUPERVISOR = "Supervisor",
   ADMIN = "Administrador"
@@ -56,19 +58,22 @@ export interface Employee {
   nrStatus: CertificateStatus;
 }
 
-// Operation Types
+// Operation Types - Updated for general operations
 export interface Operation {
   id: string;
   employeeId: string;
   employeeName: string;
-  vehicleId: string;
-  vehicleModel: string;
-  sector: string;
-  initialHourMeter: number;
-  currentHourMeter?: number;
+  vehicleId?: string; // Optional for operations that don't involve vehicles
+  vehicleModel?: string; // Optional for operations that don't involve vehicles
+  operationType: 'vehicle' | 'manual'; // Type of operation
+  location: string; // Where the operation is taking place (sector, barreiro, forno, etc.)
+  description: string; // Description of what's being done
+  initialHourMeter?: number; // Optional for vehicle operations
+  currentHourMeter?: number; // Optional for vehicle operations
   startTime: string;
   endTime?: string;
   status: "active" | "completed";
+  gasConsumption?: number; // Optional for gas consumption tracking
 }
 
 // Maintenance Types
