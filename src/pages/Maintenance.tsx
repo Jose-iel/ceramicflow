@@ -15,8 +15,8 @@ import { useToast } from '@/hooks/use-toast';
 const initialMaintenance: Maintenance[] = [
   {
     id: 'M001',
-    forkliftId: 'G001',
-    forkliftModel: 'Toyota 8FGU25',
+    vehicleId: 'G001',
+    vehicleModel: 'Toyota 8FGU25',
     issue: 'Vazamento de óleo hidráulico',
     reportedBy: 'Carlos Silva',
     reportedDate: '2023-11-15',
@@ -24,8 +24,8 @@ const initialMaintenance: Maintenance[] = [
   },
   {
     id: 'M002',
-    forkliftId: 'R003',
-    forkliftModel: 'Crown RR5725',
+    vehicleId: 'R003',
+    vehicleModel: 'Crown RR5725',
     issue: 'Motor de tração com ruído anormal',
     reportedBy: 'João Pereira',
     reportedDate: '2023-11-10',
@@ -33,8 +33,8 @@ const initialMaintenance: Maintenance[] = [
   },
   {
     id: 'M003',
-    forkliftId: 'E002',
-    forkliftModel: 'Hyster E50XN',
+    vehicleId: 'E002',
+    vehicleModel: 'Hyster E50XN',
     issue: 'Bateria não segura carga completa',
     reportedBy: 'Maria Oliveira',
     reportedDate: '2023-11-05',
@@ -42,8 +42,8 @@ const initialMaintenance: Maintenance[] = [
   },
   {
     id: 'M004',
-    forkliftId: 'G004',
-    forkliftModel: 'Yale GLP050',
+    vehicleId: 'G004',
+    vehicleModel: 'Yale GLP050',
     issue: 'Freios necessitando ajuste',
     reportedBy: 'Pedro Santos',
     reportedDate: '2023-10-28',
@@ -52,8 +52,8 @@ const initialMaintenance: Maintenance[] = [
   },
   {
     id: 'M005',
-    forkliftId: 'G001',
-    forkliftModel: 'Toyota 8FGU25',
+    vehicleId: 'G001',
+    vehicleModel: 'Toyota 8FGU25',
     issue: 'Revisão programada 1000h',
     reportedBy: 'Ana Costa',
     reportedDate: '2023-10-25',
@@ -94,7 +94,7 @@ const MaintenancePage = () => {
   // Filter maintenance based on search and filters
   const filteredMaintenance = maintenanceItems.filter(maintenance => {
     // Search filter
-    const matchesSearch = maintenance.forkliftModel.toLowerCase().includes(search.toLowerCase()) || 
+    const matchesSearch = maintenance.vehicleModel.toLowerCase().includes(search.toLowerCase()) || 
                           maintenance.issue.toLowerCase().includes(search.toLowerCase()) ||
                           maintenance.reportedBy.toLowerCase().includes(search.toLowerCase());
     
@@ -245,7 +245,7 @@ const MaintenancePage = () => {
                       <div className="flex justify-between items-start mb-3">
                         <div>
                           <h3 className="font-medium">Manutenção #{maintenance.id}</h3>
-                          <p className="text-sm text-muted-foreground">{maintenance.forkliftModel}</p>
+                          <p className="text-sm text-muted-foreground">{maintenance.vehicleModel}</p>
                         </div>
                         <span className={cn(
                           "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs",
@@ -265,7 +265,7 @@ const MaintenancePage = () => {
                         
                         <div className="flex items-center gap-2">
                           <Truck className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">{maintenance.forkliftId}</span>
+                          <span className="text-sm">{maintenance.vehicleId}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <User className="w-4 h-4 text-muted-foreground" />
@@ -318,7 +318,7 @@ const MaintenancePage = () => {
                   <thead className="bg-muted/50">
                     <tr>
                       <th className="p-4 text-left font-medium text-muted-foreground">ID</th>
-                      <th className="p-4 text-left font-medium text-muted-foreground">Empilhadeira</th>
+                      <th className="p-4 text-left font-medium text-muted-foreground">Veículo</th>
                       <th className="p-4 text-left font-medium text-muted-foreground">Problema</th>
                       <th className="p-4 text-left font-medium text-muted-foreground">Reportado por</th>
                       <th className="p-4 text-left font-medium text-muted-foreground">Data Reportada</th>
@@ -334,8 +334,8 @@ const MaintenancePage = () => {
                         <tr key={maintenance.id} className="hover:bg-muted/50 transition-colors">
                           <td className="p-4">{maintenance.id}</td>
                           <td className="p-4">
-                            <div>{maintenance.forkliftModel}</div>
-                            <div className="text-xs text-muted-foreground">{maintenance.forkliftId}</div>
+                            <div>{maintenance.vehicleModel}</div>
+                            <div className="text-xs text-muted-foreground">{maintenance.vehicleId}</div>
                           </td>
                           <td className="p-4">{maintenance.issue}</td>
                           <td className="p-4">{maintenance.reportedBy}</td>

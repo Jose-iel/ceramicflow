@@ -16,52 +16,52 @@ const initialGasSupplies: GasSupply[] = [
   {
     id: 'GS001',
     date: '2023-11-20',
-    forkliftId: 'G001',
-    forkliftModel: 'Toyota 8FGU25',
+    vehicleId: 'G001',
+    vehicleModel: 'Toyota 8FGU25',
     quantity: 30.5,
-    hourMeterBefore: 12500,
-    hourMeterAfter: 12583,
-    operator: 'Carlos Silva'
+    unitPrice: 3.20,
+    totalValue: 97.60,
+    recordedBy: 'Carlos Silva'
   },
   {
     id: 'GS002',
     date: '2023-11-18',
-    forkliftId: 'G004',
-    forkliftModel: 'Yale GLP050',
+    vehicleId: 'G004',
+    vehicleModel: 'Yale GLP050',
     quantity: 25.2,
-    hourMeterBefore: 6700,
-    hourMeterAfter: 6782,
-    operator: 'João Pereira'
+    unitPrice: 3.20,
+    totalValue: 80.64,
+    recordedBy: 'João Pereira'
   },
   {
     id: 'GS003',
     date: '2023-11-15',
-    forkliftId: 'G001',
-    forkliftModel: 'Toyota 8FGU25',
+    vehicleId: 'G001',
+    vehicleModel: 'Toyota 8FGU25',
     quantity: 32.8,
-    hourMeterBefore: 12400,
-    hourMeterAfter: 12500,
-    operator: 'Maria Oliveira'
+    unitPrice: 3.15,
+    totalValue: 103.32,
+    recordedBy: 'Maria Oliveira'
   },
   {
     id: 'GS004',
     date: '2023-11-12',
-    forkliftId: 'G004',
-    forkliftModel: 'Yale GLP050',
+    vehicleId: 'G004',
+    vehicleModel: 'Yale GLP050',
     quantity: 28.5,
-    hourMeterBefore: 6600,
-    hourMeterAfter: 6700,
-    operator: 'Pedro Santos'
+    unitPrice: 3.15,
+    totalValue: 89.78,
+    recordedBy: 'Pedro Santos'
   },
   {
     id: 'GS005',
     date: '2023-11-10',
-    forkliftId: 'G001',
-    forkliftModel: 'Toyota 8FGU25',
+    vehicleId: 'G001',
+    vehicleModel: 'Toyota 8FGU25',
     quantity: 29.7,
-    hourMeterBefore: 12300,
-    hourMeterAfter: 12400,
-    operator: 'Carlos Silva'
+    unitPrice: 3.10,
+    totalValue: 92.07,
+    recordedBy: 'Carlos Silva'
   }
 ];
 
@@ -85,7 +85,7 @@ const GasSupplyPage = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const [search, setSearch] = useState('');
-  const [forkliftFilter, setForkliftFilter] = useState<string>('all');
+  const [vehicleFilter, setVehicleFilter] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<string>('');
   const [gasSupplies, setGasSupplies] = useState<GasSupply[]>(initialGasSupplies);
 
@@ -97,17 +97,17 @@ const GasSupplyPage = () => {
   // Filter gas supplies based on search and filters
   const filteredGasSupplies = gasSupplies.filter(supply => {
     // Search filter
-    const matchesSearch = supply.forkliftModel.toLowerCase().includes(search.toLowerCase()) || 
-                          supply.operator.toLowerCase().includes(search.toLowerCase()) ||
+    const matchesSearch = supply.vehicleModel.toLowerCase().includes(search.toLowerCase()) || 
+                          supply.recordedBy.toLowerCase().includes(search.toLowerCase()) ||
                           supply.id.toLowerCase().includes(search.toLowerCase());
     
-    // Forklift filter
-    const matchesForklift = forkliftFilter === 'all' || supply.forkliftId === forkliftFilter;
+    // Vehicle filter
+    const matchesVehicle = vehicleFilter === 'all' || supply.vehicleId === vehicleFilter;
     
     // Date filter
     const matchesDate = !dateFilter || supply.date === dateFilter;
     
-    return matchesSearch && matchesForklift && matchesDate;
+    return matchesSearch && matchesVehicle && matchesDate;
   });
 
   // Format date
@@ -116,20 +116,15 @@ const GasSupplyPage = () => {
     return `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
   };
   
-  // Get unique forklifts for filter
-  const forklifts = [...new Set(gasSupplies.map(supply => supply.forkliftId))];
+  // Get unique vehicles for filter
+  const vehicles = [...new Set(gasSupplies.map(supply => supply.vehicleId))];
 
   // Calculate total consumption and average
   const totalConsumption = filteredGasSupplies.reduce((sum, supply) => sum + supply.quantity, 0);
+  const totalValue = filteredGasSupplies.reduce((sum, supply) => sum + supply.totalValue, 0);
   const averageConsumption = filteredGasSupplies.length > 0 
     ? totalConsumption / filteredGasSupplies.length 
     : 0;
-
-  // Calculate efficiency (liters per hour)
-  const calculateEfficiency = (supply: GasSupply) => {
-    const hours = supply.hourMeterAfter - supply.hourMeterBefore;
-    return hours > 0 ? supply.quantity / hours : 0;
-  };
 
   // Handle add/edit gas supply
   const handleSaveGasSupply = (supplyData: GasSupply) => {
@@ -201,9 +196,9 @@ const GasSupplyPage = () => {
             </div>
             
             <div className="bg-card border rounded-lg p-4 shadow">
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Média por Abastecimento (L)</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-2">Valor Total (R$)</h3>
               <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold">{averageConsumption.toFixed(2)}</p>
+                <p className="text-2xl font-bold">{totalValue.toFixed(2)}</p>
                 <div className="p-2 bg-primary/10 rounded-full">
                   <Fuel className="w-5 h-5 text-primary" />
                 </div>
@@ -250,15 +245,15 @@ const GasSupplyPage = () => {
           {/* Filter options */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div className="space-y-2">
-              <h4 className="text-sm font-medium">Empilhadeira</h4>
+              <h4 className="text-sm font-medium">Veículo</h4>
               <select 
                 className="w-full p-2 rounded-md border border-input bg-background"
-                value={forkliftFilter}
-                onChange={(e) => setForkliftFilter(e.target.value)}
+                value={vehicleFilter}
+                onChange={(e) => setVehicleFilter(e.target.value)}
               >
-                <option value="all">Todas</option>
-                {forklifts.map((forkliftId) => (
-                  <option key={forkliftId} value={forkliftId}>{forkliftId}</option>
+                <option value="all">Todos</option>
+                {vehicles.map((vehicleId) => (
+                  <option key={vehicleId} value={vehicleId}>{vehicleId}</option>
                 ))}
               </select>
             </div>
@@ -281,12 +276,11 @@ const GasSupplyPage = () => {
                   <tr>
                     <th className="p-4 text-left font-medium text-muted-foreground">ID</th>
                     <th className="p-4 text-left font-medium text-muted-foreground">Data</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Empilhadeira</th>
+                    <th className="p-4 text-left font-medium text-muted-foreground">Veículo</th>
                     <th className="p-4 text-left font-medium text-muted-foreground">Quantidade (L)</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Horímetro Inicial</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Horímetro Final</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Operador</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Eficiência (L/h)</th>
+                    <th className="p-4 text-left font-medium text-muted-foreground">Preço Unit. (R$)</th>
+                    <th className="p-4 text-left font-medium text-muted-foreground">Valor Total (R$)</th>
+                    <th className="p-4 text-left font-medium text-muted-foreground">Registrado por</th>
                     <th className="p-4 text-left font-medium text-muted-foreground">Ações</th>
                   </tr>
                 </thead>
@@ -296,14 +290,13 @@ const GasSupplyPage = () => {
                       <td className="p-4">{supply.id}</td>
                       <td className="p-4">{formatDate(supply.date)}</td>
                       <td className="p-4">
-                        <div>{supply.forkliftModel}</div>
-                        <div className="text-xs text-muted-foreground">{supply.forkliftId}</div>
+                        <div>{supply.vehicleModel}</div>
+                        <div className="text-xs text-muted-foreground">{supply.vehicleId}</div>
                       </td>
                       <td className="p-4">{supply.quantity.toFixed(1)}</td>
-                      <td className="p-4">{supply.hourMeterBefore}</td>
-                      <td className="p-4">{supply.hourMeterAfter}</td>
-                      <td className="p-4">{supply.operator}</td>
-                      <td className="p-4">{calculateEfficiency(supply).toFixed(2)}</td>
+                      <td className="p-4">{supply.unitPrice.toFixed(2)}</td>
+                      <td className="p-4">{supply.totalValue.toFixed(2)}</td>
+                      <td className="p-4">{supply.recordedBy}</td>
                       <td className="p-4">
                         <div className="flex gap-2">
                           <Button 

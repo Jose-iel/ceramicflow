@@ -127,7 +127,7 @@ export interface ClayConsumption {
   notes?: string;
 }
 
-// Gas Supply Type
+// Gas Supply Type - Updated with correct properties
 export interface GasSupply {
   id: string;
   date: string;

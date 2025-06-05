@@ -45,33 +45,44 @@ const GasSupplyDialog = ({
     gasSupply || {
       id: `GS${Math.floor(Math.random() * 10000).toString().padStart(3, '0')}`,
       date: format(new Date(), 'yyyy-MM-dd'),
-      forkliftId: '',
-      forkliftModel: '',
+      vehicleId: '',
+      vehicleModel: '',
       quantity: 0,
-      hourMeterBefore: 0,
-      hourMeterAfter: 0,
-      operator: ''
+      unitPrice: 0,
+      totalValue: 0,
+      recordedBy: ''
     }
   );
 
-  // Handle forklift selection
-  const handleForkliftChange = (forkliftId: string) => {
-    const selectedForklift = availableForklifts.find(f => f.id === forkliftId);
+  // Handle vehicle selection
+  const handleVehicleChange = (vehicleId: string) => {
+    const selectedVehicle = availableForklifts.find(f => f.id === vehicleId);
     setFormData(prev => ({ 
       ...prev, 
-      forkliftId,
-      forkliftModel: selectedForklift?.model || ''
+      vehicleId,
+      vehicleModel: selectedVehicle?.model || ''
     }));
   };
 
-  // Handle operator selection
-  const handleOperatorChange = (operatorName: string) => {
-    setFormData(prev => ({ ...prev, operator: operatorName }));
+  // Handle recorded by selection
+  const handleRecordedByChange = (recordedBy: string) => {
+    setFormData(prev => ({ ...prev, recordedBy }));
   };
 
   // Handle form field changes
   const handleChange = (field: keyof GasSupply, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => {
+      const newData = { ...prev, [field]: value };
+      
+      // Calculate total value when quantity or unit price changes
+      if (field === 'quantity' || field === 'unitPrice') {
+        const quantity = field === 'quantity' ? value : (newData.quantity || 0);
+        const unitPrice = field === 'unitPrice' ? value : (newData.unitPrice || 0);
+        newData.totalValue = quantity * unitPrice;
+      }
+      
+      return newData;
+    });
   };
 
   // Format date for display
@@ -99,19 +110,10 @@ const GasSupplyDialog = ({
     e.preventDefault();
     
     // Validate form
-    if (!formData.forkliftId || !formData.quantity || !formData.hourMeterBefore || !formData.hourMeterAfter || !formData.operator) {
+    if (!formData.vehicleId || !formData.quantity || !formData.recordedBy) {
       toast({
         title: "Erro ao salvar",
         description: "Preencha todos os campos obrigatórios",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (formData.hourMeterAfter <= formData.hourMeterBefore) {
-      toast({
-        title: "Erro de validação",
-        description: "O horímetro final deve ser maior que o inicial",
         variant: "destructive"
       });
       return;
@@ -125,12 +127,12 @@ const GasSupplyDialog = ({
       setFormData({
         id: `GS${Math.floor(Math.random() * 10000).toString().padStart(3, '0')}`,
         date: format(new Date(), 'yyyy-MM-dd'),
-        forkliftId: '',
-        forkliftModel: '',
+        vehicleId: '',
+        vehicleModel: '',
         quantity: 0,
-        hourMeterBefore: 0,
-        hourMeterAfter: 0,
-        operator: ''
+        unitPrice: 0,
+        totalValue: 0,
+        recordedBy: ''
       });
     }
     
@@ -181,18 +183,18 @@ const GasSupplyDialog = ({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="forkliftId">Empilhadeira</Label>
+              <Label htmlFor="vehicleId">Veículo</Label>
               <Select 
-                value={formData.forkliftId} 
-                onValueChange={handleForkliftChange}
+                value={formData.vehicleId} 
+                onValueChange={handleVehicleChange}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione a empilhadeira" />
+                  <SelectValue placeholder="Selecione o veículo" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableForklifts.map(forklift => (
-                    <SelectItem key={forklift.id} value={forklift.id}>
-                      {forklift.model} ({forklift.id})
+                  {availableForklifts.map(vehicle => (
+                    <SelectItem key={vehicle.id} value={vehicle.id}>
+                      {vehicle.model} ({vehicle.id})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -213,13 +215,39 @@ const GasSupplyDialog = ({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="operator">Operador</Label>
+              <Label htmlFor="unitPrice">Preço Unitário (R$)</Label>
+              <Input 
+                id="unitPrice" 
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.unitPrice} 
+                onChange={(e) => handleChange('unitPrice', parseFloat(e.target.value))}
+                placeholder="0.00"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="totalValue">Valor Total (R$)</Label>
+              <Input 
+                id="totalValue" 
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.totalValue} 
+                readOnly
+                className="bg-muted"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="recordedBy">Registrado por</Label>
               <Select 
-                value={formData.operator} 
-                onValueChange={handleOperatorChange}
+                value={formData.recordedBy} 
+                onValueChange={handleRecordedByChange}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione o operador" />
+                  <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
                   {availableOperators.map(operator => (
@@ -229,28 +257,6 @@ const GasSupplyDialog = ({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="hourMeterBefore">Horímetro Inicial</Label>
-              <Input 
-                id="hourMeterBefore" 
-                type="number"
-                min="0"
-                value={formData.hourMeterBefore} 
-                onChange={(e) => handleChange('hourMeterBefore', parseInt(e.target.value))}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="hourMeterAfter">Horímetro Final</Label>
-              <Input 
-                id="hourMeterAfter" 
-                type="number"
-                min="0"
-                value={formData.hourMeterAfter} 
-                onChange={(e) => handleChange('hourMeterAfter', parseInt(e.target.value))}
-              />
             </div>
           </div>
           

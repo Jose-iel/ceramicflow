@@ -47,8 +47,8 @@ const MaintenanceDialog = ({
   const [formData, setFormData] = useState<Partial<Maintenance>>(
     maintenance || {
       id: `M${Math.floor(Math.random() * 10000).toString().padStart(3, '0')}`,
-      forkliftId: '',
-      forkliftModel: '',
+      vehicleId: '',
+      vehicleModel: '',
       issue: '',
       reportedBy: '',
       reportedDate: format(new Date(), 'yyyy-MM-dd'),
@@ -57,13 +57,13 @@ const MaintenanceDialog = ({
     }
   );
 
-  // Handle forklift selection
-  const handleForkliftChange = (forkliftId: string) => {
-    const selectedForklift = availableForklifts.find(f => f.id === forkliftId);
+  // Handle vehicle selection
+  const handleVehicleChange = (vehicleId: string) => {
+    const selectedVehicle = availableForklifts.find(f => f.id === vehicleId);
     setFormData(prev => ({ 
       ...prev, 
-      forkliftId,
-      forkliftModel: selectedForklift?.model || ''
+      vehicleId,
+      vehicleModel: selectedVehicle?.model || ''
     }));
   };
 
@@ -116,7 +116,7 @@ const MaintenanceDialog = ({
     e.preventDefault();
     
     // Validate form
-    if (!formData.forkliftId || !formData.issue || !formData.reportedBy || !formData.reportedDate) {
+    if (!formData.vehicleId || !formData.issue || !formData.reportedBy || !formData.reportedDate) {
       toast({
         title: "Erro ao salvar",
         description: "Preencha todos os campos obrigatórios",
@@ -132,8 +132,8 @@ const MaintenanceDialog = ({
     if (!isEditing) {
       setFormData({
         id: `M${Math.floor(Math.random() * 10000).toString().padStart(3, '0')}`,
-        forkliftId: '',
-        forkliftModel: '',
+        vehicleId: '',
+        vehicleModel: '',
         issue: '',
         reportedBy: '',
         reportedDate: format(new Date(), 'yyyy-MM-dd'),
@@ -166,18 +166,18 @@ const MaintenanceDialog = ({
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="forkliftId">Empilhadeira</Label>
+                <Label htmlFor="vehicleId">Veículo</Label>
                 <Select 
-                  value={formData.forkliftId} 
-                  onValueChange={handleForkliftChange}
+                  value={formData.vehicleId} 
+                  onValueChange={handleVehicleChange}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione a empilhadeira" />
+                    <SelectValue placeholder="Selecione o veículo" />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableForklifts.map(forklift => (
-                      <SelectItem key={forklift.id} value={forklift.id}>
-                        {forklift.model} ({forklift.id})
+                    {availableForklifts.map(vehicle => (
+                      <SelectItem key={vehicle.id} value={vehicle.id}>
+                        {vehicle.model} ({vehicle.id})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -208,7 +208,7 @@ const MaintenanceDialog = ({
                 id="issue" 
                 value={formData.issue} 
                 onChange={(e) => handleChange('issue', e.target.value)}
-                placeholder="Descreva o problema da empilhadeira"
+                placeholder="Descreva o problema do veículo"
                 rows={3}
               />
             </div>
