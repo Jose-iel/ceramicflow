@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import {
@@ -27,7 +26,7 @@ interface MaintenanceDialogProps {
   onOpenChange: (open: boolean) => void;
   maintenance?: Maintenance;
   onSave: (maintenance: Maintenance) => void;
-  availableForklifts: { id: string; model: string }[];
+  availableVehicles: { id: string; model: string }[];
   availableOperators: { id: string; name: string }[];
 }
 
@@ -36,7 +35,7 @@ const MaintenanceDialog = ({
   onOpenChange, 
   maintenance, 
   onSave,
-  availableForklifts,
+  availableVehicles,
   availableOperators 
 }: MaintenanceDialogProps) => {
   const { toast } = useToast();
@@ -59,7 +58,7 @@ const MaintenanceDialog = ({
 
   // Handle vehicle selection
   const handleVehicleChange = (vehicleId: string) => {
-    const selectedVehicle = availableForklifts.find(f => f.id === vehicleId);
+    const selectedVehicle = availableVehicles.find(v => v.id === vehicleId);
     setFormData(prev => ({ 
       ...prev, 
       vehicleId,
@@ -175,7 +174,7 @@ const MaintenanceDialog = ({
                     <SelectValue placeholder="Selecione o veículo" />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableForklifts.map(vehicle => (
+                    {availableVehicles.map(vehicle => (
                       <SelectItem key={vehicle.id} value={vehicle.id}>
                         {vehicle.model} ({vehicle.id})
                       </SelectItem>

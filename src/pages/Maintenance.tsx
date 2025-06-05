@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -11,11 +10,11 @@ import { Maintenance, MaintenanceStatus } from '@/types';
 import MaintenanceDialog from '@/components/maintenance/MaintenanceDialog';
 import { useToast } from '@/hooks/use-toast';
 
-// Mock data for maintenance
+// Mock data para manutenções existentes
 const initialMaintenance: Maintenance[] = [
   {
     id: 'M001',
-    vehicleId: 'G001',
+    vehicleId: 'V001',
     vehicleModel: 'Toyota 8FGU25',
     issue: 'Vazamento de óleo hidráulico',
     reportedBy: 'Carlos Silva',
@@ -24,8 +23,8 @@ const initialMaintenance: Maintenance[] = [
   },
   {
     id: 'M002',
-    vehicleId: 'R003',
-    vehicleModel: 'Crown RR5725',
+    vehicleId: 'V003',
+    vehicleModel: 'John Deere 6110B',
     issue: 'Motor de tração com ruído anormal',
     reportedBy: 'João Pereira',
     reportedDate: '2023-11-10',
@@ -33,7 +32,7 @@ const initialMaintenance: Maintenance[] = [
   },
   {
     id: 'M003',
-    vehicleId: 'E002',
+    vehicleId: 'V004',
     vehicleModel: 'Hyster E50XN',
     issue: 'Bateria não segura carga completa',
     reportedBy: 'Maria Oliveira',
@@ -42,8 +41,8 @@ const initialMaintenance: Maintenance[] = [
   },
   {
     id: 'M004',
-    vehicleId: 'G004',
-    vehicleModel: 'Yale GLP050',
+    vehicleId: 'V001',
+    vehicleModel: 'Toyota 8FGU25',
     issue: 'Freios necessitando ajuste',
     reportedBy: 'Pedro Santos',
     reportedDate: '2023-10-28',
@@ -52,8 +51,8 @@ const initialMaintenance: Maintenance[] = [
   },
   {
     id: 'M005',
-    vehicleId: 'G001',
-    vehicleModel: 'Toyota 8FGU25',
+    vehicleId: 'V002',
+    vehicleModel: 'Mercedes Atego',
     issue: 'Revisão programada 1000h',
     reportedBy: 'Ana Costa',
     reportedDate: '2023-10-25',
@@ -62,13 +61,16 @@ const initialMaintenance: Maintenance[] = [
   }
 ];
 
-// Mock data for available forklifts and operators
-const availableForklifts = [
-  { id: 'G001', model: 'Toyota 8FGU25' },
-  { id: 'G004', model: 'Yale GLP050' },
-  { id: 'E002', model: 'Hyster E50XN' },
-  { id: 'R003', model: 'Crown RR5725' },
-  { id: 'E005', model: 'Toyota 8FBMT30' }
+// Mock data para veículos disponíveis (baseado na frota real)
+const availableVehicles = [
+  { id: 'V001', model: 'Toyota 8FGU25' },
+  { id: 'V002', model: 'Mercedes Atego' },
+  { id: 'V003', model: 'John Deere 6110B' },
+  { id: 'V004', model: 'Hyster E50XN' },
+  { id: 'V005', model: 'Caterpillar 930K' },
+  { id: 'V006', model: 'JCB 3CX' },
+  { id: 'V007', model: 'Crown RR5725' },
+  { id: 'V008', model: 'Yale GLP050' }
 ];
 
 const availableOperators = [
@@ -389,7 +391,7 @@ const MaintenancePage = () => {
         open={addDialogOpen} 
         onOpenChange={setAddDialogOpen}
         onSave={handleSaveMaintenance}
-        availableForklifts={availableForklifts}
+        availableVehicles={availableVehicles}
         availableOperators={availableOperators}
       />
       
@@ -398,7 +400,7 @@ const MaintenancePage = () => {
         onOpenChange={setEditDialogOpen}
         maintenance={selectedMaintenance || undefined}
         onSave={handleSaveMaintenance}
-        availableForklifts={availableForklifts}
+        availableVehicles={availableVehicles}
         availableOperators={availableOperators}
       />
     </div>
