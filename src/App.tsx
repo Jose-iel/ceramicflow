@@ -13,6 +13,7 @@ import OperationsPage from "./pages/Operations";
 import MaintenancePage from "./pages/Maintenance";
 import WoodPage from "./pages/Wood";
 import RawMaterialPage from "./pages/RawMaterial";
+import LandingPage from "./pages/LandingPage";
 
 const queryClient = new QueryClient();
 
@@ -23,7 +24,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/dashboard" element={<Index />} />
           <Route path="/vehicles" element={<VehiclesPage />} />
           <Route path="/employees" element={<EmployeesPage />} />
           <Route path="/operations" element={<OperationsPage />} />
