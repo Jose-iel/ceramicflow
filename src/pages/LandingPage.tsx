@@ -4,8 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Clock, Shield, Truck, BarChart3, Users, Calendar, CheckCircle, Star, ArrowRight, Mountain, Factory, Zap, Target, Award, Phone, Mail, MapPin } from 'lucide-react';
+
 const LandingPage = () => {
-  return <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-red-50">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-red-50">
       {/* Navigation */}
       <nav className="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -18,7 +20,7 @@ const LandingPage = () => {
               <a href="#features" className="text-gray-600 hover:text-orange-600 transition-colors">Recursos</a>
               <a href="#pricing" className="text-gray-600 hover:text-orange-600 transition-colors">Preços</a>
               <a href="#faq" className="text-gray-600 hover:text-orange-600 transition-colors">FAQ</a>
-              <Button variant="outline" className="border-orange-200 text-orange-600 hover:bg-orange-50">
+              <Button variant="outline" className="border-orange-200 text-orange-600 hover:bg-orange-50 hover:border-orange-300 transition-all duration-200">
                 Login
               </Button>
             </div>
@@ -35,7 +37,7 @@ const LandingPage = () => {
                 🎯 Sistema Especializado para Cerâmicas
               </Badge>
               <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
-                Transforme sua
+                Transforme a Gestão
                 <span className="text-orange-600 block">Da sua Cerâmica</span>
               </h1>
               <p className="text-xl text-gray-600 leading-relaxed">
@@ -43,11 +45,11 @@ const LandingPage = () => {
                 Aumente sua produtividade em até 40% com tecnologia feita especialmente para cerâmicas.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 text-lg">
+                <Button size="lg" className="bg-orange-600 hover:bg-orange-700 hover:shadow-lg text-white px-8 py-4 text-lg transition-all duration-200 transform hover:scale-105">
                   Comece Grátis Por 7 Dias
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Button size="lg" variant="outline" className="border-orange-200 text-orange-600 hover:bg-orange-50 px-8 py-4 text-lg">
+                <Button size="lg" variant="outline" className="border-orange-200 text-orange-600 hover:bg-orange-50 hover:border-orange-300 hover:shadow-md px-8 py-4 text-lg transition-all duration-200">
                   Agende uma Demo
                 </Button>
               </div>
@@ -75,17 +77,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Social Proof */}
-      <section className="py-12 bg-white/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-600 mb-8">Confiado por mais de 150+ cerâmicas em todo o Brasil</p>
-          <div className="flex items-center justify-center space-x-2">
-            {[1, 2, 3, 4, 5].map(star => <Star key={star} className="h-6 w-6 text-yellow-400 fill-current" />)}
-            <span className="ml-2 text-gray-600 font-medium">4.9/5 - Avaliação dos nossos clientes</span>
-          </div>
-        </div>
-      </section>
-
       {/* Benefits Section */}
       <section id="benefits" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
@@ -98,31 +89,39 @@ const LandingPage = () => {
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[{
-            icon: Clock,
-            title: "Economize 5h por dia",
-            description: "Automatize processos manuais e reduza o tempo gasto em planilhas e controles obsoletos"
-          }, {
-            icon: Shield,
-            title: "Controle Total",
-            description: "Monitore produção, estoque de barro e lenha, manutenção de equipamentos em tempo real"
-          }, {
-            icon: Truck,
-            title: "Gestão de Frota",
-            description: "Controle completo de veículos, manutenções preventivas e consumo de combustível"
-          }, {
-            icon: BarChart3,
-            title: "Relatórios Inteligentes",
-            description: "Dashboards com insights práticos para tomar decisões estratégicas baseadas em dados"
-          }, {
-            icon: Users,
-            title: "Gestão de Equipe",
-            description: "Organize funcionários, operadores e responsabilidades de forma eficiente"
-          }, {
-            icon: Factory,
-            title: "Específico para Cerâmicas",
-            description: "Feito por quem entende do setor - controle de forno, queima, matéria-prima e muito mais"
-          }].map((benefit, index) => <Card key={index} className="border-orange-100 hover:shadow-lg transition-shadow">
+            {[
+              {
+                icon: Clock,
+                title: "Economize 5h por dia",
+                description: "Automatize processos manuais e reduza o tempo gasto em planilhas e controles obsoletos"
+              },
+              {
+                icon: Shield,
+                title: "Controle Total",
+                description: "Monitore produção, estoque de barro e lenha, manutenção de equipamentos em tempo real"
+              },
+              {
+                icon: Truck,
+                title: "Gestão de Frota",
+                description: "Controle completo de veículos, manutenções preventivas e consumo de combustível"
+              },
+              {
+                icon: BarChart3,
+                title: "Relatórios Inteligentes",
+                description: "Dashboards com insights práticos para tomar decisões estratégicas baseadas em dados"
+              },
+              {
+                icon: Users,
+                title: "Gestão de Equipe",
+                description: "Organize funcionários, operadores e responsabilidades de forma eficiente"
+              },
+              {
+                icon: Factory,
+                title: "Específico para Cerâmicas",
+                description: "Feito por quem entende do setor - controle de forno, queima, matéria-prima e muito mais"
+              }
+            ].map((benefit, index) => (
+              <Card key={index} className="border-orange-100 hover:shadow-lg hover:border-orange-200 transition-all duration-200 hover:scale-105">
                 <CardHeader>
                   <benefit.icon className="h-12 w-12 text-orange-600 mb-4" />
                   <CardTitle className="text-xl">{benefit.title}</CardTitle>
@@ -132,7 +131,8 @@ const LandingPage = () => {
                     {benefit.description}
                   </CardDescription>
                 </CardContent>
-              </Card>)}
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -202,7 +202,7 @@ const LandingPage = () => {
               🎯 Desconto vitalício garantido
             </Badge>
           </div>
-          <Button size="lg" className="bg-white text-orange-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold">
+          <Button size="lg" className="bg-white text-orange-600 hover:bg-gray-100 hover:shadow-lg px-8 py-4 text-lg font-semibold transition-all duration-200 transform hover:scale-105">
             Quero Garantir Minha Vaga
           </Button>
         </div>
@@ -220,33 +220,40 @@ const LandingPage = () => {
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            {[{
-            name: "Starter",
-            price: "R$ --,--",
-            period: "/mês",
-            description: "Perfeito para cerâmicas pequenas",
-            features: ["Até 2 usuários", "Gestão básica de estoque", "Controle de produção", "Relatórios simples", "Suporte por email"],
-            popular: false
-          }, {
-            name: "Professional",
-            price: "R$ --,--",
-            period: "/mês",
-            description: "Ideal para cerâmicas em crescimento",
-            features: ["Até 10 usuários", "Gestão completa de frota", "Controle avançado de matéria-prima", "Dashboards detalhados", "Suporte prioritário", "Integração com sistema fiscal"],
-            popular: true
-          }, {
-            name: "Enterprise",
-            price: "Sob consulta",
-            period: "",
-            description: "Para grandes operações",
-            features: ["Usuários ilimitados", "Módulos personalizados", "API completa", "Treinamento dedicado", "Suporte 24/7", "Gerente de conta exclusivo"],
-            popular: false
-          }].map((plan, index) => <Card key={index} className={`relative ${plan.popular ? 'border-orange-500 shadow-lg scale-105' : 'border-gray-200'}`}>
-                {plan.popular && <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+            {[
+              {
+                name: "Starter",
+                price: "R$ --,--",
+                period: "/mês",
+                description: "Perfeito para cerâmicas pequenas",
+                features: ["Até 2 usuários", "Gestão básica de estoque", "Controle de produção", "Relatórios simples", "Suporte por email"],
+                popular: false
+              },
+              {
+                name: "Professional",
+                price: "R$ --,--",
+                period: "/mês",
+                description: "Ideal para cerâmicas em crescimento",
+                features: ["Até 10 usuários", "Gestão completa de frota", "Controle avançado de matéria-prima", "Dashboards detalhados", "Suporte prioritário", "Integração com sistema fiscal"],
+                popular: true
+              },
+              {
+                name: "Enterprise",
+                price: "Sob consulta",
+                period: "",
+                description: "Para grandes operações",
+                features: ["Usuários ilimitados", "Módulos personalizados", "API completa", "Treinamento dedicado", "Suporte 24/7", "Gerente de conta exclusivo"],
+                popular: false
+              }
+            ].map((plan, index) => (
+              <Card key={index} className={`relative hover:shadow-lg transition-all duration-200 ${plan.popular ? 'border-orange-500 shadow-lg scale-105 hover:scale-110' : 'border-gray-200 hover:border-orange-200'}`}>
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <Badge className="bg-orange-600 text-white px-4 py-1">
                       Mais Popular
                     </Badge>
-                  </div>}
+                  </div>
+                )}
                 <CardHeader className="text-center">
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                   <CardDescription>{plan.description}</CardDescription>
@@ -257,22 +264,25 @@ const LandingPage = () => {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3 mb-8">
-                    {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-center">
+                    {plan.features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-center">
                         <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                         <span className="text-gray-600">{feature}</span>
-                      </li>)}
+                      </li>
+                    ))}
                   </ul>
-                  <Button className={`w-full ${plan.popular ? 'bg-orange-600 hover:bg-orange-700' : 'bg-gray-900 hover:bg-gray-800'}`}>
+                  <Button className={`w-full transition-all duration-200 hover:shadow-md transform hover:scale-105 ${plan.popular ? 'bg-orange-600 hover:bg-orange-700' : 'bg-gray-900 hover:bg-gray-800'}`}>
                     Seja o primeiro a saber
                   </Button>
                 </CardContent>
-              </Card>)}
+              </Card>
+            ))}
           </div>
           <div className="text-center mt-12">
             <p className="text-gray-600 mb-4">
               💰 Garantia de 30 dias - Se não gostar, devolvemos 100% do seu dinheiro
             </p>
-            <Button variant="outline" className="border-orange-200 text-orange-600 hover:bg-orange-50">
+            <Button variant="outline" className="border-orange-200 text-orange-600 hover:bg-orange-50 hover:border-orange-300 hover:shadow-md transition-all duration-200">
               Falar com um Especialista
             </Button>
           </div>
@@ -309,14 +319,16 @@ const LandingPage = () => {
           }, {
             question: "E se eu precisar de funcionalidades específicas?",
             answer: "Desenvolvemos módulos personalizados conforme sua necessidade. Entre em contato para discutir suas demandas específicas."
-          }].map((faq, index) => <Card key={index} className="border-orange-100">
-                <CardHeader>
-                  <CardTitle className="text-lg text-gray-900">{faq.question}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">{faq.answer}</p>
-                </CardContent>
-              </Card>)}
+          }].map((faq, index) => (
+            <Card key={index} className="border-orange-100">
+              <CardHeader>
+                <CardTitle className="text-lg text-gray-900">{faq.question}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">{faq.answer}</p>
+              </CardContent>
+            </Card>
+          ))}
           </div>
         </div>
       </section>
@@ -331,11 +343,11 @@ const LandingPage = () => {
             Junte-se a centenas de ceramistas que já transformaram seus negócios com o CeramicFlow
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-orange-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold">
+            <Button size="lg" className="bg-white text-orange-600 hover:bg-gray-100 hover:shadow-lg px-8 py-4 text-lg font-semibold transition-all duration-200 transform hover:scale-105">
               Começar Teste Gratuito
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-8 py-4 text-lg">
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 hover:shadow-md px-8 py-4 text-lg transition-all duration-200">
               Agendar Demonstração
             </Button>
           </div>
@@ -398,6 +410,8 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 };
+
 export default LandingPage;
