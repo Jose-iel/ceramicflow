@@ -326,7 +326,7 @@ const OperationDialog = ({
                   type="datetime-local"
                   value={formData.endTime || ''}
                   onChange={handleChange}
-                  disabled={formData.status === 'active'}
+                  disabled={formData.status === OperationStatus.IN_PROGRESS}
                 />
               </div>
             )}
