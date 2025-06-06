@@ -185,7 +185,7 @@ const EmployeesPage = () => {
       <Sidebar />
       
       <div className={cn(
-        "flex-1 flex flex-col",
+        "flex-1 flex flex-col min-w-0",
         !isMobile && "ml-64"
       )}>
         <Navbar 
@@ -193,156 +193,156 @@ const EmployeesPage = () => {
           subtitle="Gerenciamento de Pessoal"
         />
         
-        <main className="flex-1 px-6 py-6">
+        <main className="flex-1 px-3 md:px-6 py-4 md:py-6 overflow-x-hidden">
           {/* Stats cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-card border rounded-lg p-4 shadow">
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Total de Funcionários</h3>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
+            <div className="bg-card border rounded-lg p-3 md:p-4 shadow">
+              <h3 className="text-xs md:text-sm font-medium text-muted-foreground mb-2">Total de Funcionários</h3>
               <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold">{totalEmployees}</p>
-                <div className="p-2 bg-primary/10 rounded-full">
-                  <User className="w-5 h-5 text-primary" />
+                <p className="text-lg md:text-2xl font-bold">{totalEmployees}</p>
+                <div className="p-1.5 md:p-2 bg-primary/10 rounded-full">
+                  <User className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                 </div>
               </div>
             </div>
             
-            <div className="bg-card border rounded-lg p-4 shadow">
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Certificados Regulares</h3>
+            <div className="bg-card border rounded-lg p-3 md:p-4 shadow">
+              <h3 className="text-xs md:text-sm font-medium text-muted-foreground mb-2">Certificados Regulares</h3>
               <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold text-green-600">{employeesWithValidCertificates}</p>
-                <div className="p-2 bg-green-100 rounded-full">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
+                <p className="text-lg md:text-2xl font-bold text-green-600">{employeesWithValidCertificates}</p>
+                <div className="p-1.5 md:p-2 bg-green-100 rounded-full">
+                  <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
                 </div>
               </div>
             </div>
             
-            <div className="bg-card border rounded-lg p-4 shadow">
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Próximos ao Vencimento</h3>
+            <div className="bg-card border rounded-lg p-3 md:p-4 shadow">
+              <h3 className="text-xs md:text-sm font-medium text-muted-foreground mb-2">Próximos ao Vencimento</h3>
               <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold text-yellow-600">{employeesWithWarningCertificates}</p>
-                <div className="p-2 bg-yellow-100 rounded-full">
-                  <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                <p className="text-lg md:text-2xl font-bold text-yellow-600">{employeesWithWarningCertificates}</p>
+                <div className="p-1.5 md:p-2 bg-yellow-100 rounded-full">
+                  <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-yellow-600" />
                 </div>
               </div>
             </div>
             
-            <div className="bg-card border rounded-lg p-4 shadow">
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Certificados Vencidos</h3>
+            <div className="bg-card border rounded-lg p-3 md:p-4 shadow">
+              <h3 className="text-xs md:text-sm font-medium text-muted-foreground mb-2">Certificados Vencidos</h3>
               <div className="flex items-center justify-between">
-                <p className="text-2xl font-bold text-red-600">{employeesWithExpiredCertificates}</p>
-                <div className="p-2 bg-red-100 rounded-full">
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                <p className="text-lg md:text-2xl font-bold text-red-600">{employeesWithExpiredCertificates}</p>
+                <div className="p-1.5 md:p-2 bg-red-100 rounded-full">
+                  <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
                 </div>
               </div>
             </div>
           </div>
 
           {/* Filter section */}
-          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input 
-                type="text" 
-                placeholder="Buscar funcionário..." 
-                className="pl-10"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <div className="flex gap-2">
-              <div className="relative">
-                <Button variant="outline" className="flex items-center gap-2">
+          <div className="flex flex-col gap-3 mb-4 md:mb-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:justify-between">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input 
+                  type="text" 
+                  placeholder="Buscar funcionário..." 
+                  className="pl-10"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex items-center gap-2 text-sm">
                   <Filter className="w-4 h-4" />
-                  Filtrar
+                  {isMobile ? 'Filtrar' : 'Filtrar'}
+                </Button>
+                <Button 
+                  className="gap-2 text-sm"
+                  onClick={() => {
+                    setSelectedEmployee(null);
+                    setAddDialogOpen(true);
+                  }}
+                >
+                  <Plus className="w-4 h-4" />
+                  {isMobile ? 'Novo' : 'Novo Funcionário'}
                 </Button>
               </div>
-              <Button 
-                className="gap-2"
-                onClick={() => {
-                  setSelectedEmployee(null);
-                  setAddDialogOpen(true);
-                }}
-              >
-                <Plus className="w-4 h-4" />
-                Novo Funcionário
-              </Button>
             </div>
-          </div>
-          
-          {/* Filter options */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Cargo</h4>
-              <select 
-                className="w-full p-2 rounded-md border border-input bg-background"
-                value={roleFilter}
-                onChange={(e) => setRoleFilter(e.target.value)}
-              >
-                <option value="all">Todos</option>
-                {roles.map((role) => (
-                  <option key={role} value={role}>{role}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Turno</h4>
-              <select 
-                className="w-full p-2 rounded-md border border-input bg-background"
-                value={shiftFilter}
-                onChange={(e) => setShiftFilter(e.target.value)}
-              >
-                <option value="all">Todos</option>
-                {shifts.map((shift) => (
-                  <option key={shift} value={shift}>{shift}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Status dos Certificados</h4>
-              <select 
-                className="w-full p-2 rounded-md border border-input bg-background"
-                value={certificateFilter}
-                onChange={(e) => setCertificateFilter(e.target.value)}
-              >
-                <option value="all">Todos</option>
-                <option value="regular">Regular</option>
-                <option value="warning">Próximo ao Vencimento</option>
-                <option value="expired">Vencido</option>
-              </select>
+            
+            {/* Filter options */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <h4 className="text-sm font-medium">Cargo</h4>
+                <select 
+                  className="w-full p-2 text-sm rounded-md border border-input bg-background"
+                  value={roleFilter}
+                  onChange={(e) => setRoleFilter(e.target.value)}
+                >
+                  <option value="all">Todos</option>
+                  {roles.map((role) => (
+                    <option key={role} value={role}>{role}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-sm font-medium">Turno</h4>
+                <select 
+                  className="w-full p-2 text-sm rounded-md border border-input bg-background"
+                  value={shiftFilter}
+                  onChange={(e) => setShiftFilter(e.target.value)}
+                >
+                  <option value="all">Todos</option>
+                  {shifts.map((shift) => (
+                    <option key={shift} value={shift}>{shift}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-sm font-medium">Status dos Certificados</h4>
+                <select 
+                  className="w-full p-2 text-sm rounded-md border border-input bg-background"
+                  value={certificateFilter}
+                  onChange={(e) => setCertificateFilter(e.target.value)}
+                >
+                  <option value="all">Todos</option>
+                  <option value="regular">Regular</option>
+                  <option value="warning">Próximo ao Vencimento</option>
+                  <option value="expired">Vencido</option>
+                </select>
+              </div>
             </div>
           </div>
           
           {/* Employee List */}
           <div className="bg-card rounded-lg shadow overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[800px]">
                 <thead className="bg-muted/50">
                   <tr>
-                    <th className="p-4 text-left font-medium text-muted-foreground">ID</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Nome</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Cargo</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">CPF</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Contato</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Turno</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">ASO</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">NR</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Ações</th>
+                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">ID</th>
+                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Nome</th>
+                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Cargo</th>
+                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">CPF</th>
+                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Contato</th>
+                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Turno</th>
+                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">ASO</th>
+                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">NR</th>
+                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Ações</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {filteredEmployees.map((employee) => (
                     <tr key={employee.id} className="hover:bg-muted/50 transition-colors">
-                      <td className="p-4">{employee.id}</td>
-                      <td className="p-4">
-                        <div className="font-medium">{employee.name}</div>
+                      <td className="p-2 md:p-4 text-xs md:text-sm">{employee.id}</td>
+                      <td className="p-2 md:p-4">
+                        <div className="text-xs md:text-sm font-medium">{employee.name}</div>
                         <div className="text-xs text-muted-foreground">Admitido em {employee.registrationDate}</div>
                       </td>
-                      <td className="p-4">{employee.role}</td>
-                      <td className="p-4">{employee.cpf}</td>
-                      <td className="p-4">{employee.contact}</td>
-                      <td className="p-4">{employee.shift}</td>
-                      <td className="p-4">
-                        <Badge variant={getCertificateStatusVariant(employee.asoStatus)}>
+                      <td className="p-2 md:p-4 text-xs md:text-sm">{employee.role}</td>
+                      <td className="p-2 md:p-4 text-xs md:text-sm">{employee.cpf}</td>
+                      <td className="p-2 md:p-4 text-xs md:text-sm">{employee.contact}</td>
+                      <td className="p-2 md:p-4 text-xs md:text-sm">{employee.shift}</td>
+                      <td className="p-2 md:p-4">
+                        <Badge variant={getCertificateStatusVariant(employee.asoStatus)} className="text-xs">
                           {employee.asoStatus === CertificateStatus.REGULAR && 'Regular'}
                           {employee.asoStatus === CertificateStatus.WARNING && 'Próximo'}
                           {employee.asoStatus === CertificateStatus.EXPIRED && 'Vencido'}
@@ -351,8 +351,8 @@ const EmployeesPage = () => {
                           Vence: {employee.asoExpirationDate}
                         </div>
                       </td>
-                      <td className="p-4">
-                        <Badge variant={getCertificateStatusVariant(employee.nrStatus)}>
+                      <td className="p-2 md:p-4">
+                        <Badge variant={getCertificateStatusVariant(employee.nrStatus)} className="text-xs">
                           {employee.nrStatus === CertificateStatus.REGULAR && 'Regular'}
                           {employee.nrStatus === CertificateStatus.WARNING && 'Próximo'}
                           {employee.nrStatus === CertificateStatus.EXPIRED && 'Vencido'}
@@ -361,11 +361,12 @@ const EmployeesPage = () => {
                           Vence: {employee.nrExpirationDate}
                         </div>
                       </td>
-                      <td className="p-4">
-                        <div className="flex gap-2">
+                      <td className="p-2 md:p-4">
+                        <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
                           <Button 
                             variant="ghost" 
                             size="sm"
+                            className="text-xs"
                             onClick={() => {
                               setSelectedEmployee(employee);
                               setEditDialogOpen(true);
@@ -376,7 +377,7 @@ const EmployeesPage = () => {
                           <Button 
                             variant="ghost" 
                             size="sm"
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            className="text-xs text-red-500 hover:text-red-700 hover:bg-red-50"
                             onClick={() => handleDeleteEmployee(employee.id)}
                           >
                             Excluir
@@ -390,8 +391,8 @@ const EmployeesPage = () => {
             </div>
             
             {filteredEmployees.length === 0 && (
-              <div className="p-8 text-center">
-                <p className="text-muted-foreground">Nenhum funcionário encontrado</p>
+              <div className="p-6 md:p-8 text-center">
+                <p className="text-muted-foreground text-sm md:text-base">Nenhum funcionário encontrado</p>
               </div>
             )}
           </div>

@@ -1,132 +1,215 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { WoodConsumption, WoodPurchase } from '@/types';
-import { TreePine, Plus, TrendingUp, Package, Calendar } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import WoodConsumptionDialog from '@/components/wood/WoodConsumptionDialog';
+import { Input } from '@/components/ui/input';
+import { Calendar, Filter, Plus, Search, TreePine, ShoppingCart, Flame, Pause, CheckCircle } from 'lucide-react';
 import WoodPurchaseDialog from '@/components/wood/WoodPurchaseDialog';
+import WoodConsumptionDialog from '@/components/wood/WoodConsumptionDialog';
 import { useToast } from '@/hooks/use-toast';
+import { WoodPurchase, WoodConsumption } from '@/types';
 
-// Mock data
-const mockConsumptions: WoodConsumption[] = [
-  {
-    id: 'WC001',
-    date: '2023-12-01',
-    quantity: 45.5,
-    sector: 'Forno 1',
-    recordedBy: 'João Silva',
-    notes: 'Consumo normal'
-  },
-  {
-    id: 'WC002',
-    date: '2023-12-02',
-    quantity: 52.3,
-    sector: 'Forno 2',
-    recordedBy: 'Maria Santos',
-  },
-  {
-    id: 'WC003',
-    date: '2023-11-15',
-    quantity: 38.2,
-    sector: 'Forno 1',
-    recordedBy: 'Carlos Silva',
-    notes: 'Lenha de eucalipto'
-  },
-  {
-    id: 'WC004',
-    date: '2023-11-28',
-    quantity: 44.1,
-    sector: 'Forno 3',
-    recordedBy: 'Ana Costa',
-  }
-];
-
-const mockPurchases: WoodPurchase[] = [
+// Mock data for wood purchases
+const initialPurchases: WoodPurchase[] = [
   {
     id: 'WP001',
-    date: '2023-11-28',
-    supplier: 'Madeireira São João',
-    quantity: 500,
-    unitPrice: 85.00,
-    totalValue: 42500.00,
-    invoiceNumber: 'NF-12345'
+    date: '2023-11-05',
+    supplier: 'Lenhas do Zé',
+    quantity: 10,
+    unitPrice: 50,
+    totalValue: 500
   },
   {
     id: 'WP002',
-    date: '2023-12-05',
-    supplier: 'Fornecedor ABC',
-    quantity: 300,
-    unitPrice: 90.00,
-    totalValue: 27000.00,
-    invoiceNumber: 'NF-67890'
+    date: '2023-11-15',
+    supplier: 'Lenhas da Maria',
+    quantity: 12,
+    unitPrice: 52,
+    totalValue: 624
+  },
+  {
+    id: 'WP003',
+    date: '2023-10-28',
+    supplier: 'Lenhas do Zé',
+    quantity: 8,
+    unitPrice: 48,
+    totalValue: 384
+  },
+  {
+    id: 'WP004',
+    date: '2023-10-10',
+    supplier: 'Lenhas da Maria',
+    quantity: 15,
+    unitPrice: 55,
+    totalValue: 825
+  }
+];
+
+// Mock data for wood consumption
+const initialConsumption: WoodConsumption[] = [
+  {
+    id: 'WC001',
+    date: '2023-11-01',
+    oven: 'Forno 1',
+    quantity: 2.5,
+    responsible: 'Carlos',
+    observations: 'Consumo normal'
+  },
+  {
+    id: 'WC002',
+    date: '2023-11-08',
+    oven: 'Forno 2',
+    quantity: 3.0,
+    responsible: 'Maria',
+    observations: 'Alta produção'
+  },
+  {
+    id: 'WC003',
+    date: '2023-10-25',
+    oven: 'Forno 1',
+    quantity: 2.0,
+    responsible: 'Carlos',
+    observations: 'Manutenção no forno'
+  },
+  {
+    id: 'WC004',
+    date: '2023-10-12',
+    oven: 'Forno 2',
+    quantity: 3.5,
+    responsible: 'Maria',
+    observations: 'Teste de novo processo'
   }
 ];
 
 const WoodPage = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
-  const [consumptions, setConsumptions] = useState<WoodConsumption[]>(mockConsumptions);
-  const [purchases, setPurchases] = useState<WoodPurchase[]>(mockPurchases);
-  const [showConsumptionDialog, setShowConsumptionDialog] = useState(false);
-  const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
+  const [search, setSearch] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState<string>('');
+  const [purchases, setPurchases] = useState(initialPurchases);
+  const [consumption, setConsumption] = useState(initialConsumption);
   
-  // Set current month as default
-  const currentDate = new Date();
-  const currentMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-  const [selectedMonth, setSelectedMonth] = useState<string>(currentMonth);
+  // Dialog states
+  const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
+  const [consumptionDialogOpen, setConsumptionDialogOpen] = useState(false);
+  const [selectedPurchase, setSelectedPurchase] = useState<WoodPurchase | undefined>(undefined);
+  const [selectedConsumption, setSelectedConsumption] = useState<WoodConsumption | undefined>(undefined);
 
-  // Generate month options for the last 12 months
-  const monthOptions = useMemo(() => {
-    const options = [];
-    const currentDate = new Date();
-    
-    for (let i = 0; i < 12; i++) {
-      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      const monthLabel = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-      
-      options.push({
-        value: monthKey,
-        label: monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)
-      });
+  // Handle add/edit purchase
+  const handleSavePurchase = (purchaseData: WoodPurchase) => {
+    if (selectedPurchase) {
+      // Update existing purchase
+      setPurchases(prev =>
+        prev.map(p => p.id === purchaseData.id ? purchaseData : p)
+      );
+    } else {
+      // Add new purchase
+      setPurchases(prev => [...prev, purchaseData]);
     }
-    
-    return options;
-  }, []);
-
-  // Filter data by selected month
-  const filteredConsumptions = useMemo(() => {
-    return consumptions.filter(consumption => {
-      const consumptionMonth = consumption.date.substring(0, 7); // YYYY-MM
-      return consumptionMonth === selectedMonth;
-    });
-  }, [consumptions, selectedMonth]);
-
-  const filteredPurchases = useMemo(() => {
-    return purchases.filter(purchase => {
-      const purchaseMonth = purchase.date.substring(0, 7); // YYYY-MM
-      return purchaseMonth === selectedMonth;
-    });
-  }, [purchases, selectedMonth]);
-  
-  const totalMonthlyConsumption = filteredConsumptions.reduce((sum, item) => sum + item.quantity, 0);
-  const totalMonthlyPurchases = filteredPurchases.reduce((sum, item) => sum + item.quantity, 0);
-  const averageUnitPrice = filteredPurchases.length > 0 
-    ? filteredPurchases.reduce((sum, item) => sum + item.unitPrice, 0) / filteredPurchases.length 
-    : 0;
-
-  const handleSaveConsumption = (consumption: WoodConsumption) => {
-    setConsumptions(prev => [...prev, consumption]);
+    setPurchaseDialogOpen(false);
+    setSelectedPurchase(undefined);
   };
 
-  const handleSavePurchase = (purchase: WoodPurchase) => {
-    setPurchases(prev => [...prev, purchase]);
+  // Handle add/edit consumption
+  const handleSaveConsumption = (consumptionData: WoodConsumption) => {
+    if (selectedConsumption) {
+      // Update existing consumption
+      setConsumption(prev =>
+        prev.map(c => c.id === consumptionData.id ? consumptionData : c)
+      );
+    } else {
+      // Add new consumption
+      setConsumption(prev => [...prev, consumptionData]);
+    }
+    setConsumptionDialogOpen(false);
+    setSelectedConsumption(undefined);
+  };
+
+  // Handle edit purchase
+  const handleEditPurchase = (purchase: WoodPurchase) => {
+    setSelectedPurchase(purchase);
+    setPurchaseDialogOpen(true);
+  };
+
+  // Handle edit consumption
+  const handleEditConsumption = (consumptionItem: WoodConsumption) => {
+    setSelectedConsumption(consumptionItem);
+    setConsumptionDialogOpen(true);
+  };
+
+  // Handle delete purchase
+  const handleDeletePurchase = (id: string) => {
+    if (confirm("Tem certeza que deseja excluir esta compra?")) {
+      setPurchases(prev => prev.filter(p => p.id !== id));
+      toast({
+        title: "Compra excluída",
+        description: "A compra foi excluída com sucesso."
+      });
+    }
+  };
+
+  // Handle delete consumption
+  const handleDeleteConsumption = (id: string) => {
+    if (confirm("Tem certeza que deseja excluir este consumo?")) {
+      setConsumption(prev => prev.filter(c => c.id !== id));
+      toast({
+        title: "Consumo excluído",
+        description: "O consumo foi excluído com sucesso."
+      });
+    }
+  };
+
+  // Set current month as default filter
+  useEffect(() => {
+    if (!selectedMonth) {
+      const currentDate = new Date();
+      const currentMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+      setSelectedMonth(currentMonth);
+    }
+  }, [selectedMonth]);
+
+  // Filter purchases by search and month
+  const filteredPurchases = purchases.filter(purchase => {
+    const matchesSearch = purchase.supplier.toLowerCase().includes(search.toLowerCase());
+    const purchaseMonth = `${new Date(purchase.date).getFullYear()}-${String(new Date(purchase.date).getMonth() + 1).padStart(2, '0')}`;
+    const matchesMonth = selectedMonth === '' || purchaseMonth === selectedMonth;
+    return matchesSearch && matchesMonth;
+  });
+
+  // Filter consumption by search and month
+  const filteredConsumption = consumption.filter(consumptionItem => {
+    const matchesSearch = consumptionItem.oven.toLowerCase().includes(search.toLowerCase()) ||
+      consumptionItem.responsible.toLowerCase().includes(search.toLowerCase());
+    const consumptionMonth = `${new Date(consumptionItem.date).getFullYear()}-${String(new Date(consumptionItem.date).getMonth() + 1).padStart(2, '0')}`;
+    const matchesMonth = selectedMonth === '' || consumptionMonth === selectedMonth;
+    return matchesSearch && matchesMonth;
+  });
+
+  // Calculate current stock
+  const initialStock = 50;
+  const totalPurchased = purchases.reduce((acc, purchase) => acc + purchase.quantity, 0);
+  const totalConsumed = consumption.reduce((acc, consumptionItem) => acc + consumptionItem.quantity, 0);
+  const currentStock = initialStock + totalPurchased - totalConsumed;
+
+  // Calculate monthly purchases
+  const monthlyPurchases = filteredPurchases.reduce((acc, purchase) => acc + purchase.quantity, 0);
+
+  // Calculate monthly consumption
+  const monthlyConsumption = filteredConsumption.reduce((acc, consumptionItem) => acc + consumptionItem.quantity, 0);
+
+  // Calculate total spent in the selected month
+  const totalSpent = filteredPurchases.reduce((acc, purchase) => acc + purchase.totalValue, 0);
+
+  // Format date
+  const formatDate = (dateString: string) => {
+    try {
+      const dateParts = dateString.split('-');
+      return `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+    } catch (e) {
+      return dateString;
+    }
   };
 
   return (
@@ -134,189 +217,251 @@ const WoodPage = () => {
       <Sidebar />
       
       <div className={cn(
-        "flex-1 flex flex-col",
+        "flex-1 flex flex-col min-w-0",
         !isMobile && "ml-64"
       )}>
         <Navbar 
           title="Lenha" 
-          subtitle="Gestão de Consumo e Compras"
+          subtitle="Gestão de Lenha"
         />
         
-        <main className="flex-1 px-6 py-6">
-          {/* Month Filter */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <label className="text-sm font-medium">Filtrar por mês:</label>
-              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                <SelectTrigger className="w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {monthOptions.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        <main className="flex-1 px-3 md:px-6 py-4 md:py-6 overflow-x-hidden">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
+            <div className="bg-card border rounded-lg p-3 md:p-4 shadow">
+              <h3 className="text-xs md:text-sm font-medium text-muted-foreground mb-2">Estoque Atual</h3>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-lg md:text-2xl font-bold">{currentStock.toFixed(1)}</p>
+                  <p className="text-xs text-muted-foreground">m³</p>
+                </div>
+                <div className="p-1.5 md:p-2 bg-green-100 rounded-full">
+                  <TreePine className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-card border rounded-lg p-3 md:p-4 shadow">
+              <h3 className="text-xs md:text-sm font-medium text-muted-foreground mb-2">Compras do Mês</h3>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-lg md:text-2xl font-bold">{monthlyPurchases.toFixed(1)}</p>
+                  <p className="text-xs text-muted-foreground">m³</p>
+                </div>
+                <div className="p-1.5 md:p-2 bg-blue-100 rounded-full">
+                  <ShoppingCart className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-card border rounded-lg p-3 md:p-4 shadow">
+              <h3 className="text-xs md:text-sm font-medium text-muted-foreground mb-2">Consumo do Mês</h3>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-lg md:text-2xl font-bold">{monthlyConsumption.toFixed(1)}</p>
+                  <p className="text-xs text-muted-foreground">m³</p>
+                </div>
+                <div className="p-1.5 md:p-2 bg-orange-100 rounded-full">
+                  <Flame className="w-4 h-4 md:w-5 md:h-5 text-orange-600" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-card border rounded-lg p-3 md:p-4 shadow">
+              <h3 className="text-xs md:text-sm font-medium text-muted-foreground mb-2">Valor Gasto</h3>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-lg md:text-2xl font-bold">R$ {totalSpent.toFixed(0)}</p>
+                  <p className="text-xs text-muted-foreground">no mês</p>
+                </div>
+                <div className="p-1.5 md:p-2 bg-red-100 rounded-full">
+                  <ShoppingCart className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Consumo no Mês
-                </CardTitle>
-                <TreePine className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{totalMonthlyConsumption.toFixed(1)} m³</div>
-                <p className="text-xs text-muted-foreground">
-                  Total consumido no período
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Compras no Mês
-                </CardTitle>
-                <Package className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{totalMonthlyPurchases} m³</div>
-                <p className="text-xs text-muted-foreground">
-                  Total comprado no período
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Preço Médio
-                </CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">R$ {averageUnitPrice.toFixed(2)}/m³</div>
-                <p className="text-xs text-muted-foreground">
-                  Preço médio por m³
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Tabs defaultValue="consumption" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <TabsList>
-                <TabsTrigger value="consumption">Consumo</TabsTrigger>
-                <TabsTrigger value="purchases">Compras</TabsTrigger>
-              </TabsList>
-              
+          {/* Filter Section */}
+          <div className="flex flex-col gap-3 mb-4 md:mb-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:justify-between">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input 
+                  type="text" 
+                  placeholder="Buscar..." 
+                  className="pl-10"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
               <div className="flex gap-2">
-                <Button className="gap-2" onClick={() => setShowConsumptionDialog(true)}>
-                  <Plus className="w-4 h-4" />
-                  Registrar Consumo
+                <Button variant="outline" className="flex items-center gap-2 text-sm">
+                  <Filter className="w-4 h-4" />
+                  Filtrar
                 </Button>
-                <Button variant="outline" className="gap-2" onClick={() => setShowPurchaseDialog(true)}>
+                <Button 
+                  className="gap-2 text-sm"
+                  onClick={() => setPurchaseDialogOpen(true)}
+                >
                   <Plus className="w-4 h-4" />
-                  Nova Compra
+                  {isMobile ? 'Compra' : 'Nova Compra'}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="gap-2 text-sm"
+                  onClick={() => setConsumptionDialogOpen(true)}
+                >
+                  <Plus className="w-4 h-4" />
+                  {isMobile ? 'Consumo' : 'Registrar Consumo'}
                 </Button>
               </div>
             </div>
 
-            <TabsContent value="consumption" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Histórico de Consumo</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {filteredConsumptions.length === 0 ? (
-                      <p className="text-center text-muted-foreground py-8">
-                        Nenhum consumo registrado neste período.
-                      </p>
-                    ) : (
-                      filteredConsumptions.map((consumption) => (
-                        <div key={consumption.id} className="flex justify-between items-center p-4 border rounded-lg">
-                          <div>
-                            <h4 className="font-medium">{consumption.sector}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              {new Date(consumption.date).toLocaleDateString('pt-BR')} - por {consumption.recordedBy}
-                            </p>
-                            {consumption.notes && (
-                              <p className="text-sm text-muted-foreground mt-1">{consumption.notes}</p>
-                            )}
+            {/* Month Filter */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <h4 className="text-sm font-medium">Mês</h4>
+                <input
+                  type="month"
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="w-full p-2 text-sm rounded-md border border-input bg-background"
+                />
+              </div>
+            </div>
+          </div>
+          
+          {/* Purchases Section */}
+          <div className="mb-6 md:mb-8">
+            <h2 className="text-lg md:text-2xl font-semibold mb-3 md:mb-4">Compras de Lenha</h2>
+            <div className="bg-card rounded-lg shadow overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[600px]">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Data</th>
+                      <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Fornecedor</th>
+                      <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Quantidade</th>
+                      <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Valor Unit.</th>
+                      <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Total</th>
+                      <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {filteredPurchases.map((purchase) => (
+                      <tr key={purchase.id} className="hover:bg-muted/50 transition-colors">
+                        <td className="p-2 md:p-4 text-xs md:text-sm">{formatDate(purchase.date)}</td>
+                        <td className="p-2 md:p-4 text-xs md:text-sm">{purchase.supplier}</td>
+                        <td className="p-2 md:p-4 text-xs md:text-sm">{purchase.quantity}m³</td>
+                        <td className="p-2 md:p-4 text-xs md:text-sm">R$ {purchase.unitPrice.toFixed(2)}</td>
+                        <td className="p-2 md:p-4 text-xs md:text-sm font-medium">R$ {purchase.totalValue.toFixed(2)}</td>
+                        <td className="p-2 md:p-4">
+                          <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="text-xs"
+                              onClick={() => handleEditPurchase(purchase)}
+                            >
+                              Editar
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="text-xs text-red-500 hover:text-red-700 hover:bg-red-50"
+                              onClick={() => handleDeletePurchase(purchase.id)}
+                            >
+                              Excluir
+                            </Button>
                           </div>
-                          <div className="text-right">
-                            <div className="text-lg font-semibold">{consumption.quantity} m³</div>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
+              {filteredPurchases.length === 0 && (
+                <div className="p-6 md:p-8 text-center">
+                  <p className="text-muted-foreground text-sm md:text-base">Nenhuma compra encontrada para este período</p>
+                </div>
+              )}
+            </div>
+          </div>
 
-            <TabsContent value="purchases" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Histórico de Compras</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {filteredPurchases.length === 0 ? (
-                      <p className="text-center text-muted-foreground py-8">
-                        Nenhuma compra registrada neste período.
-                      </p>
-                    ) : (
-                      filteredPurchases.map((purchase) => (
-                        <div key={purchase.id} className="flex justify-between items-center p-4 border rounded-lg">
-                          <div>
-                            <h4 className="font-medium">{purchase.supplier}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              {new Date(purchase.date).toLocaleDateString('pt-BR')}
-                            </p>
-                            {purchase.invoiceNumber && (
-                              <p className="text-sm text-muted-foreground">NF: {purchase.invoiceNumber}</p>
-                            )}
+          {/* Consumption Section */}
+          <div>
+            <h2 className="text-lg md:text-2xl font-semibold mb-3 md:mb-4">Consumo de Lenha</h2>
+            <div className="bg-card rounded-lg shadow overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[600px]">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Data</th>
+                      <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Forno</th>
+                      <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Quantidade</th>
+                      <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Responsável</th>
+                      <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Observações</th>
+                      <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {filteredConsumption.map((consumption) => (
+                      <tr key={consumption.id} className="hover:bg-muted/50 transition-colors">
+                        <td className="p-2 md:p-4 text-xs md:text-sm">{formatDate(consumption.date)}</td>
+                        <td className="p-2 md:p-4 text-xs md:text-sm">{consumption.oven}</td>
+                        <td className="p-2 md:p-4 text-xs md:text-sm">{consumption.quantity}m³</td>
+                        <td className="p-2 md:p-4 text-xs md:text-sm">{consumption.responsible}</td>
+                        <td className="p-2 md:p-4 text-xs md:text-sm">{consumption.observations || '-'}</td>
+                        <td className="p-2 md:p-4">
+                          <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="text-xs"
+                              onClick={() => handleEditConsumption(consumption)}
+                            >
+                              Editar
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="text-xs text-red-500 hover:text-red-700 hover:bg-red-50"
+                              onClick={() => handleDeleteConsumption(consumption.id)}
+                            >
+                              Excluir
+                            </Button>
                           </div>
-                          <div className="text-right">
-                            <div className="text-lg font-semibold">{purchase.quantity} m³</div>
-                            <div className="text-sm text-muted-foreground">
-                              R$ {purchase.unitPrice.toFixed(2)}/m³
-                            </div>
-                            <div className="text-sm font-medium">
-                              Total: R$ {purchase.totalValue.toFixed(2)}
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
+              {filteredConsumption.length === 0 && (
+                <div className="p-6 md:p-8 text-center">
+                  <p className="text-muted-foreground text-sm md:text-base">Nenhum consumo registrado para este período</p>
+                </div>
+              )}
+            </div>
+          </div>
         </main>
       </div>
-      
-      <WoodConsumptionDialog
-        open={showConsumptionDialog}
-        onOpenChange={setShowConsumptionDialog}
-        onSave={handleSaveConsumption}
+
+      {/* Dialogs */}
+      <WoodPurchaseDialog 
+        open={purchaseDialogOpen} 
+        onOpenChange={setPurchaseDialogOpen}
+        onSave={handleSavePurchase}
+        purchase={selectedPurchase}
       />
       
-      <WoodPurchaseDialog
-        open={showPurchaseDialog}
-        onOpenChange={setShowPurchaseDialog}
-        onSave={handleSavePurchase}
+      <WoodConsumptionDialog 
+        open={consumptionDialogOpen} 
+        onOpenChange={setConsumptionDialogOpen}
+        onSave={handleSaveConsumption}
+        consumption={selectedConsumption}
       />
     </div>
   );
