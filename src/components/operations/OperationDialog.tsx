@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import {
   Dialog,
@@ -8,7 +7,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Operation } from '@/types';
+import { Operation, OperationStatus } from '@/types';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -47,7 +46,7 @@ const OperationDialog = ({
     initialHourMeter: 0,
     currentHourMeter: 0,
     startTime: new Date().toISOString().slice(0, 16),
-    status: 'active'
+    status: OperationStatus.IN_PROGRESS
   });
 
   // Initialize form with operation data if editing
@@ -55,7 +54,7 @@ const OperationDialog = ({
     if (operation) {
       setFormData({
         ...operation,
-        startTime: new Date(operation.startTime).toISOString().slice(0, 16),
+        startTime: new Date(operation.startTime || operation.startDate).toISOString().slice(0, 16),
         endTime: operation.endTime ? new Date(operation.endTime).toISOString().slice(0, 16) : undefined
       });
     } else {
@@ -71,7 +70,7 @@ const OperationDialog = ({
         initialHourMeter: 0,
         currentHourMeter: 0,
         startTime: new Date().toISOString().slice(0, 16),
-        status: 'active'
+        status: OperationStatus.IN_PROGRESS
       });
     }
   }, [operation, open]);
@@ -152,6 +151,12 @@ const OperationDialog = ({
     // Generate ID for new operations
     const operationData: Operation = {
       id: operation?.id || `OP${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+      type: formData.description || '',
+      location: formData.location || '',
+      operator: formData.employeeName || '',
+      startDate: formData.startTime || '',
+      endDate: formData.endTime || null,
+      status: formData.status || OperationStatus.IN_PROGRESS,
       ...formData as Operation
     };
 
@@ -163,14 +168,14 @@ const OperationDialog = ({
   };
 
   // Calculate if the operation can be completed
-  const canComplete = isEditing && operation?.status === 'active';
+  const canComplete = isEditing && operation?.status === OperationStatus.IN_PROGRESS;
 
   // Complete the operation
   const handleComplete = () => {
     const now = new Date();
     const completedOperation: Operation = {
       ...formData as Operation,
-      status: 'completed',
+      status: OperationStatus.COMPLETED,
       endTime: now.toISOString()
     };
     

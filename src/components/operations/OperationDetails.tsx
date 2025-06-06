@@ -9,7 +9,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Operation } from '@/types';
+import { Operation, OperationStatus } from '@/types';
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Gauge, Info, MapPin, Settings, Truck, User, Wrench } from 'lucide-react';
 
@@ -44,16 +44,19 @@ const OperationDetails = ({ open, onOpenChange, operation, onEdit }: OperationDe
 
   // Calculate operation duration
   const calculateDuration = () => {
-    if (!operation.endTime) {
-      const startTime = new Date(operation.startTime);
+    const startTimeStr = operation.startTime || operation.startDate;
+    const endTimeStr = operation.endTime || operation.endDate;
+    
+    if (!endTimeStr) {
+      const startTime = new Date(startTimeStr);
       const now = new Date();
       const diff = now.getTime() - startTime.getTime();
       const hours = Math.floor(diff / (1000 * 60 * 60));
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       return `${hours}h ${minutes}m (em andamento)`;
     } else {
-      const startTime = new Date(operation.startTime);
-      const endTime = new Date(operation.endTime);
+      const startTime = new Date(startTimeStr);
+      const endTime = new Date(endTimeStr);
       const diff = endTime.getTime() - startTime.getTime();
       const hours = Math.floor(diff / (1000 * 60 * 60));
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -67,12 +70,12 @@ const OperationDetails = ({ open, onOpenChange, operation, onEdit }: OperationDe
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <span className="text-xl">Operação #{operation.id}</span>
-            <Badge variant={operation.status === 'active' ? 'default' : 'outline'}>
-              {operation.status === 'active' ? 'Em Andamento' : 'Concluída'}
+            <Badge variant={operation.status === OperationStatus.IN_PROGRESS ? 'default' : 'outline'}>
+              {operation.status === OperationStatus.IN_PROGRESS ? 'Em Andamento' : 'Concluída'}
             </Badge>
           </DialogTitle>
           <DialogDescription>
-            Iniciada em: {formatDate(operation.startTime)} às {formatTime(operation.startTime)}
+            Iniciada em: {formatDate(operation.startTime || operation.startDate)} às {formatTime(operation.startTime || operation.startDate)}
           </DialogDescription>
         </DialogHeader>
         
