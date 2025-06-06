@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -57,7 +56,11 @@ const RawMaterialPage = () => {
   const { toast } = useToast();
   const [clayConsumptions, setClayConsumptions] = useState<ClayConsumption[]>(mockClayConsumptions);
   const [showDialog, setShowDialog] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState<string>('2023-12');
+  
+  // Set current month as default
+  const currentDate = new Date();
+  const currentMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+  const [selectedMonth, setSelectedMonth] = useState<string>(currentMonth);
 
   // Generate month options for the last 12 months
   const monthOptions = useMemo(() => {

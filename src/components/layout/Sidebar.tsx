@@ -45,7 +45,7 @@ const Sidebar: React.FC = () => {
   const closeSidebar = () => setIsOpen(false);
   
   const links = [
-    { to: "/", icon: LayoutDashboard, label: "Dashboard" },
+    { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { to: "/vehicles", icon: Truck, label: "Frota" },
     { to: "/employees", icon: Users, label: "Funcionários" },
     { to: "/operations", icon: ClipboardList, label: "Operações" },
