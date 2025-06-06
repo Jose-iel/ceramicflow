@@ -61,7 +61,7 @@ const Sidebar: React.FC = () => {
       {isMobile && (
         <button
           onClick={toggleSidebar}
-          className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-primary text-primary-foreground"
+          className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-primary text-primary-foreground shadow-lg"
           aria-label="Toggle Menu"
         >
           <Menu className="w-5 h-5" />
@@ -79,18 +79,19 @@ const Sidebar: React.FC = () => {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed top-0 left-0 z-40 h-full w-64 bg-sidebar transition-transform duration-300 ease-in-out",
+          "fixed top-0 left-0 z-40 h-full w-64 bg-sidebar transition-transform duration-300 ease-in-out border-r border-sidebar-border shadow-lg",
           isMobile ? (isOpen ? "translate-x-0" : "-translate-x-full") : "translate-x-0"
         )}
       >
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}
-          <div className="flex items-center justify-between px-4 py-5">
+          <div className="flex items-center justify-between px-4 py-5 border-b border-sidebar-border">
             <h1 className="text-xl font-bold text-sidebar-foreground">Gestão Cerâmica</h1>
             {isMobile && (
               <button
                 onClick={closeSidebar}
-                className="p-1 rounded-lg text-sidebar-foreground"
+                className="p-1 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+                aria-label="Fechar Menu"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -98,7 +99,7 @@ const Sidebar: React.FC = () => {
           </div>
           
           {/* Sidebar Navigation */}
-          <nav className="flex-1 px-3 py-4 space-y-1">
+          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             {links.map((link) => (
               <SidebarLink 
                 key={link.to}

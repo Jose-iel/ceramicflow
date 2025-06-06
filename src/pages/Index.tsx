@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -73,7 +74,7 @@ const Index = () => {
       <Sidebar />
       
       <div className={cn(
-        "flex-1 flex flex-col",
+        "flex-1 flex flex-col min-w-0", // Add min-w-0 to prevent overflow
         !isMobile && "ml-64" // Offset for sidebar when not mobile
       )}>
         <Navbar 
@@ -81,18 +82,18 @@ const Index = () => {
           subtitle={currentDate}
         />
         
-        <main className="flex-1 px-6 py-6">
+        <main className="flex-1 px-4 md:px-6 py-4 md:py-6 overflow-x-hidden">
           <DashboardOverview />
           
-          <section className="mt-8 slide-enter" style={{ animationDelay: '0.4s' }}>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">Veículos Em Destaque</h2>
-              <button className="text-sm text-primary hover:underline">
+          <section className="mt-6 md:mt-8 slide-enter" style={{ animationDelay: '0.4s' }}>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
+              <h2 className="text-xl md:text-2xl font-semibold">Veículos Em Destaque</h2>
+              <button className="text-sm text-primary hover:underline self-start sm:self-auto">
                 Ver todos
               </button>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {mockVehicles.map((vehicle) => (
                 <VehicleCard 
                   key={vehicle.id} 
