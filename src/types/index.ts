@@ -58,21 +58,32 @@ export interface Employee {
   nrStatus: CertificateStatus;
 }
 
-// Operation Types - Updated for general operations
+// Operation Status enum
+export enum OperationStatus {
+  IN_PROGRESS = "Em Andamento",
+  COMPLETED = "Concluída",
+  PAUSED = "Pausada"
+}
+
+// Operation Types - Updated to match the code usage
 export interface Operation {
   id: string;
-  employeeId: string;
-  employeeName: string;
+  type: string; // Type of operation (e.g., "Coleta de Barro", "Transporte de Lenha")
+  location: string; // Where the operation is taking place
+  operator: string; // Name of the operator
+  startDate: string; // Start date
+  endDate?: string | null; // End date (optional)
+  status: OperationStatus;
+  employeeId?: string; // Optional for backwards compatibility
+  employeeName?: string; // Optional for backwards compatibility
   vehicleId?: string; // Optional for operations that don't involve vehicles
   vehicleModel?: string; // Optional for operations that don't involve vehicles
-  operationType: 'vehicle' | 'manual'; // Type of operation
-  location: string; // Where the operation is taking place (sector, barreiro, forno, etc.)
-  description: string; // Description of what's being done
+  operationType?: 'vehicle' | 'manual'; // Type of operation
+  description?: string; // Description of what's being done
   initialHourMeter?: number; // Optional for vehicle operations
   currentHourMeter?: number; // Optional for vehicle operations
-  startTime: string;
-  endTime?: string;
-  status: "active" | "completed";
+  startTime?: string; // Alternative to startDate
+  endTime?: string; // Alternative to endDate
   gasConsumption?: number; // Optional for gas consumption tracking
 }
 
@@ -94,14 +105,17 @@ export interface Maintenance {
   completedDate?: string;
 }
 
-// Wood Management Types
+// Wood Management Types - Updated to match code usage
 export interface WoodConsumption {
   id: string;
   date: string;
   quantity: number; // em m³
-  sector: string;
-  recordedBy: string;
+  sector?: string; // Optional for backwards compatibility
+  recordedBy?: string; // Optional for backwards compatibility
   notes?: string;
+  oven: string; // Forno used
+  responsible: string; // Person responsible
+  observations?: string; // Observations
 }
 
 export interface WoodPurchase {

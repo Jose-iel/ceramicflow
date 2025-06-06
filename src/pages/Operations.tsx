@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -58,6 +59,26 @@ const initialOperations: Operation[] = [
     endDate: null,
     status: OperationStatus.IN_PROGRESS
   }
+];
+
+// Mock data para operadores e veículos disponíveis
+const availableOperators = [
+  { id: 'OP001', name: 'Carlos Silva' },
+  { id: 'OP002', name: 'Maria Oliveira' },
+  { id: 'OP003', name: 'João Pereira' },
+  { id: 'OP004', name: 'Ana Costa' },
+  { id: 'SV001', name: 'Pedro Santos' }
+];
+
+const availableForklifts = [
+  { id: 'V001', model: 'Toyota 8FGU25' },
+  { id: 'V002', model: 'Mercedes Atego' },
+  { id: 'V003', model: 'John Deere 6110B' },
+  { id: 'V004', model: 'Hyster E50XN' },
+  { id: 'V005', model: 'Caterpillar 930K' },
+  { id: 'V006', model: 'JCB 3CX' },
+  { id: 'V007', model: 'Crown RR5725' },
+  { id: 'V008', model: 'Yale GLP050' }
 ];
 
 const OperationsPage = () => {
@@ -404,6 +425,8 @@ const OperationsPage = () => {
         open={addDialogOpen} 
         onOpenChange={setAddDialogOpen}
         onSave={handleSaveOperation}
+        availableOperators={availableOperators}
+        availableForklifts={availableForklifts}
       />
       
       <OperationDialog 
@@ -411,6 +434,8 @@ const OperationsPage = () => {
         onOpenChange={setEditDialogOpen}
         operation={selectedOperation || undefined}
         onSave={handleSaveOperation}
+        availableOperators={availableOperators}
+        availableForklifts={availableForklifts}
       />
     </div>
   );

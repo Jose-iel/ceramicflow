@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -454,14 +455,12 @@ const WoodPage = () => {
         open={purchaseDialogOpen} 
         onOpenChange={setPurchaseDialogOpen}
         onSave={handleSavePurchase}
-        purchase={selectedPurchase}
       />
       
       <WoodConsumptionDialog 
         open={consumptionDialogOpen} 
         onOpenChange={setConsumptionDialogOpen}
         onSave={handleSaveConsumption}
-        consumption={selectedConsumption}
       />
     </div>
   );
