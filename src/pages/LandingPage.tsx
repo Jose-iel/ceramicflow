@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -6,10 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Clock, Shield, Truck, BarChart3, Users, Calendar, CheckCircle, Star, ArrowRight, Mountain, Factory, Zap, Target, Award, Phone, Mail, MapPin } from 'lucide-react';
-
 const LandingPage = () => {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-red-50">
+  return <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-red-50">
       {/* Navigation */}
       <nav className="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -72,7 +69,7 @@ const LandingPage = () => {
             </div>
             <div className="relative">
               <div className="bg-white rounded-2xl shadow-2xl p-8 transform rotate-2 hover:rotate-0 transition-transform duration-300">
-                <img src="/placeholder.svg" alt="Dashboard do CeramicFlow" className="w-full h-96 object-cover rounded-lg bg-gradient-to-br from-orange-100 to-red-100" />
+                <img alt="Dashboard do CeramicFlow" src="/lovable-uploads/41cea332-e650-448a-909b-12032cbb68eb.png" className="max-w-full max-h-96 rounded-lg bg-gradient-to-br from-orange-100 to-red-100 object-cover" />
               </div>
               <div className="absolute -bottom-6 -left-6 bg-orange-600 text-white p-4 rounded-lg shadow-lg">
                 <div className="text-2xl font-bold">40%</div>
@@ -95,39 +92,31 @@ const LandingPage = () => {
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Clock,
-                title: "Economize 5h por dia",
-                description: "Automatize processos manuais e reduza o tempo gasto em planilhas e controles obsoletos"
-              },
-              {
-                icon: Shield,
-                title: "Controle Total",
-                description: "Monitore produção, estoque de barro e lenha, manutenção de equipamentos em tempo real"
-              },
-              {
-                icon: Truck,
-                title: "Gestão de Frota",
-                description: "Controle completo de veículos, manutenções preventivas e consumo de combustível"
-              },
-              {
-                icon: BarChart3,
-                title: "Relatórios Inteligentes",
-                description: "Dashboards com insights práticos para tomar decisões estratégicas baseadas em dados"
-              },
-              {
-                icon: Users,
-                title: "Gestão de Equipe",
-                description: "Organize funcionários, operadores e responsabilidades de forma eficiente"
-              },
-              {
-                icon: Factory,
-                title: "Específico para Cerâmicas",
-                description: "Feito por quem entende do setor - controle de forno, queima, matéria-prima e muito mais"
-              }
-            ].map((benefit, index) => (
-              <Card key={index} className="border-orange-100 hover:shadow-lg hover:border-orange-200 transition-all duration-200 hover:scale-105">
+            {[{
+            icon: Clock,
+            title: "Economize 5h por dia",
+            description: "Automatize processos manuais e reduza o tempo gasto em planilhas e controles obsoletos"
+          }, {
+            icon: Shield,
+            title: "Controle Total",
+            description: "Monitore produção, estoque de barro e lenha, manutenção de equipamentos em tempo real"
+          }, {
+            icon: Truck,
+            title: "Gestão de Frota",
+            description: "Controle completo de veículos, manutenções preventivas e consumo de combustível"
+          }, {
+            icon: BarChart3,
+            title: "Relatórios Inteligentes",
+            description: "Dashboards com insights práticos para tomar decisões estratégicas baseadas em dados"
+          }, {
+            icon: Users,
+            title: "Gestão de Equipe",
+            description: "Organize funcionários, operadores e responsabilidades de forma eficiente"
+          }, {
+            icon: Factory,
+            title: "Específico para Cerâmicas",
+            description: "Feito por quem entende do setor - controle de forno, queima, matéria-prima e muito mais"
+          }].map((benefit, index) => <Card key={index} className="border-orange-100 hover:shadow-lg hover:border-orange-200 transition-all duration-200 hover:scale-105">
                 <CardHeader>
                   <benefit.icon className="h-12 w-12 text-orange-600 mb-4" />
                   <CardTitle className="text-xl">{benefit.title}</CardTitle>
@@ -137,8 +126,7 @@ const LandingPage = () => {
                     {benefit.description}
                   </CardDescription>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
@@ -228,40 +216,33 @@ const LandingPage = () => {
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Starter",
-                price: "R$ --,--",
-                period: "/mês",
-                description: "Perfeito para cerâmicas pequenas",
-                features: ["Até 2 usuários", "Gestão básica de estoque", "Controle de produção", "Relatórios simples", "Suporte por email"],
-                popular: false
-              },
-              {
-                name: "Professional",
-                price: "R$ --,--",
-                period: "/mês",
-                description: "Ideal para cerâmicas em crescimento",
-                features: ["Até 10 usuários", "Gestão completa de frota", "Controle avançado de matéria-prima", "Dashboards detalhados", "Suporte prioritário", "Integração com sistema fiscal"],
-                popular: true
-              },
-              {
-                name: "Enterprise",
-                price: "Sob consulta",
-                period: "",
-                description: "Para grandes operações",
-                features: ["Usuários ilimitados", "Módulos personalizados", "API completa", "Treinamento dedicado", "Suporte 24/7", "Gerente de conta exclusivo"],
-                popular: false
-              }
-            ].map((plan, index) => (
-              <Card key={index} className={`relative hover:shadow-lg transition-all duration-200 ${plan.popular ? 'border-orange-500 shadow-lg scale-105 hover:scale-110' : 'border-gray-200 hover:border-orange-200'}`}>
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+            {[{
+            name: "Starter",
+            price: "R$ --,--",
+            period: "/mês",
+            description: "Perfeito para cerâmicas pequenas",
+            features: ["Até 2 usuários", "Gestão básica de estoque", "Controle de produção", "Relatórios simples", "Suporte por email"],
+            popular: false
+          }, {
+            name: "Professional",
+            price: "R$ --,--",
+            period: "/mês",
+            description: "Ideal para cerâmicas em crescimento",
+            features: ["Até 10 usuários", "Gestão completa de frota", "Controle avançado de matéria-prima", "Dashboards detalhados", "Suporte prioritário", "Integração com sistema fiscal"],
+            popular: true
+          }, {
+            name: "Enterprise",
+            price: "Sob consulta",
+            period: "",
+            description: "Para grandes operações",
+            features: ["Usuários ilimitados", "Módulos personalizados", "API completa", "Treinamento dedicado", "Suporte 24/7", "Gerente de conta exclusivo"],
+            popular: false
+          }].map((plan, index) => <Card key={index} className={`relative hover:shadow-lg transition-all duration-200 ${plan.popular ? 'border-orange-500 shadow-lg scale-105 hover:scale-110' : 'border-gray-200 hover:border-orange-200'}`}>
+                {plan.popular && <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <Badge className="bg-orange-600 text-white px-4 py-1">
                       Mais Popular
                     </Badge>
-                  </div>
-                )}
+                  </div>}
                 <CardHeader className="text-center">
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                   <CardDescription>{plan.description}</CardDescription>
@@ -272,12 +253,10 @@ const LandingPage = () => {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3 mb-8">
-                    {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center">
+                    {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-center">
                         <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                         <span className="text-gray-600">{feature}</span>
-                      </li>
-                    ))}
+                      </li>)}
                   </ul>
                   <Link to="/login">
                     <Button className={`w-full transition-all duration-200 hover:shadow-md transform hover:scale-105 ${plan.popular ? 'bg-orange-600 hover:bg-orange-700' : 'bg-gray-900 hover:bg-gray-800'}`}>
@@ -285,8 +264,7 @@ const LandingPage = () => {
                     </Button>
                   </Link>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
           <div className="text-center mt-12">
             <p className="text-gray-600 mb-4">
@@ -329,16 +307,14 @@ const LandingPage = () => {
           }, {
             question: "E se eu precisar de funcionalidades específicas?",
             answer: "Desenvolvemos módulos personalizados conforme sua necessidade. Entre em contato para discutir suas demandas específicas."
-          }].map((faq, index) => (
-            <Card key={index} className="border-orange-100">
+          }].map((faq, index) => <Card key={index} className="border-orange-100">
               <CardHeader>
                 <CardTitle className="text-lg text-gray-900">{faq.question}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">{faq.answer}</p>
               </CardContent>
-            </Card>
-          ))}
+            </Card>)}
           </div>
         </div>
       </section>
@@ -422,8 +398,6 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default LandingPage;
