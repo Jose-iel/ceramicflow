@@ -15,6 +15,7 @@ import MaintenancePage from "./pages/Maintenance";
 import WoodPage from "./pages/Wood";
 import RawMaterialPage from "./pages/RawMaterial";
 import LandingPage from "./pages/LandingPage";
+import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Index />} />
           <Route path="/vehicles" element={<VehiclesPage />} />
           <Route path="/employees" element={<EmployeesPage />} />
