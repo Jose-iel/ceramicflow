@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -338,7 +337,7 @@ const LandingPage = () => {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 hover:shadow-md px-8 py-4 text-lg transition-all duration-200">
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-orange-700 hover:border-orange-300 hover:shadow-md px-8 py-4 text-lg transition-all duration-200">
               Agendar Demonstração
             </Button>
           </div>
@@ -372,31 +371,31 @@ const LandingPage = () => {
             <div>
               <h3 className="font-semibold mb-4">Produto</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#features" className="hover:text-white transition-colors">Recursos</a></li>
-                <li><a href="#pricing" className="hover:text-white transition-colors">Preços</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Integrações</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">API</a></li>
+                <li><a href="#features" className="hover:text-orange-400 transition-colors">Recursos</a></li>
+                <li><a href="#pricing" className="hover:text-orange-400 transition-colors">Preços</a></li>
+                <li><a href="#" className="hover:text-orange-400 transition-colors">Integrações</a></li>
+                <li><a href="#" className="hover:text-orange-400 transition-colors">API</a></li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold mb-4">Suporte</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#faq" className="hover:text-white transition-colors">FAQ</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Documentação</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contato</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Treinamentos</a></li>
+                <li><a href="#faq" className="hover:text-orange-400 transition-colors">FAQ</a></li>
+                <li><a href="#" className="hover:text-orange-400 transition-colors">Documentação</a></li>
+                <li><a href="#" className="hover:text-orange-400 transition-colors">Contato</a></li>
+                <li><a href="#" className="hover:text-orange-400 transition-colors">Treinamentos</a></li>
               </ul>
             </div>
           </div>
           <Separator className="my-8 bg-gray-800" />
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © 2024 CeramicFlow. Todos os direitos reservados.
+              © 2024 CeramicFlow feito por Iel Company. Todos os direitos reservados.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Política de Privacidade</a>
-              <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Termos de Uso</a>
-              <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">Cookies</a>
+              <a href="#" className="text-gray-400 hover:text-orange-400 text-sm transition-colors">Política de Privacidade</a>
+              <a href="#" className="text-gray-400 hover:text-orange-400 text-sm transition-colors">Termos de Uso</a>
+              <a href="#" className="text-gray-400 hover:text-orange-400 text-sm transition-colors">Cookies</a>
             </div>
           </div>
         </div>
@@ -405,4 +404,3 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
-
