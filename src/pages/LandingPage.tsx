@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -175,7 +176,7 @@ const LandingPage = () => {
                 </div>)}
             </div>
             <div className="relative">
-              <img src="/lovable-uploads/9512a3c6-f8b4-473f-9eff-c0eb839dd49f.png" alt="Interface do sistema CeramicFlow" className="w-full h-96 object-cover rounded-2xl shadow-2xl" />
+              <img src="/lovable-uploads/9512a3c6-f8b4-473f-9eff-c0eb839dd49f.png" alt="Interface do sistema CeramicFlow" className="w-full rounded-2xl shadow-2xl object-contain" />
             </div>
           </div>
         </div>
@@ -404,3 +405,4 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+
