@@ -1,4 +1,6 @@
+
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,9 +22,11 @@ const LandingPage = () => {
               <a href="#features" className="text-gray-600 hover:text-orange-600 transition-colors">Recursos</a>
               <a href="#pricing" className="text-gray-600 hover:text-orange-600 transition-colors">Preços</a>
               <a href="#faq" className="text-gray-600 hover:text-orange-600 transition-colors">FAQ</a>
-              <Button variant="outline" className="border-orange-200 text-orange-600 hover:bg-orange-50 hover:border-orange-300 transition-all duration-200">
-                Login
-              </Button>
+              <Link to="/login">
+                <Button variant="outline" className="border-orange-200 text-orange-600 hover:bg-orange-50 hover:border-orange-300 transition-all duration-200">
+                  Login
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -45,10 +49,12 @@ const LandingPage = () => {
                 Aumente sua produtividade em até 40% com tecnologia feita especialmente para cerâmicas.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-orange-600 hover:bg-orange-700 hover:shadow-lg text-white px-8 py-4 text-lg transition-all duration-200 transform hover:scale-105">
-                  Comece Grátis Por 7 Dias
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
+                <Link to="/login">
+                  <Button size="lg" className="bg-orange-600 hover:bg-orange-700 hover:shadow-lg text-white px-8 py-4 text-lg transition-all duration-200 transform hover:scale-105">
+                    Comece Grátis Por 7 Dias
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
                 <Button size="lg" variant="outline" className="border-orange-200 text-orange-600 hover:bg-orange-50 hover:border-orange-300 hover:shadow-md px-8 py-4 text-lg transition-all duration-200">
                   Agende uma Demo
                 </Button>
@@ -202,9 +208,11 @@ const LandingPage = () => {
               🎯 Desconto vitalício garantido
             </Badge>
           </div>
-          <Button size="lg" className="bg-white text-orange-600 hover:bg-gray-100 hover:shadow-lg px-8 py-4 text-lg font-semibold transition-all duration-200 transform hover:scale-105">
-            Quero Garantir Minha Vaga
-          </Button>
+          <Link to="/login">
+            <Button size="lg" className="bg-white text-orange-600 hover:bg-gray-100 hover:shadow-lg px-8 py-4 text-lg font-semibold transition-all duration-200 transform hover:scale-105">
+              Quero Garantir Minha Vaga
+            </Button>
+          </Link>
         </div>
       </section>
 
@@ -271,9 +279,11 @@ const LandingPage = () => {
                       </li>
                     ))}
                   </ul>
-                  <Button className={`w-full transition-all duration-200 hover:shadow-md transform hover:scale-105 ${plan.popular ? 'bg-orange-600 hover:bg-orange-700' : 'bg-gray-900 hover:bg-gray-800'}`}>
-                    Seja o primeiro a saber
-                  </Button>
+                  <Link to="/login">
+                    <Button className={`w-full transition-all duration-200 hover:shadow-md transform hover:scale-105 ${plan.popular ? 'bg-orange-600 hover:bg-orange-700' : 'bg-gray-900 hover:bg-gray-800'}`}>
+                      Seja o primeiro a saber
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             ))}
@@ -343,10 +353,12 @@ const LandingPage = () => {
             Junte-se a centenas de ceramistas que já transformaram seus negócios com o CeramicFlow
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-orange-600 hover:bg-gray-100 hover:shadow-lg px-8 py-4 text-lg font-semibold transition-all duration-200 transform hover:scale-105">
-              Começar Teste Gratuito
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+            <Link to="/login">
+              <Button size="lg" className="bg-white text-orange-600 hover:bg-gray-100 hover:shadow-lg px-8 py-4 text-lg font-semibold transition-all duration-200 transform hover:scale-105">
+                Começar Teste Gratuito
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 hover:shadow-md px-8 py-4 text-lg transition-all duration-200">
               Agendar Demonstração
             </Button>

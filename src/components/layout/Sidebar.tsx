@@ -86,7 +86,10 @@ const Sidebar: React.FC = () => {
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}
           <div className="flex items-center justify-between px-4 py-5 border-b border-sidebar-border">
-            <h1 className="text-xl font-bold text-sidebar-foreground">Gestão Cerâmica</h1>
+            <div className="flex items-center space-x-2">
+              <Mountain className="h-6 w-6 text-sidebar-foreground" />
+              <h1 className="text-lg font-bold text-sidebar-foreground">CeramicFlow</h1>
+            </div>
             {isMobile && (
               <button
                 onClick={closeSidebar}
