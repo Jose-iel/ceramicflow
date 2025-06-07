@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Clock, Shield, Truck, BarChart3, Users, Calendar, CheckCircle, Star, ArrowRight, Mountain, Factory, Zap, Target, Award, Phone, Mail, MapPin } from 'lucide-react';
+
 const LandingPage = () => {
   return <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-red-50">
       {/* Navigation */}
@@ -173,7 +175,7 @@ const LandingPage = () => {
                 </div>)}
             </div>
             <div className="relative">
-              <img src="/placeholder.svg" alt="Interface do sistema" className="w-full h-96 object-cover rounded-2xl shadow-2xl bg-gradient-to-br from-orange-100 to-red-100" />
+              <img src="/lovable-uploads/9512a3c6-f8b4-473f-9eff-c0eb839dd49f.png" alt="Interface do sistema CeramicFlow" className="w-full h-96 object-cover rounded-2xl shadow-2xl" />
             </div>
           </div>
         </div>
@@ -400,4 +402,5 @@ const LandingPage = () => {
       </footer>
     </div>;
 };
+
 export default LandingPage;
