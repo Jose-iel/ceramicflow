@@ -16,6 +16,7 @@ import WoodPage from "./pages/Wood";
 import RawMaterialPage from "./pages/RawMaterial";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
+import AdminBackoffice from "./pages/AdminBackoffice";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
