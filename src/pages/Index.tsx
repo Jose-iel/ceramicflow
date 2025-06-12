@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -7,6 +6,7 @@ import VehicleCard from '@/components/vehicle/VehicleCard';
 import { Vehicle, VehicleStatus, VehicleType } from '@/types';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { clearAuthCookie, getAuthCookie } from '@/utils/auth';
 
 // Mock data for the dashboard
 const mockVehicles: Vehicle[] = [
@@ -67,6 +67,12 @@ const Index = () => {
     setCurrentDate(prev => 
       prev.charAt(0).toUpperCase() + prev.slice(1)
     );
+
+    // Log user info for debugging
+    const authData = getAuthCookie();
+    if (authData) {
+      console.log('Usuário autenticado:', authData.email);
+    }
   }, []);
 
   return (

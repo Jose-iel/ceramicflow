@@ -16,6 +16,7 @@ import WoodPage from "./pages/Wood";
 import RawMaterialPage from "./pages/RawMaterial";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -28,18 +29,62 @@ const App = () => (
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Index />} />
-          <Route path="/vehicles" element={<VehiclesPage />} />
-          <Route path="/employees" element={<EmployeesPage />} />
-          <Route path="/operations" element={<OperationsPage />} />
-          <Route path="/maintenance" element={<MaintenancePage />} />
-          <Route path="/wood" element={<WoodPage />} />
-          <Route path="/raw-material" element={<RawMaterialPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Index />
+            </ProtectedRoute>
+          } />
+          <Route path="/vehicles" element={
+            <ProtectedRoute>
+              <VehiclesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/employees" element={
+            <ProtectedRoute>
+              <EmployeesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/operations" element={
+            <ProtectedRoute>
+              <OperationsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/maintenance" element={
+            <ProtectedRoute>
+              <MaintenancePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/wood" element={
+            <ProtectedRoute>
+              <WoodPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/raw-material" element={
+            <ProtectedRoute>
+              <RawMaterialPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/reports" element={
+            <ProtectedRoute>
+              <ReportsPage />
+            </ProtectedRoute>
+          } />
           {/* Legacy routes for compatibility */}
-          <Route path="/forklifts" element={<VehiclesPage />} />
-          <Route path="/operators" element={<EmployeesPage />} />
-          <Route path="/gas-supply" element={<WoodPage />} />
+          <Route path="/forklifts" element={
+            <ProtectedRoute>
+              <VehiclesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/operators" element={
+            <ProtectedRoute>
+              <EmployeesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/gas-supply" element={
+            <ProtectedRoute>
+              <WoodPage />
+            </ProtectedRoute>
+          } />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

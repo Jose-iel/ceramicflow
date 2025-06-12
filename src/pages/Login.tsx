@@ -1,19 +1,29 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { LogIn, Mountain } from 'lucide-react';
+import { setAuthCookie, isUserAuthenticated } from '@/utils/auth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Verificar se o usuário já está autenticado
+  useEffect(() => {
+    if (isUserAuthenticated()) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +44,10 @@ const Login = () => {
     setTimeout(() => {
       // For now, accept any email/password combination
       // This is where you would integrate with your backend authentication
+      
+      // Salvar informações de autenticação no cookie
+      setAuthCookie(email, rememberMe);
+      
       toast({
         title: "Login realizado com sucesso!",
         description: "Bem-vindo ao sistema.",
@@ -85,6 +99,19 @@ const Login = () => {
                 required
                 className="border-orange-200 focus:border-orange-400 focus:ring-orange-400"
               />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="rememberMe" 
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+              />
+              <Label 
+                htmlFor="rememberMe" 
+                className="text-sm text-gray-700 cursor-pointer"
+              >
+                Lembre-se de mim (15 dias)
+              </Label>
             </div>
             <Button 
               type="submit" 
