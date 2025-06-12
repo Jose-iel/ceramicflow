@@ -70,6 +70,11 @@ const App = () => (
               <ReportsPage />
             </ProtectedRoute>
           } />
+          <Route path="/admin-backoffice" element={
+            <ProtectedRoute>
+              <AdminBackoffice />
+            </ProtectedRoute>
+          } />
           {/* Legacy routes for compatibility */}
           <Route path="/forklifts" element={
             <ProtectedRoute>
