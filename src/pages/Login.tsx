@@ -1,140 +1,148 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { LogIn, Mountain } from 'lucide-react';
+import { Eye, EyeOff, Mountain } from 'lucide-react';
 import { setAuthCookie, isUserAuthenticated } from '@/utils/auth';
+import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
-  // Verificar se o usuário já está autenticado
+  // Check if user is already authenticated
   useEffect(() => {
     if (isUserAuthenticated()) {
-      navigate('/dashboard');
+      const from = location.state?.from?.pathname || '/dashboard';
+      console.log('User already authenticated, redirecting to:', from);
+      navigate(from, { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, location]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate login validation
-    if (!email || !password) {
-      toast({
-        title: "Erro",
-        description: "Por favor, preencha todos os campos.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-      return;
-    }
-
-    // Simulate API call
-    setTimeout(() => {
-      // For now, accept any email/password combination
-      // This is where you would integrate with your backend authentication
+    try {
+      // Simulate login delay
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Salvar informações de autenticação no cookie
+      // Set authentication cookie
       setAuthCookie(email, rememberMe);
+      
+      console.log('Login successful, user authenticated:', email);
+      
+      // Get the intended destination or default to dashboard
+      const from = location.state?.from?.pathname || '/dashboard';
+      console.log('Redirecting to:', from);
       
       toast({
         title: "Login realizado com sucesso!",
-        description: "Bem-vindo ao sistema.",
+        description: "Bem-vindo ao CeramicFlow.",
       });
+
+      // Navigate to intended page
+      navigate(from, { replace: true });
       
-      // Navigate to dashboard
-      navigate('/dashboard');
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        title: "Erro no login",
+        description: "Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-red-50 px-4">
-      <Card className="w-full max-w-md shadow-2xl border-orange-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-red-50 p-4">
+      <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <div className="flex items-center justify-center mb-6">
-            <div className="flex items-center space-x-3">
-              <Mountain className="h-10 w-10 text-orange-600" />
-              <span className="text-2xl font-bold text-gray-900">CeramicFlow</span>
-            </div>
+          <div className="flex items-center justify-center mb-4">
+            <Mountain className="h-8 w-8 text-primary mr-2" />
+            <h1 className="text-2xl font-bold">CeramicFlow</h1>
           </div>
-          <CardTitle className="text-2xl text-center text-gray-900">Login</CardTitle>
-          <CardDescription className="text-center text-gray-600">
+          <CardTitle className="text-2xl text-center">Entrar</CardTitle>
+          <CardDescription className="text-center">
             Entre com suas credenciais para acessar o sistema
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-700">Email</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="seu.email@empresa.com"
+                placeholder="seu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="border-orange-200 focus:border-orange-400 focus:ring-orange-400"
               />
             </div>
+            
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-700">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="border-orange-200 focus:border-orange-400 focus:ring-orange-400"
-              />
+              <Label htmlFor="password">Senha</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Sua senha"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
             </div>
+
             <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="rememberMe" 
+              <Checkbox
+                id="remember"
                 checked={rememberMe}
                 onCheckedChange={(checked) => setRememberMe(checked as boolean)}
               />
-              <Label 
-                htmlFor="rememberMe" 
-                className="text-sm text-gray-700 cursor-pointer"
-              >
-                Lembre-se de mim (15 dias)
+              <Label htmlFor="remember" className="text-sm">
+                Lembrar-se de mim
               </Label>
             </div>
+
             <Button 
               type="submit" 
-              className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 transition-all duration-200 transform hover:scale-105" 
+              className="w-full" 
               disabled={isLoading}
             >
-              {isLoading ? (
-                <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Entrando...</span>
-                </div>
-              ) : (
-                <div className="flex items-center space-x-2">
-                  <LogIn className="w-4 h-4" />
-                  <span>Entrar</span>
-                </div>
-              )}
+              {isLoading ? "Entrando..." : "Entrar"}
             </Button>
           </form>
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-500">
-              Sistema de gestão para cerâmicas
-            </p>
+
+          <div className="mt-4 text-center text-sm text-muted-foreground">
+            <p>Use qualquer email e senha para acessar o sistema</p>
           </div>
         </CardContent>
       </Card>

@@ -22,17 +22,28 @@ export const setAuthCookie = (email: string, rememberMe: boolean = false) => {
     sameSite: 'strict' as const
   };
 
+  console.log('Setting auth cookie:', { email, rememberMe, authData });
+  
   Cookies.set(AUTH_COOKIE_NAME, JSON.stringify(authData), cookieOptions);
   
   if (rememberMe) {
     Cookies.set(REMEMBER_COOKIE_NAME, 'true', { expires: 15, sameSite: 'strict' });
   }
+
+  // Verify cookie was set
+  const verification = Cookies.get(AUTH_COOKIE_NAME);
+  console.log('Cookie verification:', verification ? 'Set successfully' : 'Failed to set');
 };
 
 export const getAuthCookie = (): AuthData | null => {
   try {
     const authCookie = Cookies.get(AUTH_COOKIE_NAME);
     const rememberCookie = Cookies.get(REMEMBER_COOKIE_NAME);
+    
+    console.log('Getting auth cookie:', { 
+      hasCookie: !!authCookie, 
+      hasRemember: !!rememberCookie 
+    });
     
     if (!authCookie) return null;
     
@@ -42,6 +53,7 @@ export const getAuthCookie = (): AuthData | null => {
     if (!rememberCookie) {
       const oneDayInMs = 24 * 60 * 60 * 1000;
       if (Date.now() - authData.loginTime > oneDayInMs) {
+        console.log('Session expired (1 day limit)');
         clearAuthCookie();
         return null;
       }
@@ -49,11 +61,13 @@ export const getAuthCookie = (): AuthData | null => {
       // Se tem "lembre-se de mim", verifica se passou 15 dias
       const fifteenDaysInMs = 15 * 24 * 60 * 60 * 1000;
       if (Date.now() - authData.loginTime > fifteenDaysInMs) {
+        console.log('Remember me expired (15 days limit)');
         clearAuthCookie();
         return null;
       }
     }
     
+    console.log('Auth data retrieved successfully:', authData);
     return authData;
   } catch (error) {
     console.error('Erro ao ler cookie de autenticação:', error);
@@ -63,11 +77,14 @@ export const getAuthCookie = (): AuthData | null => {
 };
 
 export const clearAuthCookie = () => {
+  console.log('Clearing auth cookies');
   Cookies.remove(AUTH_COOKIE_NAME);
   Cookies.remove(REMEMBER_COOKIE_NAME);
 };
 
 export const isUserAuthenticated = (): boolean => {
   const authData = getAuthCookie();
-  return authData !== null && authData.isAuthenticated;
+  const isAuth = authData !== null && authData.isAuthenticated;
+  console.log('Authentication check result:', isAuth);
+  return isAuth;
 };
