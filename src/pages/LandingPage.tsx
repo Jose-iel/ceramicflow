@@ -337,7 +337,7 @@ const LandingPage = () => {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-orange-700 hover:border-orange-300 hover:shadow-md px-8 py-4 text-lg transition-all duration-200">
+            <Button size="lg" variant="outline" className="border-white text-white bg-transparent hover:bg-white hover:text-orange-600 hover:shadow-md px-8 py-4 text-lg transition-all duration-200">
               Agendar Demonstração
             </Button>
           </div>
