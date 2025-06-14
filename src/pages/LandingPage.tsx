@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -49,7 +48,7 @@ const LandingPage = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/login">
-                  <Button size="lg" className="bg-orange-600 hover:bg-orange-700 hover:shadow-lg text-white px-8 py-4 text-lg transition-all duration-200 transform hover:scale-105">
+                  <Button size="lg" className="bg-orange-600 hover:bg-orange-700 hover:shadow-lg text-white px-8 py-4 text-lg transition-all duration-200">
                     Comece Grátis Por 7 Dias
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
@@ -220,17 +219,17 @@ const LandingPage = () => {
           <div className="grid md:grid-cols-3 gap-8">
             {[{
             name: "Starter",
-            price: "R$ --,--",
+            price: "R$ 300,00",
             period: "/mês",
             description: "Perfeito para cerâmicas pequenas",
             features: ["Até 2 usuários", "Gestão básica de estoque", "Controle de produção", "Relatórios simples", "Suporte por email"],
             popular: false
           }, {
             name: "Professional",
-            price: "R$ --,--",
+            price: "R$ 500,00",
             period: "/mês",
             description: "Ideal para cerâmicas em crescimento",
-            features: ["Até 10 usuários", "Gestão completa de frota", "Controle avançado de matéria-prima", "Dashboards detalhados", "Suporte prioritário", "Integração com sistema fiscal"],
+            features: ["Até 10 usuários", "Gestão completa de frota", "Controle avançado de matéria-prima", "Dashboards detalhados", "Suporte prioritário"],
             popular: true
           }, {
             name: "Enterprise",
