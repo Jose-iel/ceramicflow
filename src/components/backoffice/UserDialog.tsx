@@ -6,7 +6,31 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { BackofficeUser, UserLevel } from '@/types/backoffice';
+import { BackofficeUser, UserLevel, Ceramic } from '@/types/backoffice';
+
+// Mock data das cerâmicas - em um sistema real, isso viria de uma API
+const mockCeramics: Ceramic[] = [
+  {
+    id: '1',
+    name: 'Cerâmica São José',
+    address: 'Rua das Flores, 123 - Centro',
+    phone: '(11) 1234-5678',
+    email: 'contato@ceramicasaojose.com',
+    isActive: true,
+    createdAt: '2024-01-15',
+    users: []
+  },
+  {
+    id: '2',
+    name: 'Cerâmica Bela Vista',
+    address: 'Av. Industrial, 456 - Distrito Industrial',
+    phone: '(11) 8765-4321',
+    email: 'admin@ceramicabelavista.com',
+    isActive: true,
+    createdAt: '2024-01-10',
+    users: []
+  }
+];
 
 interface UserDialogProps {
   open: boolean;
@@ -23,6 +47,13 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, onOpenChange, user, onSav
     ceramicId: '',
     isActive: true
   });
+  const [ceramics, setCeramics] = useState<Ceramic[]>([]);
+
+  useEffect(() => {
+    // Carrega a lista de cerâmicas ativas
+    const activeCeramics = mockCeramics.filter(ceramic => ceramic.isActive);
+    setCeramics(activeCeramics);
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -46,6 +77,13 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, onOpenChange, user, onSav
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validação para garantir que uma cerâmica foi selecionada
+    if (!formData.ceramicId) {
+      alert('Por favor, selecione uma cerâmica para o usuário.');
+      return;
+    }
+    
     onSave(formData);
   };
 
@@ -98,13 +136,19 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, onOpenChange, user, onSav
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="ceramicId">ID da Cerâmica (opcional)</Label>
-            <Input
-              id="ceramicId"
-              value={formData.ceramicId}
-              onChange={(e) => setFormData({ ...formData, ceramicId: e.target.value })}
-              placeholder="Ex: 1, 2, 3..."
-            />
+            <Label htmlFor="ceramicId">Cerâmica *</Label>
+            <Select value={formData.ceramicId} onValueChange={(value) => setFormData({ ...formData, ceramicId: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione uma cerâmica" />
+              </SelectTrigger>
+              <SelectContent>
+                {ceramics.map((ceramic) => (
+                  <SelectItem key={ceramic.id} value={ceramic.id}>
+                    {ceramic.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex items-center space-x-2">
