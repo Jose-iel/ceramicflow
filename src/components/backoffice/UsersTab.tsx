@@ -81,52 +81,36 @@ const UsersTab = () => {
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle>Gerenciamento de Usuários</CardTitle>
-            <CardDescription>
+      <CardHeader className="pb-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+          <div className="space-y-1">
+            <CardTitle className="text-lg sm:text-xl">Gerenciamento de Usuários</CardTitle>
+            <CardDescription className="text-sm">
               Crie, edite e gerencie todos os usuários do sistema
             </CardDescription>
           </div>
-          <Button onClick={handleCreateUser} className="flex items-center gap-2">
+          <Button 
+            onClick={handleCreateUser} 
+            className="flex items-center gap-2 w-full sm:w-auto"
+            size="sm"
+          >
             <Plus className="h-4 w-4" />
-            Novo Usuário
+            <span className="sm:inline">Novo Usuário</span>
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Nível</TableHead>
-              <TableHead>Cerâmica</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Último Login</TableHead>
-              <TableHead>Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell className="font-medium">{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>
-                  <Badge variant={getUserLevelColor(user.userLevel)}>
-                    {user.userLevel}
-                  </Badge>
-                </TableCell>
-                <TableCell>{user.ceramicId ? `Cerâmica ${user.ceramicId}` : 'Não definida'}</TableCell>
-                <TableCell>
-                  <Badge variant={user.isActive ? 'default' : 'secondary'}>
-                    {user.isActive ? 'Ativo' : 'Inativo'}
-                  </Badge>
-                </TableCell>
-                <TableCell>{user.lastLogin || 'Nunca'}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
+      <CardContent className="p-0 sm:p-6">
+        {/* Mobile Card View */}
+        <div className="block sm:hidden space-y-4 p-4">
+          {users.map((user) => (
+            <Card key={user.id} className="p-4">
+              <div className="space-y-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-medium text-base">{user.name}</h3>
+                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                  </div>
+                  <div className="flex gap-1">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -142,11 +126,82 @@ const UsersTab = () => {
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
-                </TableCell>
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant={getUserLevelColor(user.userLevel)} className="text-xs">
+                    {user.userLevel}
+                  </Badge>
+                  <Badge variant={user.isActive ? 'default' : 'secondary'} className="text-xs">
+                    {user.isActive ? 'Ativo' : 'Inativo'}
+                  </Badge>
+                </div>
+                
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <p>Cerâmica: {user.ceramicId ? `Cerâmica ${user.ceramicId}` : 'Não definida'}</p>
+                  <p>Último login: {user.lastLogin || 'Nunca'}</p>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden sm:block overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Nível</TableHead>
+                <TableHead className="hidden lg:table-cell">Cerâmica</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="hidden xl:table-cell">Último Login</TableHead>
+                <TableHead>Ações</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell className="font-medium">{user.name}</TableCell>
+                  <TableCell className="max-w-[200px] truncate">{user.email}</TableCell>
+                  <TableCell>
+                    <Badge variant={getUserLevelColor(user.userLevel)} className="text-xs">
+                      {user.userLevel}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    {user.ceramicId ? `Cerâmica ${user.ceramicId}` : 'Não definida'}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={user.isActive ? 'default' : 'secondary'} className="text-xs">
+                      {user.isActive ? 'Ativo' : 'Inativo'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="hidden xl:table-cell">{user.lastLogin || 'Nunca'}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditUser(user)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteUser(user.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
 
         <UserDialog
           open={dialogOpen}
