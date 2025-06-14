@@ -1,86 +1,84 @@
 
-import Cookies from 'js-cookie';
-
-const AUTH_COOKIE_NAME = 'ceramicflow_auth';
-const REMEMBER_COOKIE_NAME = 'ceramicflow_remember';
-
 export interface AuthData {
   email: string;
   isAuthenticated: boolean;
   loginTime: number;
 }
 
-export const setAuthCookie = (email: string, rememberMe: boolean = false) => {
+const AUTH_STORAGE_KEY = 'ceramicflow_auth';
+const REMEMBER_STORAGE_KEY = 'ceramicflow_remember';
+
+export const setAuthData = (email: string, rememberMe: boolean = false) => {
   const authData: AuthData = {
     email,
     isAuthenticated: true,
     loginTime: Date.now()
   };
 
-  const cookieOptions = {
-    expires: rememberMe ? 15 : 1, // 15 dias se "lembre-se de mim", senão 1 dia
-    sameSite: 'strict' as const,
-    path: '/'
-  };
+  console.log('Setting auth data:', { email, rememberMe, authData });
+  
+  try {
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authData));
+    
+    if (rememberMe) {
+      localStorage.setItem(REMEMBER_STORAGE_KEY, 'true');
+    }
 
-  console.log('Setting auth cookie:', { email, rememberMe, authData });
-  
-  Cookies.set(AUTH_COOKIE_NAME, JSON.stringify(authData), cookieOptions);
-  
-  if (rememberMe) {
-    Cookies.set(REMEMBER_COOKIE_NAME, 'true', { expires: 15, sameSite: 'strict', path: '/' });
+    // Verificação imediata
+    const verification = localStorage.getItem(AUTH_STORAGE_KEY);
+    console.log('Auth data verification after setting:', verification);
+    
+    return true;
+  } catch (error) {
+    console.error('Error setting auth data:', error);
+    return false;
   }
-
-  // Verificação imediata
-  const verification = Cookies.get(AUTH_COOKIE_NAME);
-  console.log('Cookie verification after setting:', verification);
-  
-  // Força a verificação
-  setTimeout(() => {
-    const recheckAuth = isUserAuthenticated();
-    console.log('Authentication recheck after cookie set:', recheckAuth);
-  }, 100);
 };
 
-export const getAuthCookie = (): AuthData | null => {
+export const getAuthData = (): AuthData | null => {
   try {
-    const authCookie = Cookies.get(AUTH_COOKIE_NAME);
+    const authDataStr = localStorage.getItem(AUTH_STORAGE_KEY);
     
-    console.log('Raw auth cookie:', authCookie);
+    console.log('Raw auth data from localStorage:', authDataStr);
     
-    if (!authCookie) {
-      console.log('No auth cookie found');
+    if (!authDataStr) {
+      console.log('No auth data found');
       return null;
     }
     
-    const authData: AuthData = JSON.parse(authCookie);
+    const authData: AuthData = JSON.parse(authDataStr);
     console.log('Parsed auth data:', authData);
     
-    // Verificação simples - se tem o cookie e está marcado como autenticado, aceita
-    if (authData && authData.isAuthenticated) {
+    // Verificação simples - se tem os dados e está marcado como autenticado
+    if (authData && authData.isAuthenticated && authData.email) {
       console.log('User is authenticated');
       return authData;
     }
     
-    console.log('User not authenticated according to cookie data');
+    console.log('User not authenticated according to stored data');
     return null;
     
   } catch (error) {
-    console.error('Error reading auth cookie:', error);
-    clearAuthCookie();
+    console.error('Error reading auth data:', error);
+    clearAuthData();
     return null;
   }
 };
 
-export const clearAuthCookie = () => {
-  console.log('Clearing auth cookies');
-  Cookies.remove(AUTH_COOKIE_NAME, { path: '/' });
-  Cookies.remove(REMEMBER_COOKIE_NAME, { path: '/' });
+export const clearAuthData = () => {
+  console.log('Clearing auth data');
+  localStorage.removeItem(AUTH_STORAGE_KEY);
+  localStorage.removeItem(REMEMBER_STORAGE_KEY);
 };
 
 export const isUserAuthenticated = (): boolean => {
-  const authData = getAuthCookie();
+  const authData = getAuthData();
   const isAuth = authData !== null && authData.isAuthenticated === true;
   console.log('Authentication check result:', isAuth, 'Auth data:', authData);
   return isAuth;
 };
+
+// Backward compatibility exports
+export const setAuthCookie = setAuthData;
+export const getAuthCookie = getAuthData;
+export const clearAuthCookie = clearAuthData;

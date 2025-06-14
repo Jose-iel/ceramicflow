@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Eye, EyeOff, Mountain } from 'lucide-react';
-import { setAuthCookie, isUserAuthenticated } from '@/utils/auth';
+import { setAuthData, isUserAuthenticated } from '@/utils/auth';
 import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
@@ -23,17 +23,13 @@ const Login = () => {
 
   // Check if user is already authenticated
   useEffect(() => {
-    const checkAuth = () => {
-      if (isUserAuthenticated()) {
-        const from = location.state?.from?.pathname || '/dashboard';
-        console.log('Login: User already authenticated, redirecting to:', from);
-        navigate(from, { replace: true });
-      }
-    };
+    console.log('Login: Checking if user is already authenticated...');
     
-    // Pequeno delay para garantir que os cookies estão prontos
-    const timer = setTimeout(checkAuth, 100);
-    return () => clearTimeout(timer);
+    if (isUserAuthenticated()) {
+      const from = location.state?.from?.pathname || '/dashboard';
+      console.log('Login: User already authenticated, redirecting to:', from);
+      navigate(from, { replace: true });
+    }
   }, [navigate, location]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,13 +42,14 @@ const Login = () => {
       // Simulate login delay
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Set authentication cookie
-      setAuthCookie(email, rememberMe);
+      // Set authentication data
+      const success = setAuthData(email, rememberMe);
       
-      console.log('Login: Cookie set, checking authentication...');
+      if (!success) {
+        throw new Error('Failed to save authentication data');
+      }
       
-      // Aguarda um pouco para o cookie ser processado
-      await new Promise(resolve => setTimeout(resolve, 200));
+      console.log('Login: Auth data saved, checking authentication...');
       
       // Verifica se a autenticação foi bem-sucedida
       const authCheck = isUserAuthenticated();
@@ -70,7 +67,7 @@ const Login = () => {
         // Navigate to intended page
         navigate(from, { replace: true });
       } else {
-        throw new Error('Authentication failed after login');
+        throw new Error('Authentication verification failed after login');
       }
       
     } catch (error) {
