@@ -33,32 +33,32 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   return (
     <section className="space-y-6">
       <div className="slide-enter" style={{ animationDelay: '0.1s' }}>
-        <h2 className="text-2xl font-semibold mb-4">Status da Frota</h2>
+        <h2 className="text-2xl font-semibold mb-4">Operação Atual</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatusCard 
-            title="Total de Veículos" 
-            value={stats.totalVehicles} 
+            title="Operações Ativas" 
+            value={stats.activeOperations} 
             icon={Truck} 
-            status="info" 
-          />
-          <StatusCard 
-            title="Em Operação" 
-            value={stats.operationalVehicles} 
-            icon={CheckCircle} 
             status="success"
-            change={{ value: 12, trend: 'up' }}
+            change={{ value: 5, trend: 'up' }}
           />
           <StatusCard 
-            title="Em Manutenção" 
-            value={stats.maintenanceVehicles} 
+            title="Manutenções Pendentes" 
+            value={stats.pendingMaintenances} 
             icon={Settings} 
             status="warning" 
           />
           <StatusCard 
-            title="Parados" 
-            value={stats.stoppedVehicles} 
-            icon={Clock} 
-            status="neutral" 
+            title="Consumo de Lenha (m³)" 
+            value={stats.monthlyWoodConsumption} 
+            icon={TreePine} 
+            status="info" 
+          />
+          <StatusCard 
+            title="Consumo de Barro (caminhões)" 
+            value={stats.monthlyClayConsumption} 
+            icon={Mountain} 
+            status="info" 
           />
         </div>
       </div>
@@ -94,32 +94,32 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       </div>
 
       <div className="slide-enter" style={{ animationDelay: '0.3s' }}>
-        <h2 className="text-2xl font-semibold mb-4">Operação Atual</h2>
+        <h2 className="text-2xl font-semibold mb-4">Status da Frota</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatusCard 
-            title="Operações Ativas" 
-            value={stats.activeOperations} 
+            title="Total de Veículos" 
+            value={stats.totalVehicles} 
             icon={Truck} 
-            status="success"
-            change={{ value: 5, trend: 'up' }}
+            status="info" 
           />
           <StatusCard 
-            title="Manutenções Pendentes" 
-            value={stats.pendingMaintenances} 
+            title="Em Operação" 
+            value={stats.operationalVehicles} 
+            icon={CheckCircle} 
+            status="success"
+            change={{ value: 12, trend: 'up' }}
+          />
+          <StatusCard 
+            title="Em Manutenção" 
+            value={stats.maintenanceVehicles} 
             icon={Settings} 
             status="warning" 
           />
           <StatusCard 
-            title="Consumo de Lenha (m³)" 
-            value={stats.monthlyWoodConsumption} 
-            icon={TreePine} 
-            status="info" 
-          />
-          <StatusCard 
-            title="Consumo de Barro (caminhões)" 
-            value={stats.monthlyClayConsumption} 
-            icon={Mountain} 
-            status="info" 
+            title="Parados" 
+            value={stats.stoppedVehicles} 
+            icon={Clock} 
+            status="neutral" 
           />
         </div>
       </div>
