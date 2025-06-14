@@ -199,7 +199,7 @@ const LandingPage = () => {
             </Badge>
           </div>
           <Link to="/login">
-            <Button size="lg" className="bg-white text-orange-600 hover:bg-gray-100 hover:shadow-lg px-8 py-4 text-lg font-semibold transition-all duration-200 transform hover:scale-105">
+            <Button size="lg" className="bg-white text-orange-600 hover:bg-orange-100 hover:shadow-lg px-8 py-4 text-lg font-semibold transition-all duration-200 transform hover:scale-105">
               Quero Garantir Minha Vaga
             </Button>
           </Link>
@@ -261,7 +261,7 @@ const LandingPage = () => {
                       </li>)}
                   </ul>
                   <Link to="/login">
-                    <Button className={`w-full transition-all duration-200 hover:shadow-md transform hover:scale-105 ${plan.popular ? 'bg-orange-600 hover:bg-orange-700' : 'bg-gray-900 hover:bg-gray-800'}`}>
+                    <Button className={`w-full transition-all duration-200 hover:shadow-md transform hover:scale-105 bg-orange-600 hover:bg-orange-700`}>
                       Seja o primeiro a saber
                     </Button>
                   </Link>
@@ -332,7 +332,7 @@ const LandingPage = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/login">
-              <Button size="lg" className="bg-white text-orange-600 hover:bg-gray-100 hover:shadow-lg px-8 py-4 text-lg font-semibold transition-all duration-200 transform hover:scale-105">
+              <Button size="lg" className="bg-white text-orange-600 hover:bg-orange-100 hover:shadow-lg px-8 py-4 text-lg font-semibold transition-all duration-200 transform hover:scale-105">
                 Começar Teste Gratuito
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -360,10 +360,10 @@ const LandingPage = () => {
                 O sistema de gestão mais completo para cerâmicas. Desenvolvido por especialistas do setor para otimizar sua produção.
               </p>
               <div className="flex space-x-4">
-                <Button variant="outline" size="icon" className="border-gray-700 text-gray-400 hover:text-white hover:border-white">
+                <Button variant="outline" size="icon" className="border-gray-700 text-gray-400 hover:text-orange-400 hover:border-orange-400 hover:bg-gray-800">
                   <Phone className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="icon" className="border-gray-700 text-gray-400 hover:text-white hover:border-white">
+                <Button variant="outline" size="icon" className="border-gray-700 text-gray-400 hover:text-orange-400 hover:border-orange-400 hover:bg-gray-800">
                   <Mail className="h-4 w-4" />
                 </Button>
               </div>
