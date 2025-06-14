@@ -71,19 +71,19 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>{userLevel ? 'Editar Nível de Acesso' : 'Novo Nível de Acesso'}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="w-[95vw] max-w-[600px] max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+        <DialogHeader className="pb-4">
+          <DialogTitle className="text-lg sm:text-xl">{userLevel ? 'Editar Nível de Acesso' : 'Novo Nível de Acesso'}</DialogTitle>
+          <DialogDescription className="text-sm">
             {userLevel ? 'Edite as permissões do nível de acesso' : 'Configure as permissões para o novo nível'}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Nível de Usuário</Label>
+            <Label htmlFor="name" className="text-sm font-medium">Nível de Usuário</Label>
             <Select value={formData.name} onValueChange={(value) => setFormData({ ...formData, name: value as UserLevel })}>
-              <SelectTrigger>
+              <SelectTrigger className="text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -97,19 +97,21 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
+            <Label htmlFor="description" className="text-sm font-medium">Descrição</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Descreva as responsabilidades deste nível..."
               required
+              className="text-sm min-h-[60px] resize-none"
+              rows={3}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Rotas Permitidas</Label>
-            <div className="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto border rounded-md p-3">
+            <Label className="text-sm font-medium">Rotas Permitidas</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[200px] sm:max-h-60 overflow-y-auto border rounded-md p-3">
               {availableRoutes.map((route) => (
                 <div key={route.id} className="flex items-start space-x-2">
                   <Checkbox
@@ -117,10 +119,10 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
                     checked={formData.allowedRoutes.includes(route.id)}
                     onCheckedChange={(checked) => handleRouteChange(route.id, checked as boolean)}
                   />
-                  <div className="grid gap-1.5 leading-none">
+                  <div className="grid gap-1.5 leading-none min-w-0 flex-1">
                     <Label
                       htmlFor={route.id}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className="text-xs sm:text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                     >
                       {route.name}
                     </Label>
@@ -133,11 +135,11 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
             </div>
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
               Cancelar
             </Button>
-            <Button type="submit">
+            <Button type="submit" className="w-full sm:w-auto">
               {userLevel ? 'Salvar Alterações' : 'Criar Nível'}
             </Button>
           </div>
