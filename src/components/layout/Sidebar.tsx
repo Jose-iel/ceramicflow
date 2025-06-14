@@ -71,7 +71,7 @@ const Sidebar: React.FC = () => {
       {/* Sidebar Backdrop (Mobile Only) */}
       {isMobile && isOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm transition-opacity duration-300"
+          className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm transition-opacity duration-300"
           onClick={closeSidebar}
         />
       )}
@@ -79,7 +79,7 @@ const Sidebar: React.FC = () => {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed top-0 left-0 z-40 h-full w-64 bg-sidebar transition-transform duration-300 ease-in-out border-r border-sidebar-border shadow-lg",
+          "fixed top-0 left-0 z-50 h-full w-64 bg-sidebar transition-transform duration-300 ease-in-out border-r border-sidebar-border shadow-lg",
           isMobile ? (isOpen ? "translate-x-0" : "-translate-x-full") : "translate-x-0"
         )}
       >
