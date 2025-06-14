@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { isUserAuthenticated } from '@/utils/auth';
 
@@ -10,34 +10,47 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isChecking, setIsChecking] = useState(true);
+  const [isAuth, setIsAuth] = useState(false);
 
   useEffect(() => {
-    const isAuth = isUserAuthenticated();
-    console.log('ProtectedRoute check:', {
-      isAuthenticated: isAuth,
-      currentPath: location.pathname,
-      timestamp: new Date().toISOString()
-    });
+    console.log('ProtectedRoute: Starting auth check for path:', location.pathname);
+    
+    // Pequeno delay para garantir que os cookies estão prontos
+    const timer = setTimeout(() => {
+      const authResult = isUserAuthenticated();
+      console.log('ProtectedRoute: Auth check result:', authResult);
+      
+      setIsAuth(authResult);
+      setIsChecking(false);
+      
+      if (!authResult) {
+        console.log('ProtectedRoute: User not authenticated, redirecting to login');
+        navigate('/login', { 
+          state: { from: location },
+          replace: true 
+        });
+      } else {
+        console.log('ProtectedRoute: User authenticated, allowing access to:', location.pathname);
+      }
+    }, 50);
 
-    if (!isAuth) {
-      console.log('User not authenticated, redirecting to login with return path:', location.pathname);
-      navigate('/login', { 
-        state: { from: location },
-        replace: true 
-      });
-    }
+    return () => clearTimeout(timer);
   }, [navigate, location]);
 
-  // Check authentication status
-  const isAuth = isUserAuthenticated();
-  
-  // If not authenticated, don't render anything (will redirect)
+  // Mostra loading enquanto verifica
+  if (isChecking) {
+    console.log('ProtectedRoute: Still checking authentication...');
+    return <div>Verificando autenticação...</div>;
+  }
+
+  // Se não autenticado, não renderiza nada (vai redirecionar)
   if (!isAuth) {
-    console.log('Rendering nothing - user not authenticated');
+    console.log('ProtectedRoute: Not authenticated, rendering nothing');
     return null;
   }
 
-  console.log('Rendering protected content for:', location.pathname);
+  console.log('ProtectedRoute: Rendering protected content for:', location.pathname);
   return <>{children}</>;
 };
 

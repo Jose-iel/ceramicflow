@@ -23,11 +23,17 @@ const Login = () => {
 
   // Check if user is already authenticated
   useEffect(() => {
-    if (isUserAuthenticated()) {
-      const from = location.state?.from?.pathname || '/dashboard';
-      console.log('User already authenticated, redirecting to:', from);
-      navigate(from, { replace: true });
-    }
+    const checkAuth = () => {
+      if (isUserAuthenticated()) {
+        const from = location.state?.from?.pathname || '/dashboard';
+        console.log('Login: User already authenticated, redirecting to:', from);
+        navigate(from, { replace: true });
+      }
+    };
+    
+    // Pequeno delay para garantir que os cookies estão prontos
+    const timer = setTimeout(checkAuth, 100);
+    return () => clearTimeout(timer);
   }, [navigate, location]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,25 +41,37 @@ const Login = () => {
     setIsLoading(true);
 
     try {
+      console.log('Login: Starting login process for:', email);
+      
       // Simulate login delay
       await new Promise(resolve => setTimeout(resolve, 500));
       
       // Set authentication cookie
       setAuthCookie(email, rememberMe);
       
-      console.log('Login successful, user authenticated:', email);
+      console.log('Login: Cookie set, checking authentication...');
       
-      // Get the intended destination or default to dashboard
-      const from = location.state?.from?.pathname || '/dashboard';
-      console.log('Redirecting to:', from);
+      // Aguarda um pouco para o cookie ser processado
+      await new Promise(resolve => setTimeout(resolve, 200));
       
-      toast({
-        title: "Login realizado com sucesso!",
-        description: "Bem-vindo ao CeramicFlow.",
-      });
+      // Verifica se a autenticação foi bem-sucedida
+      const authCheck = isUserAuthenticated();
+      console.log('Login: Post-login auth check:', authCheck);
+      
+      if (authCheck) {
+        const from = location.state?.from?.pathname || '/dashboard';
+        console.log('Login: Success! Redirecting to:', from);
+        
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Bem-vindo ao CeramicFlow.",
+        });
 
-      // Navigate to intended page
-      navigate(from, { replace: true });
+        // Navigate to intended page
+        navigate(from, { replace: true });
+      } else {
+        throw new Error('Authentication failed after login');
+      }
       
     } catch (error) {
       console.error('Login error:', error);
