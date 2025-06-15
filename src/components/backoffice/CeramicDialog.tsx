@@ -21,7 +21,7 @@ const CeramicDialog: React.FC<CeramicDialogProps> = ({ open, onOpenChange, ceram
     address: '',
     phone: '',
     email: '',
-    isActive: true
+    is_active: true,
   });
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const CeramicDialog: React.FC<CeramicDialogProps> = ({ open, onOpenChange, ceram
         address: ceramic.address,
         phone: ceramic.phone,
         email: ceramic.email,
-        isActive: ceramic.isActive
+        is_active: ceramic.is_active,
       });
     } else {
       setFormData({
@@ -39,7 +39,7 @@ const CeramicDialog: React.FC<CeramicDialogProps> = ({ open, onOpenChange, ceram
         address: '',
         phone: '',
         email: '',
-        isActive: true
+        is_active: true,
       });
     }
   }, [ceramic]);
@@ -113,8 +113,8 @@ const CeramicDialog: React.FC<CeramicDialogProps> = ({ open, onOpenChange, ceram
           <div className="flex items-center space-x-2 py-2">
             <Switch
               id="isActive"
-              checked={formData.isActive}
-              onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+              checked={formData.is_active}
+              onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
             />
             <Label htmlFor="isActive" className="text-sm font-medium">Cerâmica Ativa</Label>
           </div>

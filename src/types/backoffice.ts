@@ -33,7 +33,7 @@ export interface Ceramic {
   address: string;
   phone: string;
   email: string;
-  isActive: boolean;
-  createdAt: string;
+  is_active: boolean;
+  created_at: string;
   users: BackofficeUser[];
 }

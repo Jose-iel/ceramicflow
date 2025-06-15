@@ -52,13 +52,13 @@ const CeramicsTab = () => {
     }
   };
 
-  const handleSaveCeramic = async (ceramicData: Partial<Omit<Ceramic, 'id' | 'createdAt' | 'users'>>) => {
+  const handleSaveCeramic = async (ceramicData: Partial<Omit<Ceramic, 'id' | 'created_at' | 'users'>>) => {
     const dataToSave = {
       name: ceramicData.name,
       address: ceramicData.address,
       phone: ceramicData.phone,
       email: ceramicData.email,
-      is_active: ceramicData.isActive
+      is_active: ceramicData.is_active,
     };
     
     let error;
@@ -134,8 +134,8 @@ const CeramicsTab = () => {
                 </div>
                 
                 <div className="flex justify-between items-center">
-                  <Badge variant={ceramic.isActive ? 'default' : 'secondary'} className="text-xs">
-                    {ceramic.isActive ? 'Ativa' : 'Inativa'}
+                  <Badge variant={ceramic.is_active ? 'default' : 'secondary'} className="text-xs">
+                    {ceramic.is_active ? 'Ativa' : 'Inativa'}
                   </Badge>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Users className="h-3 w-3" />
@@ -172,8 +172,8 @@ const CeramicsTab = () => {
                   <TableCell className="hidden md:table-cell">{ceramic.phone}</TableCell>
                   <TableCell className="max-w-[150px] truncate">{ceramic.email}</TableCell>
                   <TableCell>
-                    <Badge variant={ceramic.isActive ? 'default' : 'secondary'} className="text-xs">
-                      {ceramic.isActive ? 'Ativa' : 'Inativa'}
+                    <Badge variant={ceramic.is_active ? 'default' : 'secondary'} className="text-xs">
+                      {ceramic.is_active ? 'Ativa' : 'Inativa'}
                     </Badge>
                   </TableCell>
                   <TableCell>

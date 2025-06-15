@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import UserDialog from './UserDialog';
 import { BackofficeUser } from '@/types/backoffice';
+
+interface SelectOption {
+  id: string;
+  name: string;
+}
 
 interface Profile {
   id: string;
@@ -23,6 +27,8 @@ const UsersTab = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<BackofficeUser | null>(null);
+  const [ceramics, setCeramics] = useState<SelectOption[]>([]);
+  const [userLevels, setUserLevels] = useState<SelectOption[]>([]);
   const { toast } = useToast();
 
   const fetchUsers = async () => {
@@ -46,8 +52,27 @@ const UsersTab = () => {
     }
   };
 
+  const fetchAuxData = async () => {
+    try {
+      const { data: ceramicsData, error: ceramicsError } = await supabase.from('ceramics').select('id, name').order('name');
+      if (ceramicsError) throw ceramicsError;
+      setCeramics(ceramicsData || []);
+
+      const { data: levelsData, error: levelsError } = await supabase.from('user_levels').select('id, name').order('name');
+      if (levelsError) throw levelsError;
+      setUserLevels(levelsData || []);
+    } catch (error: any) {
+      toast({
+        title: "Erro ao carregar dados auxiliares",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
+    fetchAuxData();
   }, []);
 
   const handleCreateUser = () => {
@@ -88,11 +113,38 @@ const UsersTab = () => {
           .update({
             full_name: userData.full_name,
             is_admin: userData.is_admin,
-            // Cannot update user_level and ceramic_id without dialog changes
+            user_level_id: userData.user_level_id,
+            ceramic_id: userData.ceramic_id,
           })
           .eq('id', editingUser.id);
 
         if (error) throw error;
+      } else {
+        if (!userData.password) {
+          toast({ title: "Erro", description: "Senha é obrigatória para novos usuários.", variant: "destructive" });
+          return;
+        }
+
+        const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+          email: userData.email,
+          password: userData.password,
+          email_confirm: false,
+          user_metadata: {
+            full_name: userData.full_name,
+            ceramic_id: userData.ceramic_id,
+            user_level: userLevels.find(level => level.id === userData.user_level_id)?.name,
+          }
+        });
+
+        if (authError) throw authError;
+
+        if (userData.is_admin && authData.user) {
+          const { error: profileUpdateError } = await supabase
+            .from('profiles')
+            .update({ is_admin: true })
+            .eq('id', authData.user.id);
+          if (profileUpdateError) throw profileUpdateError;
+        }
       }
       
       await fetchUsers();
@@ -103,7 +155,7 @@ const UsersTab = () => {
       });
     } catch (error: any) {
       toast({
-        title: "Erro",
+        title: "Erro ao salvar usuário",
         description: error.message,
         variant: "destructive",
       });
@@ -242,8 +294,10 @@ const UsersTab = () => {
         <UserDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
-          user={editingUser as any}
+          user={editingUser}
           onSave={handleSaveUser}
+          ceramics={ceramics}
+          userLevels={userLevels}
         />
       </CardContent>
     </Card>
