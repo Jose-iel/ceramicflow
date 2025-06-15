@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -47,17 +46,20 @@ const UsersTab = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ['usersTabData'],
     queryFn: fetchUsersTabData,
-    onError: (error: any) => {
+  });
+
+  useEffect(() => {
+    if (isError) {
       toast({
         title: "Erro ao carregar dados",
-        description: error.message,
+        description: (error as Error).message,
         variant: "destructive",
       });
-    },
-  });
+    }
+  }, [isError, error, toast]);
   
   const users = data?.users || [];
   const ceramics = data?.ceramics || [];
