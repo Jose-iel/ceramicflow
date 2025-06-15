@@ -68,6 +68,52 @@ async function handleUsersTab(action: string, payload: any, supabase: any) {
   }
 }
 
+async function handleCeramicsTab(action: string, payload: any, supabase: any) {
+  switch (action) {
+    case 'getData': {
+      const { data, error } = await supabase.from('ceramics').select('*').order('name');
+      if (error) throw error;
+      return { ceramics: data };
+    }
+    case 'create': {
+      const { ceramicData } = payload;
+      // Garante que apenas os campos corretos sejam inseridos
+      const dataToSave = {
+        name: ceramicData.name,
+        address: ceramicData.address,
+        phone: ceramicData.phone,
+        email: ceramicData.email,
+        is_active: ceramicData.is_active,
+      };
+      const { error } = await supabase.from('ceramics').insert(dataToSave);
+      if (error) throw error;
+      return { success: true };
+    }
+    case 'update': {
+      const { ceramicId, ceramicData } = payload;
+       // Garante que apenas os campos corretos sejam atualizados
+      const dataToUpdate = {
+        name: ceramicData.name,
+        address: ceramicData.address,
+        phone: ceramicData.phone,
+        email: ceramicData.email,
+        is_active: ceramicData.is_active,
+      };
+      const { error } = await supabase.from('ceramics').update(dataToUpdate).eq('id', ceramicId);
+      if (error) throw error;
+      return { success: true };
+    }
+    case 'delete': {
+      const { ceramicId } = payload;
+      const { error } = await supabase.from('ceramics').delete().eq('id', ceramicId);
+      if (error) throw error;
+      return { success: true };
+    }
+    default:
+      throw new Error(`Ação inválida para o recurso de cerâmicas: ${action}`);
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -87,10 +133,9 @@ Deno.serve(async (req) => {
       case 'users-tab':
         data = await handleUsersTab(action, payload, supabase);
         break;
-      // Adicione outros recursos aqui no futuro. Ex:
-      // case 'ceramics-tab':
-      //   data = await handleCeramicsTab(action, payload, supabase);
-      //   break;
+      case 'ceramics-tab':
+        data = await handleCeramicsTab(action, payload, supabase);
+        break;
       default:
         throw new Error(`Recurso inválido: ${resource}`);
     }
