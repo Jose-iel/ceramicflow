@@ -5,76 +5,55 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Eye, EyeOff, Mountain } from 'lucide-react';
-import { setAuthData, isUserAuthenticated } from '@/utils/auth';
+import { signIn } from '@/utils/auth';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  // Check if user is already authenticated
+  // Redirecionar se já estiver logado
   useEffect(() => {
-    console.log('Login: Checking if user is already authenticated...');
-    
-    if (isUserAuthenticated()) {
+    if (user) {
       const from = location.state?.from?.pathname || '/dashboard';
-      console.log('Login: User already authenticated, redirecting to:', from);
       navigate(from, { replace: true });
     }
-  }, [navigate, location]);
+  }, [user, navigate, location]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      console.log('Login: Starting login process for:', email);
+      const { data, error } = await signIn(email, password);
       
-      // Simulate login delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Set authentication data
-      const success = setAuthData(email, rememberMe);
-      
-      if (!success) {
-        throw new Error('Failed to save authentication data');
+      if (error) {
+        throw new Error(error.message);
       }
       
-      console.log('Login: Auth data saved, checking authentication...');
-      
-      // Verifica se a autenticação foi bem-sucedida
-      const authCheck = isUserAuthenticated();
-      console.log('Login: Post-login auth check:', authCheck);
-      
-      if (authCheck) {
-        const from = location.state?.from?.pathname || '/dashboard';
-        console.log('Login: Success! Redirecting to:', from);
-        
+      if (data.user) {
         toast({
           title: "Login realizado com sucesso!",
           description: "Bem-vindo ao CeramicFlow.",
         });
 
-        // Navigate to intended page
+        const from = location.state?.from?.pathname || '/dashboard';
         navigate(from, { replace: true });
-      } else {
-        throw new Error('Authentication verification failed after login');
       }
       
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch (error: any) {
       toast({
         title: "Erro no login",
-        description: "Tente novamente.",
+        description: error.message || "Verifique suas credenciais e tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -136,17 +115,6 @@ const Login = () => {
               </div>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="remember"
-                checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-              />
-              <Label htmlFor="remember" className="text-sm">
-                Lembrar-se de mim
-              </Label>
-            </div>
-
             <Button 
               type="submit" 
               className="w-full" 
@@ -155,10 +123,6 @@ const Login = () => {
               {isLoading ? "Entrando..." : "Entrar"}
             </Button>
           </form>
-
-          <div className="mt-4 text-center text-sm text-muted-foreground">
-            <p>Use qualquer email e senha para acessar o sistema</p>
-          </div>
         </CardContent>
       </Card>
     </div>

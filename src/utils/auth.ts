@@ -1,84 +1,56 @@
 
+import { supabase } from '@/integrations/supabase/client';
+import type { User, Session } from '@supabase/supabase-js';
+
 export interface AuthData {
-  email: string;
-  isAuthenticated: boolean;
-  loginTime: number;
+  user: User;
+  session: Session;
+  isAdmin?: boolean;
 }
 
-const AUTH_STORAGE_KEY = 'ceramicflow_auth';
-const REMEMBER_STORAGE_KEY = 'ceramicflow_remember';
-
-export const setAuthData = (email: string, rememberMe: boolean = false) => {
-  const authData: AuthData = {
+// Fazer login
+export const signIn = async (email: string, password: string) => {
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
-    isAuthenticated: true,
-    loginTime: Date.now()
-  };
-
-  console.log('Setting auth data:', { email, rememberMe, authData });
+    password,
+  });
   
-  try {
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authData));
-    
-    if (rememberMe) {
-      localStorage.setItem(REMEMBER_STORAGE_KEY, 'true');
-    }
-
-    // Verificação imediata
-    const verification = localStorage.getItem(AUTH_STORAGE_KEY);
-    console.log('Auth data verification after setting:', verification);
-    
-    return true;
-  } catch (error) {
-    console.error('Error setting auth data:', error);
-    return false;
-  }
+  return { data, error };
 };
 
-export const getAuthData = (): AuthData | null => {
-  try {
-    const authDataStr = localStorage.getItem(AUTH_STORAGE_KEY);
-    
-    console.log('Raw auth data from localStorage:', authDataStr);
-    
-    if (!authDataStr) {
-      console.log('No auth data found');
-      return null;
-    }
-    
-    const authData: AuthData = JSON.parse(authDataStr);
-    console.log('Parsed auth data:', authData);
-    
-    // Verificação simples - se tem os dados e está marcado como autenticado
-    if (authData && authData.isAuthenticated && authData.email) {
-      console.log('User is authenticated');
-      return authData;
-    }
-    
-    console.log('User not authenticated according to stored data');
-    return null;
-    
-  } catch (error) {
-    console.error('Error reading auth data:', error);
-    clearAuthData();
-    return null;
-  }
+// Fazer logout
+export const signOut = async () => {
+  const { error } = await supabase.auth.signOut();
+  return { error };
 };
 
-export const clearAuthData = () => {
-  console.log('Clearing auth data');
-  localStorage.removeItem(AUTH_STORAGE_KEY);
-  localStorage.removeItem(REMEMBER_STORAGE_KEY);
+// Obter sessão atual
+export const getCurrentSession = async () => {
+  const { data: { session }, error } = await supabase.auth.getSession();
+  return { session, error };
 };
 
+// Verificar se usuário é admin
+export const checkIsAdmin = async (userId: string): Promise<boolean> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', userId)
+    .single();
+  
+  if (error || !data) return false;
+  return data.is_admin || false;
+};
+
+// Verificar se usuário está autenticado
 export const isUserAuthenticated = (): boolean => {
-  const authData = getAuthData();
-  const isAuth = authData !== null && authData.isAuthenticated === true;
-  console.log('Authentication check result:', isAuth, 'Auth data:', authData);
-  return isAuth;
+  return !!supabase.auth.getSession();
 };
 
-// Backward compatibility exports
+// Backward compatibility (não mais utilizadas, mas mantidas para não quebrar)
+export const setAuthData = () => true;
+export const getAuthData = () => null;
+export const clearAuthData = () => {};
 export const setAuthCookie = setAuthData;
 export const getAuthCookie = getAuthData;
 export const clearAuthCookie = clearAuthData;

@@ -1,83 +1,124 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Eye } from 'lucide-react';
-import { BackofficeUser, UserLevel } from '@/types/backoffice';
+import { Plus, Edit, Trash2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import UserDialog from './UserDialog';
 
-const mockUsers: BackofficeUser[] = [
-  {
-    id: '1',
-    name: 'João Silva',
-    email: 'joao@ceramica1.com',
-    userLevel: UserLevel.MANAGER,
-    ceramicId: '1',
-    isActive: true,
-    createdAt: '2024-01-15',
-    lastLogin: '2024-01-20'
-  },
-  {
-    id: '2',
-    name: 'Maria Santos',
-    email: 'maria@ceramica2.com',
-    userLevel: UserLevel.OPERATOR,
-    ceramicId: '2',
-    isActive: true,
-    createdAt: '2024-01-10'
-  }
-];
+interface Profile {
+  id: string;
+  email: string;
+  full_name: string;
+  is_admin: boolean;
+  created_at: string;
+}
 
 const UsersTab = () => {
-  const [users, setUsers] = useState<BackofficeUser[]>(mockUsers);
+  const [users, setUsers] = useState<Profile[]>([]);
+  const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<BackofficeUser | null>(null);
+  const [editingUser, setEditingUser] = useState<Profile | null>(null);
+  const { toast } = useToast();
+
+  const fetchUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setUsers(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Erro ao carregar usuários",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const handleCreateUser = () => {
     setEditingUser(null);
     setDialogOpen(true);
   };
 
-  const handleEditUser = (user: BackofficeUser) => {
+  const handleEditUser = (user: Profile) => {
     setEditingUser(user);
     setDialogOpen(true);
   };
 
-  const handleDeleteUser = (userId: string) => {
-    setUsers(users.filter(user => user.id !== userId));
-  };
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
 
-  const handleSaveUser = (userData: Partial<BackofficeUser>) => {
-    if (editingUser) {
-      setUsers(users.map(user => 
-        user.id === editingUser.id 
-          ? { ...user, ...userData }
-          : user
-      ));
-    } else {
-      const newUser: BackofficeUser = {
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString().split('T')[0],
-        isActive: true,
-        ...userData
-      } as BackofficeUser;
-      setUsers([...users, newUser]);
-    }
-    setDialogOpen(false);
-  };
+    try {
+      const { error } = await supabase.auth.admin.deleteUser(userId);
+      if (error) throw error;
 
-  const getUserLevelColor = (level: UserLevel) => {
-    switch (level) {
-      case UserLevel.ADMIN: return 'destructive';
-      case UserLevel.MANAGER: return 'default';
-      case UserLevel.SUPERVISOR: return 'secondary';
-      case UserLevel.OPERATOR: return 'outline';
-      case UserLevel.VIEWER: return 'outline';
-      default: return 'outline';
+      await fetchUsers();
+      toast({
+        title: "Usuário excluído com sucesso",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao excluir usuário",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
+
+  const handleSaveUser = async (userData: any) => {
+    try {
+      if (editingUser) {
+        // Atualizar usuário existente
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            full_name: userData.full_name,
+            is_admin: userData.is_admin
+          })
+          .eq('id', editingUser.id);
+
+        if (error) throw error;
+      }
+      
+      await fetchUsers();
+      setDialogOpen(false);
+      toast({
+        title: editingUser ? "Usuário atualizado" : "Usuário criado",
+        description: "Operação realizada com sucesso.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -86,7 +127,7 @@ const UsersTab = () => {
           <div className="space-y-1">
             <CardTitle className="text-lg sm:text-xl">Gerenciamento de Usuários</CardTitle>
             <CardDescription className="text-sm">
-              Crie, edite e gerencie todos os usuários do sistema
+              Gerencie todos os usuários do sistema
             </CardDescription>
           </div>
           <Button 
@@ -107,7 +148,7 @@ const UsersTab = () => {
               <div className="space-y-3">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-medium text-base">{user.name}</h3>
+                    <h3 className="font-medium text-base">{user.full_name || user.email}</h3>
                     <p className="text-sm text-muted-foreground">{user.email}</p>
                   </div>
                   <div className="flex gap-1">
@@ -129,17 +170,13 @@ const UsersTab = () => {
                 </div>
                 
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant={getUserLevelColor(user.userLevel)} className="text-xs">
-                    {user.userLevel}
-                  </Badge>
-                  <Badge variant={user.isActive ? 'default' : 'secondary'} className="text-xs">
-                    {user.isActive ? 'Ativo' : 'Inativo'}
+                  <Badge variant={user.is_admin ? 'destructive' : 'outline'} className="text-xs">
+                    {user.is_admin ? 'Administrador' : 'Usuário'}
                   </Badge>
                 </div>
                 
-                <div className="text-xs text-muted-foreground space-y-1">
-                  <p>Cerâmica: {user.ceramicId ? `Cerâmica ${user.ceramicId}` : 'Não definida'}</p>
-                  <p>Último login: {user.lastLogin || 'Nunca'}</p>
+                <div className="text-xs text-muted-foreground">
+                  <p>Criado em: {new Date(user.created_at).toLocaleDateString('pt-BR')}</p>
                 </div>
               </div>
             </Card>
@@ -153,32 +190,24 @@ const UsersTab = () => {
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Nível</TableHead>
-                <TableHead className="hidden lg:table-cell">Cerâmica</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="hidden xl:table-cell">Último Login</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead className="hidden lg:table-cell">Criado em</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.name}</TableCell>
+                  <TableCell className="font-medium">{user.full_name || '-'}</TableCell>
                   <TableCell className="max-w-[200px] truncate">{user.email}</TableCell>
                   <TableCell>
-                    <Badge variant={getUserLevelColor(user.userLevel)} className="text-xs">
-                      {user.userLevel}
+                    <Badge variant={user.is_admin ? 'destructive' : 'outline'} className="text-xs">
+                      {user.is_admin ? 'Administrador' : 'Usuário'}
                     </Badge>
                   </TableCell>
                   <TableCell className="hidden lg:table-cell">
-                    {user.ceramicId ? `Cerâmica ${user.ceramicId}` : 'Não definida'}
+                    {new Date(user.created_at).toLocaleDateString('pt-BR')}
                   </TableCell>
-                  <TableCell>
-                    <Badge variant={user.isActive ? 'default' : 'secondary'} className="text-xs">
-                      {user.isActive ? 'Ativo' : 'Inativo'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="hidden xl:table-cell">{user.lastLogin || 'Nunca'}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <Button

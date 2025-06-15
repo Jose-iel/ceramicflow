@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -6,9 +7,9 @@ import VehicleCard from '@/components/vehicle/VehicleCard';
 import { Vehicle, VehicleStatus, VehicleType } from '@/types';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { clearAuthCookie, getAuthCookie } from '@/utils/auth';
+import { useAuth } from '@/hooks/useAuth';
 
-// Mock data for the dashboard
+// Mock data temporário até implementarmos dados reais
 const mockVehicles: Vehicle[] = [
   {
     id: 'G001',
@@ -51,6 +52,7 @@ const mockVehicles: Vehicle[] = [
 const Index = () => {
   const isMobile = useIsMobile();
   const [currentDate, setCurrentDate] = useState<string>('');
+  const { user } = useAuth();
   
   useEffect(() => {
     // Set current date in Brazilian format
@@ -67,12 +69,6 @@ const Index = () => {
     setCurrentDate(prev => 
       prev.charAt(0).toUpperCase() + prev.slice(1)
     );
-
-    // Log user info for debugging
-    const authData = getAuthCookie();
-    if (authData) {
-      console.log('Usuário autenticado:', authData.email);
-    }
   }, []);
 
   return (
@@ -80,8 +76,8 @@ const Index = () => {
       <Sidebar />
       
       <div className={cn(
-        "flex-1 flex flex-col min-w-0", // Add min-w-0 to prevent overflow
-        !isMobile && "ml-64" // Offset for sidebar when not mobile
+        "flex-1 flex flex-col min-w-0",
+        !isMobile && "ml-64"
       )}>
         <Navbar 
           title="Dashboard" 
@@ -104,7 +100,7 @@ const Index = () => {
                 <VehicleCard 
                   key={vehicle.id} 
                   vehicle={vehicle} 
-                  onClick={() => console.log(`Clicked on ${vehicle.id}`)}
+                  onClick={() => {}}
                 />
               ))}
             </div>
