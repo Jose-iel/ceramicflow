@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,7 +30,7 @@ const UsersTab = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
-        .select('*, ceramics(name)')
+        .select('*, ceramics(name), user_levels(name)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -172,7 +173,7 @@ const UsersTab = () => {
                 
                 <div className="flex flex-wrap gap-2 text-xs">
                    <Badge variant={user.is_admin ? 'destructive' : 'outline'}>
-                    {user.is_admin ? 'Admin Global' : user.user_level}
+                    {user.is_admin ? 'Admin Global' : user.user_levels?.name || 'N/A'}
                   </Badge>
                   {user.ceramics && (
                     <Badge variant="secondary">{user.ceramics.name}</Badge>
@@ -207,7 +208,7 @@ const UsersTab = () => {
                   <TableCell className="max-w-[200px] truncate">{user.email}</TableCell>
                   <TableCell>
                     <Badge variant={user.is_admin ? 'destructive' : 'outline'} className="text-xs">
-                      {user.is_admin ? 'Admin Global' : user.user_level}
+                      {user.is_admin ? 'Admin Global' : user.user_levels?.name || 'N/A'}
                     </Badge>
                   </TableCell>
                   <TableCell>{user.ceramics?.name || '-'}</TableCell>
