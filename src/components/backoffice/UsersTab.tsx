@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import UserDialog from './UserDialog';
 import { BackofficeUser } from '@/types/backoffice';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 
 interface SelectOption {
   id: string;
@@ -29,6 +32,7 @@ const UsersTab = () => {
   const [editingUser, setEditingUser] = useState<BackofficeUser | null>(null);
   const [ceramics, setCeramics] = useState<SelectOption[]>([]);
   const [userLevels, setUserLevels] = useState<SelectOption[]>([]);
+  const [selectedCeramic, setSelectedCeramic] = useState('');
   const { toast } = useToast();
 
   const fetchUsers = async () => {
@@ -160,6 +164,10 @@ const UsersTab = () => {
     );
   }
 
+  const filteredUsers = users.filter(user => 
+    !selectedCeramic || user.ceramic_id === selectedCeramic
+  );
+
   return (
     <Card>
       <CardHeader className="pb-4">
@@ -179,11 +187,25 @@ const UsersTab = () => {
             <span className="sm:inline">Novo Usuário</span>
           </Button>
         </div>
+        <div className="pt-4 space-y-2">
+          <Label htmlFor="ceramic-filter" className="text-sm font-medium">Filtrar por Cerâmica</Label>
+          <Select value={selectedCeramic} onValueChange={(value) => setSelectedCeramic(value === 'all' ? '' : value)}>
+            <SelectTrigger id="ceramic-filter" className="w-full sm:w-[280px]">
+              <SelectValue placeholder="Todas as cerâmicas" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as cerâmicas</SelectItem>
+              {ceramics.map(ceramic => (
+                <SelectItem key={ceramic.id} value={ceramic.id}>{ceramic.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
       <CardContent className="p-0 sm:p-6">
         {/* Mobile Card View */}
         <div className="block sm:hidden space-y-4 p-4">
-          {users.map((user) => (
+          {filteredUsers.length > 0 ? filteredUsers.map((user) => (
             <Card key={user.id} className="p-4">
               <div className="space-y-3">
                 <div className="flex justify-between items-start">
@@ -223,7 +245,7 @@ const UsersTab = () => {
                 </div>
               </div>
             </Card>
-          ))}
+          )) : <p className="text-center text-muted-foreground p-4">Nenhum usuário encontrado para a cerâmica selecionada.</p>}
         </div>
 
         {/* Desktop Table View */}
@@ -240,7 +262,7 @@ const UsersTab = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
+              {filteredUsers.length > 0 ? filteredUsers.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.full_name || '-'}</TableCell>
                   <TableCell className="max-w-[200px] truncate">{user.email}</TableCell>
@@ -272,7 +294,13 @@ const UsersTab = () => {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">
+                    Nenhum usuário encontrado para a cerâmica selecionada.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
