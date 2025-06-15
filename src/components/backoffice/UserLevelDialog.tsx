@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -5,8 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { UserLevelAccess, UserLevel, Route } from '@/types/backoffice';
+import { UserLevelAccess, Route } from '@/types/backoffice';
 import { supabase } from '@/integrations/supabase/client';
 
 interface UserLevelDialogProps {
@@ -18,7 +18,7 @@ interface UserLevelDialogProps {
 
 const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, userLevel, onSave }) => {
   const [formData, setFormData] = useState({
-    name: UserLevel.VIEWER,
+    name: '',
     description: '',
     allowedRoutes: [] as string[]
   });
@@ -39,7 +39,7 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
       });
     } else {
       setFormData({
-        name: UserLevel.VIEWER,
+        name: '',
         description: '',
         allowedRoutes: []
       });
@@ -51,18 +51,18 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
     onSave(formData);
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
   const handleRouteChange = (routePath: string, checked: boolean) => {
-    if (checked) {
-      setFormData(prev => ({
-        ...prev,
-        allowedRoutes: [...prev.allowedRoutes, routePath]
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        allowedRoutes: prev.allowedRoutes.filter(path => path !== routePath)
-      }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      allowedRoutes: checked
+        ? [...prev.allowedRoutes, routePath]
+        : prev.allowedRoutes.filter(path => path !== routePath)
+    }));
   };
 
   return (
@@ -77,8 +77,27 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-medium">Nível de Usuário</Label>
-            <Input value={formData.name} readOnly className="bg-gray-100"/>
+            <Label htmlFor="name" className="text-sm font-medium">Nome do Nível</Label>
+            <Input
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              readOnly={!!userLevel}
+              className={!!userLevel ? 'bg-gray-100' : ''}
+              placeholder="Ex: Marketing"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-sm font-medium">Descrição</Label>
+            <Textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Descreva o propósito deste nível de acesso"
+            />
           </div>
 
           <div className="space-y-2">

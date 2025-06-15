@@ -355,7 +355,7 @@ export type Database = {
           is_admin: boolean | null
           last_login: string | null
           updated_at: string | null
-          user_level: Database["public"]["Enums"]["user_level"] | null
+          user_level_id: string | null
         }
         Insert: {
           ceramic_id?: string | null
@@ -367,7 +367,7 @@ export type Database = {
           is_admin?: boolean | null
           last_login?: string | null
           updated_at?: string | null
-          user_level?: Database["public"]["Enums"]["user_level"] | null
+          user_level_id?: string | null
         }
         Update: {
           ceramic_id?: string | null
@@ -379,9 +379,16 @@ export type Database = {
           is_admin?: boolean | null
           last_login?: string | null
           updated_at?: string | null
-          user_level?: Database["public"]["Enums"]["user_level"] | null
+          user_level_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_user_level_id"
+            columns: ["user_level_id"]
+            isOneToOne: false
+            referencedRelation: "user_levels"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_ceramic_id_fkey"
             columns: ["ceramic_id"]
@@ -420,21 +427,28 @@ export type Database = {
           created_at: string | null
           id: string
           route_id: string | null
-          user_level: Database["public"]["Enums"]["user_level"]
+          user_level_id: string
         }
         Insert: {
           created_at?: string | null
           id?: string
           route_id?: string | null
-          user_level: Database["public"]["Enums"]["user_level"]
+          user_level_id: string
         }
         Update: {
           created_at?: string | null
           id?: string
           route_id?: string | null
-          user_level?: Database["public"]["Enums"]["user_level"]
+          user_level_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_user_level_id"
+            columns: ["user_level_id"]
+            isOneToOne: false
+            referencedRelation: "user_levels"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "user_level_permissions_route_id_fkey"
             columns: ["route_id"]
@@ -443,6 +457,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_levels: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
       }
       vehicles: {
         Row: {
@@ -603,7 +638,7 @@ export type Database = {
       }
     }
     Enums: {
-      user_level: "ADMIN" | "MANAGER" | "SUPERVISOR" | "OPERATOR" | "VIEWER"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -718,8 +753,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      user_level: ["ADMIN", "MANAGER", "SUPERVISOR", "OPERATOR", "VIEWER"],
-    },
+    Enums: {},
   },
 } as const

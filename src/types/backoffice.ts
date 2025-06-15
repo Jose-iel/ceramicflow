@@ -1,12 +1,4 @@
 
-export enum UserLevel {
-  ADMIN = "ADMIN",
-  MANAGER = "MANAGER",
-  SUPERVISOR = "SUPERVISOR", 
-  OPERATOR = "OPERATOR",
-  VIEWER = "VIEWER"
-}
-
 export interface Route {
   id: string;
   path: string;
@@ -16,9 +8,9 @@ export interface Route {
 
 export interface UserLevelAccess {
   id: string;
-  name: UserLevel;
+  name: string;
   description: string;
-  allowedRoutes: string[]; // Route IDs
+  allowedRoutes: string[]; // Route paths
 }
 
 export interface BackofficeUser {
@@ -26,7 +18,8 @@ export interface BackofficeUser {
   email: string | null;
   full_name: string | null;
   is_admin: boolean | null;
-  user_level: UserLevel | null;
+  user_level_id: string | null;
+  user_levels?: { name: string } | null;
   ceramic_id: string | null;
   ceramics?: { name: string } | null;
   is_active: boolean | null;
