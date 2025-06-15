@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -12,73 +13,81 @@ import { BackofficeUser } from '@/types/backoffice';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 
-interface SelectOption {
-  id: string;
-  name: string;
-}
+// Funções para interagir com o BFF
+const fetchUsersTabData = async () => {
+  const { data, error } = await supabase.functions.invoke('backoffice-bff', {
+    body: { resource: 'users-tab', action: 'getData' },
+  });
+  if (error) throw new Error(error.message);
+  return data;
+};
 
-interface Profile {
-  id: string;
-  email: string;
-  full_name: string;
-  is_admin: boolean;
-  created_at: string;
-}
+const saveUser = async (userData: any, editingUser: BackofficeUser | null) => {
+  const action = editingUser ? 'update' : 'create';
+  const payload = editingUser ? { userId: editingUser.id, userData } : userData;
+
+  const { error } = await supabase.functions.invoke('backoffice-bff', {
+    body: { resource: 'users-tab', action, payload },
+  });
+  if (error) throw new Error(error.message);
+};
+
+const deleteUser = async (userId: string) => {
+    if (!confirm('Tem certeza que deseja excluir este usuário?')) throw new Error('Exclusão cancelada');
+    const { error } = await supabase.functions.invoke('backoffice-bff', {
+        body: { resource: 'users-tab', action: 'delete', payload: { userId } },
+    });
+    if (error) throw new Error(error.message);
+};
 
 const UsersTab = () => {
-  const [users, setUsers] = useState<BackofficeUser[]>([]);
-  const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<BackofficeUser | null>(null);
-  const [ceramics, setCeramics] = useState<SelectOption[]>([]);
-  const [userLevels, setUserLevels] = useState<SelectOption[]>([]);
   const [selectedCeramic, setSelectedCeramic] = useState('');
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*, ceramics(name), user_levels(name)')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setUsers(data as BackofficeUser[] || []);
-    } catch (error: any) {
+  const { data, isLoading } = useQuery({
+    queryKey: ['usersTabData'],
+    queryFn: fetchUsersTabData,
+    onError: (error: any) => {
       toast({
-        title: "Erro ao carregar usuários",
+        title: "Erro ao carregar dados",
         description: error.message,
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+  });
+  
+  const users = data?.users || [];
+  const ceramics = data?.ceramics || [];
+  const userLevels = data?.userLevels || [];
 
-  const fetchAuxData = async () => {
-    try {
-      const { data: ceramicsData, error: ceramicsError } = await supabase.from('ceramics').select('id, name').order('name');
-      if (ceramicsError) throw ceramicsError;
-      setCeramics(ceramicsData || []);
-
-      const { data: levelsData, error: levelsError } = await supabase.from('user_levels').select('id, name').order('name');
-      if (levelsError) throw levelsError;
-      setUserLevels(levelsData || []);
-    } catch (error: any) {
-      toast({
-        title: "Erro ao carregar dados auxiliares",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-    fetchAuxData();
-  }, []);
-
+  const saveUserMutation = useMutation({
+    mutationFn: (userData: any) => saveUser(userData, editingUser),
+    onSuccess: () => {
+      toast({ title: editingUser ? "Usuário atualizado" : "Usuário criado", description: "Operação realizada com sucesso." });
+      queryClient.invalidateQueries({ queryKey: ['usersTabData'] });
+      setDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Erro ao salvar usuário", description: error.message, variant: "destructive" });
+    },
+  });
+  
+  const deleteUserMutation = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => {
+      toast({ title: "Usuário excluído com sucesso" });
+      queryClient.invalidateQueries({ queryKey: ['usersTabData'] });
+    },
+    onError: (error: any) => {
+      if (error.message !== 'Exclusão cancelada') {
+        toast({ title: "Erro ao excluir usuário", description: error.message, variant: "destructive" });
+      }
+    },
+  });
+  
   const handleCreateUser = () => {
     setEditingUser(null);
     setDialogOpen(true);
@@ -89,70 +98,15 @@ const UsersTab = () => {
     setDialogOpen(true);
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
-
-    try {
-      const { error } = await supabase.auth.admin.deleteUser(userId);
-      if (error) throw error;
-
-      await fetchUsers();
-      toast({
-        title: "Usuário excluído com sucesso",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Erro ao excluir usuário",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+  const handleDeleteUser = (userId: string) => {
+    deleteUserMutation.mutate(userId);
   };
 
-  const handleSaveUser = async (userData: any) => {
-    try {
-      if (editingUser) {
-        const { error } = await supabase
-          .from('profiles')
-          .update({
-            full_name: userData.full_name,
-            is_admin: userData.is_admin,
-            user_level_id: userData.user_level_id,
-            ceramic_id: userData.ceramic_id,
-          })
-          .eq('id', editingUser.id);
-
-        if (error) throw error;
-      } else {
-        if (!userData.password) {
-          toast({ title: "Erro", description: "Senha é obrigatória para novos usuários.", variant: "destructive" });
-          return;
-        }
-
-        const { data, error } = await supabase.functions.invoke('create-user', {
-          body: userData,
-        });
-
-        if (error) throw error;
-        if (data.error) throw new Error(data.error);
-      }
-      
-      await fetchUsers();
-      setDialogOpen(false);
-      toast({
-        title: editingUser ? "Usuário atualizado" : "Usuário criado",
-        description: "Operação realizada com sucesso.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Erro ao salvar usuário",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+  const handleSaveUser = (userData: any) => {
+    saveUserMutation.mutate(userData);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card>
         <CardContent className="p-6">
@@ -164,7 +118,7 @@ const UsersTab = () => {
     );
   }
 
-  const filteredUsers = users.filter(user => 
+  const filteredUsers = users.filter((user: BackofficeUser) => 
     !selectedCeramic || user.ceramic_id === selectedCeramic
   );
 
@@ -195,7 +149,7 @@ const UsersTab = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas as cerâmicas</SelectItem>
-              {ceramics.map(ceramic => (
+              {ceramics.map((ceramic: {id: string, name: string}) => (
                 <SelectItem key={ceramic.id} value={ceramic.id}>{ceramic.name}</SelectItem>
               ))}
             </SelectContent>
