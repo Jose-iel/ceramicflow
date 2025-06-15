@@ -1,10 +1,10 @@
 
 export enum UserLevel {
-  ADMIN = "Administrador",
-  MANAGER = "Gerente",
-  SUPERVISOR = "Supervisor", 
-  OPERATOR = "Operador",
-  VIEWER = "Visualizador"
+  ADMIN = "ADMIN",
+  MANAGER = "MANAGER",
+  SUPERVISOR = "SUPERVISOR", 
+  OPERATOR = "OPERATOR",
+  VIEWER = "VIEWER"
 }
 
 export interface Route {
@@ -23,13 +23,15 @@ export interface UserLevelAccess {
 
 export interface BackofficeUser {
   id: string;
-  name: string;
-  email: string;
-  userLevel: UserLevel;
-  ceramicId?: string;
-  isActive: boolean;
-  createdAt: string;
-  lastLogin?: string;
+  email: string | null;
+  full_name: string | null;
+  is_admin: boolean | null;
+  user_level: UserLevel | null;
+  ceramic_id: string | null;
+  ceramics?: { name: string } | null;
+  is_active: boolean | null;
+  created_at: string;
+  last_login: string | null;
 }
 
 export interface Ceramic {

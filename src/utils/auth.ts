@@ -30,27 +30,14 @@ export const getCurrentSession = async () => {
   return { session, error };
 };
 
-// Verificar se usuário é admin
-export const checkIsAdmin = async (userId: string): Promise<boolean> => {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('is_admin')
-    .eq('id', userId)
-    .single();
+// Verificar se usuário tem permissão para uma rota
+export const checkRoutePermission = async (userId: string, routePath: string) => {
+  if (!userId || !routePath) return { data: false, error: null };
   
-  if (error || !data) return false;
-  return data.is_admin || false;
-};
+  const { data, error } = await supabase.rpc('user_has_route_permission', {
+    user_id: userId,
+    route_path: routePath
+  });
 
-// Verificar se usuário está autenticado
-export const isUserAuthenticated = (): boolean => {
-  return !!supabase.auth.getSession();
+  return { data, error };
 };
-
-// Backward compatibility (não mais utilizadas, mas mantidas para não quebrar)
-export const setAuthData = () => true;
-export const getAuthData = () => null;
-export const clearAuthData = () => {};
-export const setAuthCookie = setAuthData;
-export const getAuthCookie = getAuthData;
-export const clearAuthCookie = clearAuthData;

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Plus, Edit, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import UserDialog from './UserDialog';
+import { BackofficeUser } from '@/types/backoffice';
 
 interface Profile {
   id: string;
@@ -18,21 +18,22 @@ interface Profile {
 }
 
 const UsersTab = () => {
-  const [users, setUsers] = useState<Profile[]>([]);
+  const [users, setUsers] = useState<BackofficeUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<Profile | null>(null);
+  const [editingUser, setEditingUser] = useState<BackofficeUser | null>(null);
   const { toast } = useToast();
 
   const fetchUsers = async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('*, ceramics(name)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setUsers(data || []);
+      setUsers(data as BackofficeUser[] || []);
     } catch (error: any) {
       toast({
         title: "Erro ao carregar usuários",
@@ -53,7 +54,7 @@ const UsersTab = () => {
     setDialogOpen(true);
   };
 
-  const handleEditUser = (user: Profile) => {
+  const handleEditUser = (user: BackofficeUser) => {
     setEditingUser(user);
     setDialogOpen(true);
   };
@@ -81,12 +82,12 @@ const UsersTab = () => {
   const handleSaveUser = async (userData: any) => {
     try {
       if (editingUser) {
-        // Atualizar usuário existente
         const { error } = await supabase
           .from('profiles')
           .update({
             full_name: userData.full_name,
-            is_admin: userData.is_admin
+            is_admin: userData.is_admin,
+            // Cannot update user_level and ceramic_id without dialog changes
           })
           .eq('id', editingUser.id);
 
@@ -169,10 +170,13 @@ const UsersTab = () => {
                   </div>
                 </div>
                 
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant={user.is_admin ? 'destructive' : 'outline'} className="text-xs">
-                    {user.is_admin ? 'Administrador' : 'Usuário'}
+                <div className="flex flex-wrap gap-2 text-xs">
+                   <Badge variant={user.is_admin ? 'destructive' : 'outline'}>
+                    {user.is_admin ? 'Admin Global' : user.user_level}
                   </Badge>
+                  {user.ceramics && (
+                    <Badge variant="secondary">{user.ceramics.name}</Badge>
+                  )}
                 </div>
                 
                 <div className="text-xs text-muted-foreground">
@@ -190,7 +194,8 @@ const UsersTab = () => {
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Tipo</TableHead>
+                <TableHead>Nível</TableHead>
+                <TableHead>Cerâmica</TableHead>
                 <TableHead className="hidden lg:table-cell">Criado em</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
@@ -202,9 +207,10 @@ const UsersTab = () => {
                   <TableCell className="max-w-[200px] truncate">{user.email}</TableCell>
                   <TableCell>
                     <Badge variant={user.is_admin ? 'destructive' : 'outline'} className="text-xs">
-                      {user.is_admin ? 'Administrador' : 'Usuário'}
+                      {user.is_admin ? 'Admin Global' : user.user_level}
                     </Badge>
                   </TableCell>
+                  <TableCell>{user.ceramics?.name || '-'}</TableCell>
                   <TableCell className="hidden lg:table-cell">
                     {new Date(user.created_at).toLocaleDateString('pt-BR')}
                   </TableCell>
@@ -235,7 +241,7 @@ const UsersTab = () => {
         <UserDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
-          user={editingUser}
+          user={editingUser as any}
           onSave={handleSaveUser}
         />
       </CardContent>

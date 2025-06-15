@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -73,7 +72,7 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/admin-backoffice" element={
-              <ProtectedRoute requireAdmin={true}>
+              <ProtectedRoute>
                 <AdminBackoffice />
               </ProtectedRoute>
             } />

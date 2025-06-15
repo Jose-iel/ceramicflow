@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -7,34 +6,30 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Users } from 'lucide-react';
 import { Ceramic } from '@/types/backoffice';
 import CeramicDialog from './CeramicDialog';
-
-const mockCeramics: Ceramic[] = [
-  {
-    id: '1',
-    name: 'Cerâmica São José',
-    address: 'Rua das Flores, 123 - Centro',
-    phone: '(11) 1234-5678',
-    email: 'contato@ceramicasaojose.com',
-    isActive: true,
-    createdAt: '2024-01-15',
-    users: []
-  },
-  {
-    id: '2',
-    name: 'Cerâmica Bela Vista',
-    address: 'Av. Industrial, 456 - Distrito Industrial',
-    phone: '(11) 8765-4321',
-    email: 'admin@ceramicabelavista.com',
-    isActive: true,
-    createdAt: '2024-01-10',
-    users: []
-  }
-];
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const CeramicsTab = () => {
-  const [ceramics, setCeramics] = useState<Ceramic[]>(mockCeramics);
+  const [ceramics, setCeramics] = useState<Ceramic[]>([]);
+  const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCeramic, setEditingCeramic] = useState<Ceramic | null>(null);
+  const { toast } = useToast();
+
+  const fetchCeramics = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from('ceramics').select('*');
+    if (error) {
+      toast({ title: "Erro ao buscar cerâmicas", description: error.message, variant: 'destructive' });
+    } else {
+      setCeramics(data as any[] || []);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchCeramics();
+  }, []);
 
   const handleCreateCeramic = () => {
     setEditingCeramic(null);
@@ -46,29 +41,43 @@ const CeramicsTab = () => {
     setDialogOpen(true);
   };
 
-  const handleDeleteCeramic = (ceramicId: string) => {
-    setCeramics(ceramics.filter(ceramic => ceramic.id !== ceramicId));
+  const handleDeleteCeramic = async (ceramicId: string) => {
+    if (!confirm('Tem certeza que deseja excluir esta cerâmica?')) return;
+    const { error } = await supabase.from('ceramics').delete().eq('id', ceramicId);
+    if (error) {
+      toast({ title: 'Erro ao excluir', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Cerâmica excluída!' });
+      fetchCeramics();
+    }
   };
 
-  const handleSaveCeramic = (ceramicData: Partial<Ceramic>) => {
+  const handleSaveCeramic = async (ceramicData: Partial<Omit<Ceramic, 'id' | 'createdAt' | 'users'>>) => {
+    const dataToSave = {
+      name: ceramicData.name,
+      address: ceramicData.address,
+      phone: ceramicData.phone,
+      email: ceramicData.email,
+      is_active: ceramicData.isActive
+    };
+    
+    let error;
     if (editingCeramic) {
-      setCeramics(ceramics.map(ceramic => 
-        ceramic.id === editingCeramic.id 
-          ? { ...ceramic, ...ceramicData }
-          : ceramic
-      ));
+      ({ error } = await supabase.from('ceramics').update(dataToSave).eq('id', editingCeramic.id));
     } else {
-      const newCeramic: Ceramic = {
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString().split('T')[0],
-        users: [],
-        isActive: true,
-        ...ceramicData
-      } as Ceramic;
-      setCeramics([...ceramics, newCeramic]);
+      ({ error } = await supabase.from('ceramics').insert(dataToSave));
     }
-    setDialogOpen(false);
+
+    if (error) {
+      toast({ title: 'Erro ao salvar', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Cerâmica salva com sucesso!' });
+      setDialogOpen(false);
+      fetchCeramics();
+    }
   };
+
+  if (loading) return <div>Carregando...</div>;
 
   return (
     <Card>
@@ -130,7 +139,8 @@ const CeramicsTab = () => {
                   </Badge>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Users className="h-3 w-3" />
-                    {ceramic.users.length}
+                    {/* User count would require another query. Leaving as 0 for now. */}
+                    0
                   </div>
                 </div>
               </div>
@@ -169,7 +179,8 @@ const CeramicsTab = () => {
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <Users className="h-4 w-4" />
-                      {ceramic.users.length}
+                      {/* User count requires another query. Leaving as 0. */}
+                      0
                     </div>
                   </TableCell>
                   <TableCell>
@@ -200,7 +211,7 @@ const CeramicsTab = () => {
           open={dialogOpen}
           onOpenChange={setDialogOpen}
           ceramic={editingCeramic}
-          onSave={handleSaveCeramic}
+          onSave={handleSaveCeramic as any}
         />
       </CardContent>
     </Card>

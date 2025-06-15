@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { UserLevelAccess, UserLevel } from '@/types/backoffice';
+import { UserLevelAccess, UserLevel, Route } from '@/types/backoffice';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UserLevelDialogProps {
   open: boolean;
@@ -16,23 +16,19 @@ interface UserLevelDialogProps {
   onSave: (levelData: Partial<UserLevelAccess>) => void;
 }
 
-const availableRoutes = [
-  { id: 'dashboard', name: 'Dashboard', description: 'Página inicial com visão geral' },
-  { id: 'vehicles', name: 'Veículos', description: 'Gerenciamento de veículos' },
-  { id: 'employees', name: 'Funcionários', description: 'Gerenciamento de funcionários' },
-  { id: 'operations', name: 'Operações', description: 'Controle de operações' },
-  { id: 'maintenance', name: 'Manutenção', description: 'Manutenção de equipamentos' },
-  { id: 'wood', name: 'Lenha', description: 'Controle de lenha' },
-  { id: 'raw-material', name: 'Matéria Prima', description: 'Controle de matéria prima' },
-  { id: 'reports', name: 'Relatórios', description: 'Relatórios do sistema' }
-];
-
 const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, userLevel, onSave }) => {
   const [formData, setFormData] = useState({
     name: UserLevel.VIEWER,
     description: '',
     allowedRoutes: [] as string[]
   });
+  const [availableRoutes, setAvailableRoutes] = useState<Route[]>([]);
+
+  useEffect(() => {
+    supabase.from('routes').select('*').then(({ data }) => {
+      if (data) setAvailableRoutes(data as Route[]);
+    });
+  }, []);
 
   useEffect(() => {
     if (userLevel) {
@@ -55,17 +51,17 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
     onSave(formData);
   };
 
-  const handleRouteChange = (routeId: string, checked: boolean) => {
+  const handleRouteChange = (routePath: string, checked: boolean) => {
     if (checked) {
-      setFormData({
-        ...formData,
-        allowedRoutes: [...formData.allowedRoutes, routeId]
-      });
+      setFormData(prev => ({
+        ...prev,
+        allowedRoutes: [...prev.allowedRoutes, routePath]
+      }));
     } else {
-      setFormData({
-        ...formData,
-        allowedRoutes: formData.allowedRoutes.filter(id => id !== routeId)
-      });
+      setFormData(prev => ({
+        ...prev,
+        allowedRoutes: prev.allowedRoutes.filter(path => path !== routePath)
+      }));
     }
   };
 
@@ -82,46 +78,22 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-sm font-medium">Nível de Usuário</Label>
-            <Select value={formData.name} onValueChange={(value) => setFormData({ ...formData, name: value as UserLevel })}>
-              <SelectTrigger className="text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(UserLevel).map((level) => (
-                  <SelectItem key={level} value={level}>
-                    {level}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-medium">Descrição</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Descreva as responsabilidades deste nível..."
-              required
-              className="text-sm min-h-[60px] resize-none"
-              rows={3}
-            />
+            <Input value={formData.name} readOnly className="bg-gray-100"/>
           </div>
 
           <div className="space-y-2">
             <Label className="text-sm font-medium">Rotas Permitidas</Label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[200px] sm:max-h-60 overflow-y-auto border rounded-md p-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[300px] sm:max-h-80 overflow-y-auto border rounded-md p-3">
               {availableRoutes.map((route) => (
                 <div key={route.id} className="flex items-start space-x-2">
                   <Checkbox
-                    id={route.id}
-                    checked={formData.allowedRoutes.includes(route.id)}
-                    onCheckedChange={(checked) => handleRouteChange(route.id, checked as boolean)}
+                    id={route.path}
+                    checked={formData.allowedRoutes.includes(route.path)}
+                    onCheckedChange={(checked) => handleRouteChange(route.path, checked as boolean)}
                   />
                   <div className="grid gap-1.5 leading-none min-w-0 flex-1">
                     <Label
-                      htmlFor={route.id}
+                      htmlFor={route.path}
                       className="text-xs sm:text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                     >
                       {route.name}
@@ -140,7 +112,7 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
               Cancelar
             </Button>
             <Button type="submit" className="w-full sm:w-auto">
-              {userLevel ? 'Salvar Alterações' : 'Criar Nível'}
+              Salvar Alterações
             </Button>
           </div>
         </form>
