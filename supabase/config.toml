@@ -1,1 +1,16 @@
+
 project_id = "xvzrvzhmppkjydvefcnt"
+
+[api]
+enabled = true
+extra_headers = []
+
+[database]
+major_version = 15
+
+[functions.create-user]
+verify_jwt = true
+
+[auth]
+# ... keep existing code
+

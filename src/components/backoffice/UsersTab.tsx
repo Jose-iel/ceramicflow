@@ -125,26 +125,12 @@ const UsersTab = () => {
           return;
         }
 
-        const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-          email: userData.email,
-          password: userData.password,
-          email_confirm: false,
-          user_metadata: {
-            full_name: userData.full_name,
-            ceramic_id: userData.ceramic_id,
-            user_level: userLevels.find(level => level.id === userData.user_level_id)?.name,
-          }
+        const { data, error } = await supabase.functions.invoke('create-user', {
+          body: userData,
         });
 
-        if (authError) throw authError;
-
-        if (userData.is_admin && authData.user) {
-          const { error: profileUpdateError } = await supabase
-            .from('profiles')
-            .update({ is_admin: true })
-            .eq('id', authData.user.id);
-          if (profileUpdateError) throw profileUpdateError;
-        }
+        if (error) throw error;
+        if (data.error) throw new Error(data.error);
       }
       
       await fetchUsers();
