@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { UserLevelAccess, Route } from '@/types/backoffice';
-import { supabase } from '@/integrations/supabase/client';
+import { useRoutes } from '@/integrations/supabase/hooks';
 
 interface UserLevelDialogProps {
   open: boolean;
@@ -22,13 +22,7 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
     description: '',
     allowedRoutes: [] as string[]
   });
-  const [availableRoutes, setAvailableRoutes] = useState<Route[]>([]);
-
-  useEffect(() => {
-    supabase.from('routes').select('*').then(({ data }) => {
-      if (data) setAvailableRoutes(data as Route[]);
-    });
-  }, []);
+  const { data: routes = [] } = useRoutes();
 
   useEffect(() => {
     if (userLevel) {
@@ -103,7 +97,7 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
           <div className="space-y-2">
             <Label className="text-sm font-medium">Rotas Permitidas</Label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[300px] sm:max-h-80 overflow-y-auto border rounded-md p-3">
-              {availableRoutes.map((route) => (
+              {routes.map((route) => (
                 <div key={route.id} className="flex items-start space-x-2">
                   <Checkbox
                     id={route.path}

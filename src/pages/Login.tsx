@@ -34,7 +34,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await signIn(email, password);
+      await signIn(email, password);
       
       if (error) {
         throw new Error(error.message);

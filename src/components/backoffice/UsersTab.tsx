@@ -1,94 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useUsersTabData, useCreateUser, useUpdateUser, useDeleteUser } from '@/integrations/supabase/hooks';
 import UserDialog from './UserDialog';
 import { BackofficeUser } from '@/types/backoffice';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 
-// Funções para interagir com o BFF
-const fetchUsersTabData = async () => {
-  const { data, error } = await supabase.functions.invoke('backoffice-bff', {
-    body: { resource: 'users-tab', action: 'getData' },
-  });
-  if (error) throw new Error(error.message);
-  return data;
-};
-
-const saveUser = async (userData: any, editingUser: BackofficeUser | null) => {
-  const action = editingUser ? 'update' : 'create';
-  const payload = editingUser ? { userId: editingUser.id, userData } : userData;
-
-  const { error } = await supabase.functions.invoke('backoffice-bff', {
-    body: { resource: 'users-tab', action, payload },
-  });
-  if (error) throw new Error(error.message);
-};
-
-const deleteUser = async (userId: string) => {
-    if (!confirm('Tem certeza que deseja excluir este usuário?')) throw new Error('Exclusão cancelada');
-    const { error } = await supabase.functions.invoke('backoffice-bff', {
-        body: { resource: 'users-tab', action: 'delete', payload: { userId } },
-    });
-    if (error) throw new Error(error.message);
-};
 
 const UsersTab = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<BackofficeUser | null>(null);
   const [selectedCeramic, setSelectedCeramic] = useState('');
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['usersTabData'],
-    queryFn: fetchUsersTabData,
-  });
-
-  useEffect(() => {
-    if (isError) {
-      toast({
-        title: "Erro ao carregar dados",
-        description: (error as Error).message,
-        variant: "destructive",
-      });
-    }
-  }, [isError, error, toast]);
+  const { data, isLoading, isError } = useUsersTabData();
+  const createUserMutation = useCreateUser();
+  const updateUserMutation = useUpdateUser();
+  const deleteUserMutation = useDeleteUser();
   
   const users = data?.users || [];
   const ceramics = data?.ceramics || [];
   const userLevels = data?.userLevels || [];
-
-  const saveUserMutation = useMutation({
-    mutationFn: (userData: any) => saveUser(userData, editingUser),
-    onSuccess: () => {
-      toast({ title: editingUser ? "Usuário atualizado" : "Usuário criado", description: "Operação realizada com sucesso." });
-      queryClient.invalidateQueries({ queryKey: ['usersTabData'] });
-      setDialogOpen(false);
-    },
-    onError: (error: any) => {
-      toast({ title: "Erro ao salvar usuário", description: error.message, variant: "destructive" });
-    },
-  });
-  
-  const deleteUserMutation = useMutation({
-    mutationFn: deleteUser,
-    onSuccess: () => {
-      toast({ title: "Usuário excluído com sucesso" });
-      queryClient.invalidateQueries({ queryKey: ['usersTabData'] });
-    },
-    onError: (error: any) => {
-      if (error.message !== 'Exclusão cancelada') {
-        toast({ title: "Erro ao excluir usuário", description: error.message, variant: "destructive" });
-      }
-    },
-  });
   
   const handleCreateUser = () => {
     setEditingUser(null);
@@ -101,11 +36,20 @@ const UsersTab = () => {
   };
 
   const handleDeleteUser = (userId: string) => {
+    if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
     deleteUserMutation.mutate(userId);
   };
 
   const handleSaveUser = (userData: any) => {
-    saveUserMutation.mutate(userData);
+    if (editingUser) {
+      updateUserMutation.mutate({ userId: editingUser.id, userData }, {
+        onSuccess: () => setDialogOpen(false),
+      });
+    } else {
+      createUserMutation.mutate(userData, {
+        onSuccess: () => setDialogOpen(false),
+      });
+    }
   };
 
   if (isLoading) {

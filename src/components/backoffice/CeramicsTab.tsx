@@ -1,6 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -8,84 +7,18 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Users } from 'lucide-react';
 import { Ceramic } from '@/types/backoffice';
 import CeramicDialog from './CeramicDialog';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useCeramicsData, useCreateCeramic, useUpdateCeramic, useDeleteCeramic } from '@/integrations/supabase/hooks';
 
-// Funções para interagir com o BFF
-const fetchCeramicsData = async () => {
-  const { data, error } = await supabase.functions.invoke('backoffice-bff', {
-    body: { resource: 'ceramics-tab', action: 'getData' },
-  });
-  if (error) throw new Error(error.message);
-  // O BFF agora retorna um objeto { ceramics: [] }
-  return data.ceramics || [];
-};
-
-const saveCeramic = async (ceramicData: Partial<Omit<Ceramic, 'id' | 'created_at' | 'users'>>, editingCeramic: Ceramic | null) => {
-  const action = editingCeramic ? 'update' : 'create';
-  const payload = editingCeramic
-    ? { ceramicId: editingCeramic.id, ceramicData }
-    : { ceramicData };
-
-  const { error } = await supabase.functions.invoke('backoffice-bff', {
-    body: { resource: 'ceramics-tab', action, payload },
-  });
-  if (error) throw new Error(error.message);
-};
-
-const deleteCeramic = async (ceramicId: string) => {
-  if (!confirm('Tem certeza que deseja excluir esta cerâmica?')) throw new Error('Exclusão cancelada');
-  const { error } = await supabase.functions.invoke('backoffice-bff', {
-    body: { resource: 'ceramics-tab', action: 'delete', payload: { ceramicId } },
-  });
-  if (error) throw new Error(error.message);
-};
 
 const CeramicsTab = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCeramic, setEditingCeramic] = useState<Ceramic | null>(null);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
 
-  const { data: ceramics = [], isLoading, isError, error } = useQuery<Ceramic[]>({
-    queryKey: ['ceramics'],
-    queryFn: fetchCeramicsData,
-  });
+  const { data: ceramics = [], isLoading, isError } = useCeramicsData();
+  const createCeramicMutation = useCreateCeramic();
+  const updateCeramicMutation = useUpdateCeramic();
+  const deleteCeramicMutation = useDeleteCeramic();
 
-  useEffect(() => {
-    if (isError) {
-      toast({
-        title: "Erro ao carregar cerâmicas",
-        description: (error as Error).message,
-        variant: "destructive",
-      });
-    }
-  }, [isError, error, toast]);
-
-  const saveCeramicMutation = useMutation({
-    mutationFn: (ceramicData: Partial<Omit<Ceramic, 'id' | 'created_at' | 'users'>>) => saveCeramic(ceramicData, editingCeramic),
-    onSuccess: () => {
-      toast({ title: editingCeramic ? "Cerâmica atualizada" : "Cerâmica criada", description: "Operação realizada com sucesso." });
-      queryClient.invalidateQueries({ queryKey: ['ceramics'] });
-      setDialogOpen(false);
-    },
-    onError: (error: any) => {
-      toast({ title: "Erro ao salvar cerâmica", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const deleteCeramicMutation = useMutation({
-    mutationFn: deleteCeramic,
-    onSuccess: () => {
-      toast({ title: "Cerâmica excluída com sucesso" });
-      queryClient.invalidateQueries({ queryKey: ['ceramics'] });
-    },
-    onError: (error: any) => {
-      if (error.message !== 'Exclusão cancelada') {
-        toast({ title: "Erro ao excluir cerâmica", description: error.message, variant: "destructive" });
-      }
-    },
-  });
 
   const handleCreateCeramic = () => {
     setEditingCeramic(null);
@@ -98,11 +31,20 @@ const CeramicsTab = () => {
   };
 
   const handleDeleteCeramic = (ceramicId: string) => {
+    if (!confirm('Tem certeza que deseja excluir esta cerâmica?')) return;
     deleteCeramicMutation.mutate(ceramicId);
   };
 
   const handleSaveCeramic = (ceramicData: Partial<Omit<Ceramic, 'id' | 'created_at' | 'users'>>) => {
-    saveCeramicMutation.mutate(ceramicData);
+    if (editingCeramic) {
+      updateCeramicMutation.mutate({ ceramicId: editingCeramic.id, ceramicData }, {
+        onSuccess: () => setDialogOpen(false),
+      });
+    } else {
+      createCeramicMutation.mutate(ceramicData, {
+        onSuccess: () => setDialogOpen(false),
+      });
+    }
   };
 
   if (isLoading) {

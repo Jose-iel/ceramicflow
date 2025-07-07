@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { checkRoutePermission } from '@/utils/auth';
+import { hasRoutePermission } from '@/utils/auth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

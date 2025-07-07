@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -7,8 +6,12 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { UserLevelAccess } from '@/types/backoffice';
 import UserLevelDialog from './UserLevelDialog';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { 
+  useUserLevels, 
+  useCreateUserLevel, 
+  useUpdateUserLevel, 
+  useDeleteUserLevel 
+} from '@/integrations/supabase/hooks';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,131 +25,41 @@ import {
 } from "@/components/ui/alert-dialog"
 
 const UserLevelsTab = () => {
-  const [userLevels, setUserLevels] = useState<UserLevelAccess[]>([]);
-  const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingLevel, setEditingLevel] = useState<UserLevelAccess | null>(null);
-  const { toast } = useToast();
+  const [editingLevel, setEditingLevel] = useState<any>(null);
 
-  const fetchUserLevels = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('user_levels')
-      .select(`
-        id,
-        name,
-        description,
-        user_level_permissions (
-          routes ( path )
-        )
-      `);
-
-    if (error) {
-      toast({ title: "Erro ao buscar níveis", description: error.message, variant: 'destructive' });
-      setLoading(false);
-      return;
-    }
-
-    const formattedLevels = data.map(level => ({
-      id: level.id,
-      name: level.name,
-      description: level.description || '',
-      allowedRoutes: level.user_level_permissions.map((p: any) => p.routes.path)
-    }));
-    
-    setUserLevels(formattedLevels);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchUserLevels();
-  }, []);
+  const { data: userLevels = [], isLoading } = useUserLevels();
+  const createUserLevelMutation = useCreateUserLevel();
+  const updateUserLevelMutation = useUpdateUserLevel();
+  const deleteUserLevelMutation = useDeleteUserLevel();
 
   const handleAddNew = () => {
     setEditingLevel(null);
     setDialogOpen(true);
   };
 
-  const handleEditLevel = (level: UserLevelAccess) => {
+  const handleEditLevel = (level: any) => {
     setEditingLevel(level);
     setDialogOpen(true);
   };
 
-  const handleDeleteLevel = async (levelId: string) => {
-    const { error } = await supabase.from('user_levels').delete().eq('id', levelId);
-    if (error) {
-      toast({ title: "Erro ao deletar nível", description: error.message, variant: 'destructive' });
+  const handleDeleteLevel = (levelId: string) => {
+    deleteUserLevelMutation.mutate(levelId);
+  };
+
+  const handleSaveLevel = (levelData: { name: string; description?: string; permissions: string[] }) => {
+    if (editingLevel) {
+      updateUserLevelMutation.mutate({ levelId: editingLevel.id, payload: levelData }, {
+        onSuccess: () => setDialogOpen(false),
+      });
     } else {
-      toast({ title: "Nível deletado com sucesso!" });
-      fetchUserLevels();
+      createUserLevelMutation.mutate(levelData, {
+        onSuccess: () => setDialogOpen(false),
+      });
     }
   };
 
-  const handleSaveLevel = async (levelData: Partial<UserLevelAccess>) => {
-    const { name, description, allowedRoutes } = levelData;
-    let levelId = editingLevel?.id;
-
-    if (!levelId) {
-      if (!name) {
-        toast({ title: 'Nome do nível é obrigatório', variant: 'destructive' });
-        return;
-      }
-      const { data: newLevel, error: insertError } = await supabase
-        .from('user_levels')
-        .insert({ name, description })
-        .select('id')
-        .single();
-      
-      if (insertError) {
-        toast({ title: 'Erro ao criar nível', description: insertError.message, variant: 'destructive' });
-        return;
-      }
-      levelId = newLevel.id;
-    } else {
-      const { error: updateError } = await supabase
-        .from('user_levels')
-        .update({ description })
-        .eq('id', levelId);
-      if (updateError) {
-        toast({ title: 'Erro ao atualizar descrição', description: updateError.message, variant: 'destructive' });
-      }
-    }
-    
-    if (!levelId) return;
-
-    const { data: routes, error: routesError } = await supabase.from('routes').select('id, path');
-    if (routesError) {
-      toast({ title: 'Erro ao buscar rotas', description: routesError.message, variant: 'destructive' });
-      return;
-    }
-
-    const { error: deleteError } = await supabase.from('user_level_permissions').delete().eq('user_level_id', levelId);
-    if (deleteError) {
-      toast({ title: 'Erro ao limpar permissões antigas', description: deleteError.message, variant: 'destructive' });
-      return;
-    }
-
-    const permissionsToInsert = allowedRoutes
-      ?.map(path => {
-        const route = routes.find(r => r.path === path);
-        return route ? { user_level_id: levelId, route_id: route.id } : null;
-      })
-      .filter(p => p !== null);
-
-    if (permissionsToInsert && permissionsToInsert.length > 0) {
-      const { error: insertError } = await supabase.from('user_level_permissions').insert(permissionsToInsert as any);
-      if (insertError) {
-        toast({ title: 'Erro ao salvar novas permissões', description: insertError.message, variant: 'destructive' });
-        return;
-      }
-    }
-
-    toast({ title: 'Nível de acesso salvo com sucesso!' });
-    setDialogOpen(false);
-    fetchUserLevels();
-  };
-
-  if (loading) return <div className="text-center p-8">Carregando...</div>;
+  if (isLoading) return <div className="text-center p-8">Carregando...</div>;
 
   return (
     <Card>
@@ -181,22 +94,7 @@ const UserLevelsTab = () => {
                   <TableCell className="text-sm text-muted-foreground hidden md:table-cell">{level.description}</TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1 max-w-xs">
-                      {level.allowedRoutes.length > 0 ? (
-                        <>
-                          {level.allowedRoutes.slice(0, 3).map((route) => (
-                            <Badge key={route} variant="outline" className="text-xs">
-                              {route}
-                            </Badge>
-                          ))}
-                          {level.allowedRoutes.length > 3 && (
-                            <Badge variant="secondary" className="text-xs">
-                              +{level.allowedRoutes.length - 3} mais
-                            </Badge>
-                          )}
-                        </>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">Nenhuma</span>
-                      )}
+                      <span className="text-xs text-muted-foreground">Configurar permissões</span>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
