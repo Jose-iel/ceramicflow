@@ -35,7 +35,7 @@ const CeramicsTab = () => {
     deleteCeramicMutation.mutate(ceramicId);
   };
 
-  const handleSaveCeramic = (ceramicData: Partial<Omit<Ceramic, 'id' | 'created_at' | 'users'>>) => {
+  const handleSaveCeramic = (ceramicData: any) => {
     if (editingCeramic) {
       updateCeramicMutation.mutate({ ceramicId: editingCeramic.id, ceramicData }, {
         onSuccess: () => setDialogOpen(false),

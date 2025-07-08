@@ -5,6 +5,8 @@ import { AuthService } from '../api/auth';
 interface AuthContextType {
   user: User | null;
   session: Session | null;
+  profile: any;
+  loading: boolean;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -16,6 +18,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -69,10 +72,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return AuthService.hasRoutePermission(user.id, routePath);
   };
 
-  return (
+    return (
     <AuthContext.Provider value={{
       user,
       session,
+      profile,
+      loading: isLoading,
       isLoading,
       signIn,
       signOut,

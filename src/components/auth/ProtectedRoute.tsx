@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { hasRoutePermission } from '@/utils/auth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -11,7 +10,7 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, profile, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading, hasRoutePermission } = useAuth();
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   
   const routePath = location.pathname.split('/')[1] || 'dashboard';
@@ -33,7 +32,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     }
     
     if (user && user.id && routePath) {
-      checkRoutePermission(user.id, routePath).then(({ data }) => {
+      hasRoutePermission(routePath).then((data) => {
         setHasPermission(data);
       });
     } else {
