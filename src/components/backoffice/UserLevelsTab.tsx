@@ -4,13 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2 } from 'lucide-react';
-import { UserLevelAccess } from '@/types/backoffice';
 import UserLevelDialog from './UserLevelDialog';
 import { 
   useUserLevels, 
   useCreateUserLevel, 
   useUpdateUserLevel, 
-  useDeleteUserLevel 
+  useDeleteUserLevel,
+  useRoutes
 } from '@/integrations/supabase/hooks';
 import {
   AlertDialog,
@@ -29,6 +29,7 @@ const UserLevelsTab = () => {
   const [editingLevel, setEditingLevel] = useState<any>(null);
 
   const { data: userLevels = [], isLoading } = useUserLevels();
+  const { data: routes = [] } = useRoutes();
   const createUserLevelMutation = useCreateUserLevel();
   const updateUserLevelMutation = useUpdateUserLevel();
   const deleteUserLevelMutation = useDeleteUserLevel();
@@ -57,6 +58,11 @@ const UserLevelsTab = () => {
         onSuccess: () => setDialogOpen(false),
       });
     }
+  };
+
+  const getRouteName = (routeId: string) => {
+    const route = routes.find(r => r.id === routeId);
+    return route ? route.name : routeId;
   };
 
   if (isLoading) return <div className="text-center p-8">Carregando...</div>;
@@ -94,7 +100,20 @@ const UserLevelsTab = () => {
                   <TableCell className="text-sm text-muted-foreground hidden md:table-cell">{level.description}</TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1 max-w-xs">
-                      <span className="text-xs text-muted-foreground">Configurar permissões</span>
+                      {level.permissions && level.permissions.length > 0 ? (
+                        level.permissions.slice(0, 3).map((routeId: string) => (
+                          <Badge key={routeId} variant="secondary" className="text-xs">
+                            {getRouteName(routeId)}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Nenhuma rota configurada</span>
+                      )}
+                      {level.permissions && level.permissions.length > 3 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{level.permissions.length - 3} mais
+                        </Badge>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">

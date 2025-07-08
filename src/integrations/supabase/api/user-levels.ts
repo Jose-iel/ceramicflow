@@ -5,6 +5,7 @@ export interface UserLevel {
   name: string;
   description?: string;
   created_at?: string;
+  permissions?: string[];
 }
 
 export interface Route {
@@ -33,7 +34,15 @@ export class UserLevelsService {
       throw new Error(error.message);
     }
 
-    return data || [];
+    // Buscar permissões para cada nível
+    const levelsWithPermissions = await Promise.all(
+      (data || []).map(async (level) => {
+        const permissions = await this.getUserLevelPermissions(level.id);
+        return { ...level, permissions };
+      })
+    );
+
+    return levelsWithPermissions;
   }
 
   static async getAllRoutes(): Promise<Route[]> {
