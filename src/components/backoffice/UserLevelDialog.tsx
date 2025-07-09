@@ -27,20 +27,22 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
   const { data: currentPermissions = [] } = useUserLevelPermissions(userLevel?.id || '');
 
   useEffect(() => {
-    if (userLevel) {
-      setFormData({
-        name: userLevel.name,
-        description: userLevel.description || '',
-        selectedRoutes: currentPermissions
-      });
-    } else {
-      setFormData({
-        name: '',
-        description: '',
-        selectedRoutes: []
-      });
+    if (open) {
+      if (userLevel) {
+        setFormData({
+          name: userLevel.name,
+          description: userLevel.description || '',
+          selectedRoutes: currentPermissions
+        });
+      } else {
+        setFormData({
+          name: '',
+          description: '',
+          selectedRoutes: []
+        });
+      }
     }
-  }, [userLevel, currentPermissions]);
+  }, [open, userLevel, currentPermissions.join(',')]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
