@@ -22,73 +22,98 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [permissionsCache, setPermissionsCache] = useState<Record<string, boolean>>({});
+  const [initializationComplete, setInitializationComplete] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+    
     const initializeAuth = async () => {
       try {
         const currentSession = await AuthService.getSession();
+        
+        if (!isMounted) return;
+        
         setSession(currentSession);
         setUser(currentSession?.user || null);
         
         if (currentSession?.user) {
-          try {
-            const userProfile = await AuthService.getCurrentProfile();
-            setProfile(userProfile);
-            
-            // Pre-carregar permissões para todas as rotas principais
+          // Carregar perfil primeiro
+          const userProfile = await AuthService.getCurrentProfile();
+          
+          if (!isMounted) return;
+          
+          setProfile(userProfile);
+          
+          // Se é admin, não precisa carregar permissões específicas
+          if (userProfile?.is_admin) {
+            // Admin tem acesso a tudo - criar cache básico
+            const adminCache = {
+              'dashboard': true, 'vehicles': true, 'employees': true, 
+              'operations': true, 'maintenance': true, 'wood': true, 
+              'raw-material': true, 'gas-supply': true, 'sales': true, 
+              'operators': true, 'forklifts': true, 'reports': true, 'admin': true
+            };
+            setPermissionsCache(adminCache);
+          } else {
+            // Para usuários não-admin, carregar permissões apenas uma vez
             const routes = ['dashboard', 'vehicles', 'employees', 'operations', 'maintenance', 'wood', 'raw-material', 'gas-supply', 'sales', 'operators', 'forklifts', 'reports', 'admin'];
-            const permissionsPromises = routes.map(async (route) => {
-              try {
+            
+            try {
+              const permissionsPromises = routes.map(async (route) => {
                 const hasPermission = await AuthService.hasRoutePermission(currentSession.user.id, route);
                 return { route, hasPermission };
-              } catch {
-                return { route, hasPermission: false };
-              }
-            });
-            
-            const permissions = await Promise.all(permissionsPromises);
-            const permissionsMap = permissions.reduce((acc, { route, hasPermission }) => {
-              acc[route] = hasPermission;
-              return acc;
-            }, {} as Record<string, boolean>);
-            
-            setPermissionsCache(permissionsMap);
-          } catch (error) {
-            console.error('Error loading user profile:', error);
+              });
+              
+              const permissions = await Promise.all(permissionsPromises);
+              
+              if (!isMounted) return;
+              
+              const permissionsMap = permissions.reduce((acc, { route, hasPermission }) => {
+                acc[route] = hasPermission;
+                return acc;
+              }, {} as Record<string, boolean>);
+              
+              setPermissionsCache(permissionsMap);
+            } catch (error) {
+              console.error('Error loading permissions:', error);
+              // Em caso de erro, permitir acesso básico
+              setPermissionsCache({ 'dashboard': true });
+            }
           }
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+          setInitializationComplete(true);
+        }
       }
     };
 
     initializeAuth();
 
-    const subscription = AuthService.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user || null);
-        
-        if (session?.user && event === 'SIGNED_IN') {
-          try {
-            const userProfile = await AuthService.getCurrentProfile();
-            setProfile(userProfile);
-          } catch (error) {
-            console.error('Error loading user profile:', error);
-          }
-        } else if (event === 'SIGNED_OUT') {
-          setProfile(null);
-          setPermissionsCache({});
-        }
-        
+    const subscription = AuthService.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
+      
+      setSession(session);
+      setUser(session?.user || null);
+      
+      if (event === 'SIGNED_OUT') {
+        setProfile(null);
+        setPermissionsCache({});
         setIsLoading(false);
+      } else if (session?.user && event === 'SIGNED_IN' && !initializationComplete) {
+        // Apenas recarregar se não foi inicializado ainda
+        initializeAuth();
       }
-    );
+    });
 
-    return () => subscription.data.subscription.unsubscribe();
-  }, []);
+    return () => {
+      isMounted = false;
+      subscription.data.subscription.unsubscribe();
+    };
+  }, [initializationComplete]);
 
   const signIn = async (email: string, password: string) => {
     setIsLoading(true);
@@ -98,12 +123,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(authSession);
       
       if (authUser) {
-        try {
-          const userProfile = await AuthService.getCurrentProfile();
-          setProfile(userProfile);
-        } catch (error) {
-          console.error('Error loading user profile after login:', error);
-        }
+        const userProfile = await AuthService.getCurrentProfile();
+        setProfile(userProfile);
       }
     } finally {
       setIsLoading(false);
@@ -116,25 +137,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await AuthService.signOut();
       setProfile(null);
       setPermissionsCache({});
+      setInitializationComplete(false);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Função otimizada que usa cache
+  // Função otimizada que usa cache sem fazer requisições adicionais
   const hasRoutePermission = (routePath: string): boolean => {
-    if (!user) return false;
+    if (!user || !profile) return false;
     
     // Se é admin, sempre permitir
-    if (profile?.is_admin) return true;
+    if (profile.is_admin) return true;
     
-    // Usar cache se disponível
-    if (permissionsCache.hasOwnProperty(routePath)) {
-      return permissionsCache[routePath];
-    }
-    
-    // Se não tem no cache, assumir falso para evitar loading
-    return false;
+    // Usar cache - sem fallback para requisições
+    return permissionsCache[routePath] || false;
   };
 
   return (
