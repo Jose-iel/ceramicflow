@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -41,14 +42,22 @@ export function useCreateOperation() {
       const { data, error } = await supabase
         .from('operations')
         .insert({
-          ...operationData,
+          type: operationData.type,
+          location: operationData.location,
+          operator: operationData.operator,
+          start_date: operationData.start_date,
+          end_date: operationData.end_date,
+          status: operationData.status,
+          employee_id: operationData.employee_id,
+          vehicle_id: operationData.vehicle_id,
+          operation_type: operationData.operation_type,
+          description: operationData.description,
+          initial_hour_meter: operationData.initial_hour_meter,
+          current_hour_meter: operationData.current_hour_meter,
+          start_time: operationData.start_time,
+          end_time: operationData.end_time,
+          gas_consumption: operationData.gas_consumption,
           ceramic_id: profile.ceramic_id,
-          start_date: operationData.startDate ? 
-            new Date(operationData.startDate.split('/').reverse().join('-')).toISOString().split('T')[0] 
-            : null,
-          end_date: operationData.endDate ? 
-            new Date(operationData.endDate.split('/').reverse().join('-')).toISOString().split('T')[0] 
-            : null,
         })
         .select()
         .single();
@@ -80,13 +89,21 @@ export function useUpdateOperation() {
       const { data, error } = await supabase
         .from('operations')
         .update({
-          ...operationData,
-          start_date: operationData.startDate ? 
-            new Date(operationData.startDate.split('/').reverse().join('-')).toISOString().split('T')[0] 
-            : null,
-          end_date: operationData.endDate ? 
-            new Date(operationData.endDate.split('/').reverse().join('-')).toISOString().split('T')[0] 
-            : null,
+          type: operationData.type,
+          location: operationData.location,
+          operator: operationData.operator,
+          start_date: operationData.start_date,
+          end_date: operationData.end_date,
+          status: operationData.status,
+          employee_id: operationData.employee_id,
+          vehicle_id: operationData.vehicle_id,
+          operation_type: operationData.operation_type,
+          description: operationData.description,
+          initial_hour_meter: operationData.initial_hour_meter,
+          current_hour_meter: operationData.current_hour_meter,
+          start_time: operationData.start_time,
+          end_time: operationData.end_time,
+          gas_consumption: operationData.gas_consumption,
         })
         .eq('id', operationId)
         .select()

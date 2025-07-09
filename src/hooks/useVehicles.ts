@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -37,15 +38,14 @@ export function useCreateVehicle() {
       const { data, error } = await supabase
         .from('vehicles')
         .insert({
-          ...vehicleData,
+          model: vehicleData.model,
+          type: vehicleData.type,
+          capacity: vehicleData.capacity,
+          acquisition_date: vehicleData.acquisition_date,
+          last_maintenance: vehicleData.last_maintenance,
+          status: vehicleData.status,
+          hour_meter: vehicleData.hour_meter,
           ceramic_id: profile.ceramic_id,
-          acquisition_date: vehicleData.acquisitionDate ? 
-            new Date(vehicleData.acquisitionDate.split('/').reverse().join('-')).toISOString().split('T')[0] 
-            : null,
-          last_maintenance: vehicleData.lastMaintenance ? 
-            new Date(vehicleData.lastMaintenance.split('/').reverse().join('-')).toISOString().split('T')[0] 
-            : null,
-          hour_meter: vehicleData.hourMeter || 0,
         })
         .select()
         .single();
@@ -77,14 +77,13 @@ export function useUpdateVehicle() {
       const { data, error } = await supabase
         .from('vehicles')
         .update({
-          ...vehicleData,
-          acquisition_date: vehicleData.acquisitionDate ? 
-            new Date(vehicleData.acquisitionDate.split('/').reverse().join('-')).toISOString().split('T')[0] 
-            : null,
-          last_maintenance: vehicleData.lastMaintenance ? 
-            new Date(vehicleData.lastMaintenance.split('/').reverse().join('-')).toISOString().split('T')[0] 
-            : null,
-          hour_meter: vehicleData.hourMeter || 0,
+          model: vehicleData.model,
+          type: vehicleData.type,
+          capacity: vehicleData.capacity,
+          acquisition_date: vehicleData.acquisition_date,
+          last_maintenance: vehicleData.last_maintenance,
+          status: vehicleData.status,
+          hour_meter: vehicleData.hour_meter,
         })
         .eq('id', vehicleId)
         .select()
