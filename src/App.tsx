@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { AuthProvider } from "@/integrations/supabase/hooks/use-auth";
 import Index from "./pages/Index";
 import Vehicles from "./pages/Vehicles";
 import Employees from "./pages/Employees";
@@ -38,114 +39,116 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<Login />} />
-              
-              {/* Protected routes */}
-              <Route 
-                path="/dashboard" 
-                element={
-                  <ProtectedRoute>
-                    <Index />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/vehicles" 
-                element={
-                  <ProtectedRoute>
-                    <Vehicles />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/employees" 
-                element={
-                  <ProtectedRoute>
-                    <Employees />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/operations" 
-                element={
-                  <ProtectedRoute>
-                    <Operations />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/maintenance" 
-                element={
-                  <ProtectedRoute>
-                    <Maintenance />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/wood" 
-                element={
-                  <ProtectedRoute>
-                    <Wood />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/raw-material" 
-                element={
-                  <ProtectedRoute>
-                    <RawMaterial />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/gas-supply" 
-                element={
-                  <ProtectedRoute>
-                    <GasSupply />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/operators" 
-                element={
-                  <ProtectedRoute>
-                    <Operators />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/forklifts" 
-                element={
-                  <ProtectedRoute>
-                    <Forklifts />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/reports" 
-                element={
-                  <ProtectedRoute>
-                    <Reports />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin" 
-                element={
-                  <ProtectedRoute>
-                    <AdminBackoffice />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* Catch all route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <AuthProvider>
+            <BrowserRouter>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={<Login />} />
+                
+                {/* Protected routes */}
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <Index />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/vehicles" 
+                  element={
+                    <ProtectedRoute>
+                      <Vehicles />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/employees" 
+                  element={
+                    <ProtectedRoute>
+                      <Employees />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/operations" 
+                  element={
+                    <ProtectedRoute>
+                      <Operations />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/maintenance" 
+                  element={
+                    <ProtectedRoute>
+                      <Maintenance />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/wood" 
+                  element={
+                    <ProtectedRoute>
+                      <Wood />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/raw-material" 
+                  element={
+                    <ProtectedRoute>
+                      <RawMaterial />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/gas-supply" 
+                  element={
+                    <ProtectedRoute>
+                      <GasSupply />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/operators" 
+                  element={
+                    <ProtectedRoute>
+                      <Operators />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/forklifts" 
+                  element={
+                    <ProtectedRoute>
+                      <Forklifts />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/reports" 
+                  element={
+                    <ProtectedRoute>
+                      <Reports />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin" 
+                  element={
+                    <ProtectedRoute>
+                      <AdminBackoffice />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* Catch all route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
