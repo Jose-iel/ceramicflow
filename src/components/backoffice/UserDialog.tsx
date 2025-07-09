@@ -109,7 +109,11 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, onOpenChange, user, onSav
             <Select value={formData.user_level_id} onValueChange={(value) => setFormData({ ...formData, user_level_id: value })}>
               <SelectTrigger className="text-sm"><SelectValue placeholder="Selecione um nível" /></SelectTrigger>
               <SelectContent>
-                {userLevels.map(level => <SelectItem key={level.id} value={level.id}>{level.name}</SelectItem>)}
+                {userLevels && userLevels.length > 0 ? (
+                  userLevels.map(level => <SelectItem key={level.id} value={level.id}>{level.name}</SelectItem>)
+                ) : (
+                  <SelectItem value="" disabled>Nenhum nível encontrado</SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -119,7 +123,11 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, onOpenChange, user, onSav
             <Select value={formData.ceramic_id} onValueChange={(value) => setFormData({ ...formData, ceramic_id: value })}>
               <SelectTrigger className="text-sm"><SelectValue placeholder="Selecione uma cerâmica" /></SelectTrigger>
               <SelectContent>
-                {ceramics.map(ceramic => <SelectItem key={ceramic.id} value={ceramic.id}>{ceramic.name}</SelectItem>)}
+                {ceramics && ceramics.length > 0 ? (
+                  ceramics.map(ceramic => <SelectItem key={ceramic.id} value={ceramic.id}>{ceramic.name}</SelectItem>)
+                ) : (
+                  <SelectItem value="" disabled>Nenhuma cerâmica encontrada</SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>

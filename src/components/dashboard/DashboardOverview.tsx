@@ -6,8 +6,19 @@ import {
   Truck, Users, AlertTriangle, CheckCircle, 
   Clock, TreePine, Settings, Mountain
 } from 'lucide-react';
+import { useDashboardOverview } from '@/hooks/useDashboard';
 
 const DashboardOverview = () => {
+  const { data: dashboardData, isLoading } = useDashboardOverview();
+
+  if (isLoading) {
+    return (
+      <section className="space-y-8">
+        <div className="text-center py-8">Carregando dados do dashboard...</div>
+      </section>
+    );
+  }
+
   return (
     <section className="space-y-8">
       {/* Seção de Vendas - Card de Relatório */}
@@ -22,25 +33,25 @@ const DashboardOverview = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StatusCard 
             title="Operações Ativas" 
-            value={0} 
+            value={dashboardData?.operations?.active || 0} 
             icon={Truck} 
             status="success"
           />
           <StatusCard 
             title="Manutenções Pendentes" 
-            value={0} 
+            value={dashboardData?.maintenances?.pending || 0} 
             icon={Settings} 
             status="warning" 
           />
           <StatusCard 
             title="Consumo de Lenha (m³)" 
-            value={0} 
+            value={dashboardData?.consumption?.wood || 0} 
             icon={TreePine} 
             status="info" 
           />
           <StatusCard 
             title="Consumo de Barro (caminhões)" 
-            value={0} 
+            value={dashboardData?.consumption?.clay || 0} 
             icon={Mountain} 
             status="info" 
           />
@@ -52,25 +63,25 @@ const DashboardOverview = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatusCard 
             title="Total de Funcionários" 
-            value={0} 
+            value={dashboardData?.employees?.total || 0} 
             icon={Users} 
             status="info" 
           />
           <StatusCard 
             title="ASO e NR Regulares" 
-            value={0} 
+            value={dashboardData?.employees?.regular || 0} 
             icon={CheckCircle} 
             status="success" 
           />
           <StatusCard 
             title="Próximo do Vencimento" 
-            value={0} 
+            value={dashboardData?.employees?.expiringSoon || 0} 
             icon={AlertTriangle} 
             status="warning" 
           />
           <StatusCard 
             title="ASO/NR Vencidos" 
-            value={0} 
+            value={dashboardData?.employees?.expired || 0} 
             icon={AlertTriangle} 
             status="danger" 
           />
@@ -82,25 +93,25 @@ const DashboardOverview = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatusCard 
             title="Total de Veículos" 
-            value={0} 
+            value={dashboardData?.vehicles?.total || 0} 
             icon={Truck} 
             status="info" 
           />
           <StatusCard 
             title="Em Operação" 
-            value={0} 
+            value={dashboardData?.vehicles?.operational || 0} 
             icon={CheckCircle} 
             status="success"
           />
           <StatusCard 
             title="Em Manutenção" 
-            value={0} 
+            value={dashboardData?.vehicles?.maintenance || 0} 
             icon={Settings} 
             status="warning" 
           />
           <StatusCard 
             title="Parados" 
-            value={0} 
+            value={dashboardData?.vehicles?.stopped || 0} 
             icon={Clock} 
             status="neutral" 
           />
