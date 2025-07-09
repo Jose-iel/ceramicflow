@@ -1,7 +1,7 @@
 
 import React from 'react';
 import StatusCard from './StatusCard';
-import SalesSection from './SalesSection';
+import SalesReportCard from './SalesReportCard';
 import { 
   Truck, Users, AlertTriangle, CheckCircle, 
   Clock, TreePine, Settings, Mountain
@@ -33,12 +33,13 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 }) => {
   return (
     <section className="space-y-8">
-      {/* Seção de Vendas - Nova seção dedicada */}
+      {/* Seção de Vendas - Card de Relatório */}
       <div className="slide-enter" style={{ animationDelay: '0.1s' }}>
-        <SalesSection />
+        <h2 className="text-2xl font-semibold mb-4">Vendas</h2>
+        <SalesReportCard />
       </div>
 
-      {/* Seção de Operações - Reorganizada */}
+      {/* Seção de Operações */}
       <div className="slide-enter" style={{ animationDelay: '0.2s' }}>
         <h2 className="text-2xl font-semibold mb-4">Operações</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

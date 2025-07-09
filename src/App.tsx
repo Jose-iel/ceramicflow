@@ -17,6 +17,7 @@ import GasSupply from "./pages/GasSupply";
 import Reports from "./pages/Reports";
 import Operators from "./pages/Operators";
 import Forklifts from "./pages/Forklifts";
+import Sales from "./pages/Sales";
 
 import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
@@ -108,6 +109,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <GasSupply />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/sales" 
+                  element={
+                    <ProtectedRoute>
+                      <Sales />
                     </ProtectedRoute>
                   } 
                 />

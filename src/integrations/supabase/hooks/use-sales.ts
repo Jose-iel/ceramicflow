@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { SalesService } from '../api/sales';
 import type { CreateSalePayload, UpdateSalePayload } from '../api/sales';
@@ -7,6 +8,8 @@ export function useSales() {
   return useQuery({
     queryKey: ['sales'],
     queryFn: SalesService.getAllSales,
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    gcTime: 10 * 60 * 1000, // 10 minutos
   });
 }
 
@@ -14,6 +17,8 @@ export function useSalesStats() {
   return useQuery({
     queryKey: ['salesStats'],
     queryFn: SalesService.getSalesStats,
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    gcTime: 10 * 60 * 1000, // 10 minutos
   });
 }
 

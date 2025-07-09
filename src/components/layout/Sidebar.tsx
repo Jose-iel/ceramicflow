@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
   Truck, Users, ClipboardList, TreePine, 
-  Settings, FileText, LayoutDashboard, Menu, X, Mountain
+  Settings, FileText, LayoutDashboard, Menu, X, Mountain, ShoppingCart
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -50,6 +50,7 @@ const Sidebar: React.FC = () => {
     { to: "/employees", icon: Users, label: "Funcionários" },
     { to: "/operations", icon: ClipboardList, label: "Operações" },
     { to: "/maintenance", icon: Settings, label: "Manutenção" },
+    { to: "/sales", icon: ShoppingCart, label: "Vendas" },
     { to: "/wood", icon: TreePine, label: "Lenha" },
     { to: "/raw-material", icon: Mountain, label: "Matéria-Prima" },
     { to: "/reports", icon: FileText, label: "Relatórios" },
