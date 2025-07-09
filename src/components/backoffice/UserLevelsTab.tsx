@@ -60,11 +60,6 @@ const UserLevelsTab = () => {
     }
   };
 
-  const getRouteName = (routeId: string) => {
-    const route = routes.find(r => r.id === routeId);
-    return route ? route.name : routeId;
-  };
-
   if (isLoading) return <div className="text-center p-8">Carregando...</div>;
 
   return (
@@ -100,20 +95,7 @@ const UserLevelsTab = () => {
                   <TableCell className="text-sm text-muted-foreground hidden md:table-cell">{level.description}</TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1 max-w-xs">
-                      {level.permissions && level.permissions.length > 0 ? (
-                        level.permissions.slice(0, 3).map((routeId: string) => (
-                          <Badge key={routeId} variant="secondary" className="text-xs">
-                            {getRouteName(routeId)}
-                          </Badge>
-                        ))
-                      ) : (
-                        <span className="text-xs text-muted-foreground">Nenhuma rota configurada</span>
-                      )}
-                      {level.permissions && level.permissions.length > 3 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{level.permissions.length - 3} mais
-                        </Badge>
-                      )}
+                      <span className="text-xs text-muted-foreground">Clique em editar para ver permissões</span>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">

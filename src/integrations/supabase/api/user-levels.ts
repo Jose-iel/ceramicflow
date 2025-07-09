@@ -34,15 +34,7 @@ export class UserLevelsService {
       throw new Error(error.message);
     }
 
-    // Buscar permissões para cada nível
-    const levelsWithPermissions = await Promise.all(
-      (data || []).map(async (level) => {
-        const permissions = await this.getUserLevelPermissions(level.id);
-        return { ...level, permissions };
-      })
-    );
-
-    return levelsWithPermissions;
+    return data || [];
   }
 
   static async getAllRoutes(): Promise<Route[]> {
