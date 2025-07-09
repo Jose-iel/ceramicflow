@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import MaintenanceDialog from '@/components/maintenance/MaintenanceDialog';
 import { Badge } from '@/components/ui/badge';
 import { useMaintenances, useCreateMaintenance, useUpdateMaintenance, useDeleteMaintenance } from '@/hooks/useMaintenances';
+import { useVehicles } from '@/hooks/useVehicles';
+import { useEmployees } from '@/hooks/useEmployees';
 
 const MaintenancePage = () => {
   const isMobile = useIsMobile();
@@ -19,9 +21,22 @@ const MaintenancePage = () => {
 
   // Use real database hooks
   const { data: maintenances = [], isLoading } = useMaintenances();
+  const { data: vehicles = [] } = useVehicles();
+  const { data: employees = [] } = useEmployees();
   const createMaintenance = useCreateMaintenance();
   const updateMaintenance = useUpdateMaintenance();
   const deleteMaintenance = useDeleteMaintenance();
+
+  // Prepare data for selects
+  const availableVehicles = vehicles.map(vehicle => ({
+    id: vehicle.id,
+    model: vehicle.model
+  }));
+
+  const availableOperators = employees.map(employee => ({
+    id: employee.id,
+    name: employee.name
+  }));
 
   // Filter maintenances
   const filteredMaintenances = maintenances.filter(maintenance => 
@@ -198,6 +213,8 @@ const MaintenancePage = () => {
         onOpenChange={setShowDialog}
         maintenance={editingMaintenance}
         onSave={handleSaveMaintenance}
+        availableVehicles={availableVehicles}
+        availableOperators={availableOperators}
       />
     </div>
   );

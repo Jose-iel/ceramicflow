@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import OperationDialog from '@/components/operations/OperationDialog';
 import { Badge } from '@/components/ui/badge';
 import { useOperations, useCreateOperation, useUpdateOperation, useDeleteOperation } from '@/hooks/useOperations';
+import { useVehicles } from '@/hooks/useVehicles';
+import { useEmployees } from '@/hooks/useEmployees';
 
 const OperationsPage = () => {
   const isMobile = useIsMobile();
@@ -19,9 +21,22 @@ const OperationsPage = () => {
 
   // Use real database hooks
   const { data: operations = [], isLoading } = useOperations();
+  const { data: vehicles = [] } = useVehicles();
+  const { data: employees = [] } = useEmployees();
   const createOperation = useCreateOperation();
   const updateOperation = useUpdateOperation();
   const deleteOperation = useDeleteOperation();
+
+  // Prepare data for selects
+  const availableOperators = employees.map(employee => ({
+    id: employee.id,
+    name: employee.name
+  }));
+
+  const availableForklifts = vehicles.map(vehicle => ({
+    id: vehicle.id,
+    model: vehicle.model
+  }));
 
   // Filter operations
   const filteredOperations = operations.filter(operation => 
@@ -196,6 +211,8 @@ const OperationsPage = () => {
         onOpenChange={setShowDialog}
         operation={editingOperation}
         onSave={handleSaveOperation}
+        availableOperators={availableOperators}
+        availableForklifts={availableForklifts}
       />
     </div>
   );

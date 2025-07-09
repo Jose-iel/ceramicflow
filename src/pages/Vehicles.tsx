@@ -26,8 +26,22 @@ const VehiclesPage = () => {
   const updateVehicle = useUpdateVehicle();
   const deleteVehicle = useDeleteVehicle();
   
+  // Transform database data to match Vehicle interface
+  const transformedVehicles = vehicles.map(vehicle => ({
+    id: vehicle.id,
+    model: vehicle.model,
+    type: vehicle.type as VehicleType,
+    acquisitionDate: vehicle.acquisition_date ? 
+      new Date(vehicle.acquisition_date).toLocaleDateString('pt-BR') : '',
+    lastMaintenance: vehicle.last_maintenance ? 
+      new Date(vehicle.last_maintenance).toLocaleDateString('pt-BR') : '',
+    status: vehicle.status as VehicleStatus,
+    hourMeter: vehicle.hour_meter || 0,
+    capacity: vehicle.capacity
+  }));
+  
   // Filter vehicles
-  const filteredVehicles = vehicles.filter(vehicle => {
+  const filteredVehicles = transformedVehicles.filter(vehicle => {
     const matchesSearch = vehicle.model.toLowerCase().includes(search.toLowerCase()) || 
                           vehicle.id.toLowerCase().includes(search.toLowerCase());
     
@@ -51,7 +65,9 @@ const VehiclesPage = () => {
   };
 
   const handleEditVehicle = (vehicle: any) => {
-    setEditingVehicle(vehicle);
+    // Find original vehicle data from database
+    const originalVehicle = vehicles.find(v => v.id === vehicle.id);
+    setEditingVehicle(originalVehicle);
     setShowDialog(true);
   };
 
