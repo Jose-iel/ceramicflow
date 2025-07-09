@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,50 +11,56 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { WoodConsumption } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { CalendarIcon } from 'lucide-react';
-import { Textarea } from '@/components/ui/textarea';
 
 interface WoodConsumptionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (consumption: WoodConsumption) => void;
+  onSave: (consumption: any) => void;
+  consumption?: any;
 }
 
-const WoodConsumptionDialog = ({ open, onOpenChange, onSave }: WoodConsumptionDialogProps) => {
+const WoodConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: WoodConsumptionDialogProps) => {
   const { toast } = useToast();
   
-  const [formData, setFormData] = useState<Partial<WoodConsumption>>({
-    id: `WC${Math.floor(Math.random() * 10000).toString().padStart(3, '0')}`,
-    date: format(new Date(), 'yyyy-MM-dd'),
+  const [formData, setFormData] = useState({
+    date: new Date().toISOString().split('T')[0],
     quantity: 0,
-    sector: '',
-    recordedBy: '',
-    notes: ''
+    oven: '',
+    responsible: '',
+    observations: ''
   });
 
-  const parseDate = (dateStr: string): Date => {
-    return new Date(dateStr);
-  };
+  useEffect(() => {
+    if (consumption) {
+      setFormData({
+        date: consumption.date ? 
+          new Date(consumption.date).toISOString().split('T')[0] : 
+          new Date().toISOString().split('T')[0],
+        quantity: Number(consumption.quantity) || 0,
+        oven: consumption.oven || '',
+        responsible: consumption.responsible || '',
+        observations: consumption.observations || ''
+      });
+    } else {
+      setFormData({
+        date: new Date().toISOString().split('T')[0],
+        quantity: 0,
+        oven: '',
+        responsible: '',
+        observations: ''
+      });
+    }
+  }, [consumption, open]);
 
-  const formatDateString = (date: Date): string => {
-    return format(date, 'yyyy-MM-dd');
-  };
-
-  const handleChange = (field: keyof WoodConsumption, value: any) => {
+  const handleChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.quantity || !formData.sector || !formData.recordedBy) {
+    if (!formData.quantity || !formData.oven || !formData.responsible) {
       toast({
         title: "Erro ao salvar",
         description: "Preencha todos os campos obrigatórios",
@@ -63,30 +69,15 @@ const WoodConsumptionDialog = ({ open, onOpenChange, onSave }: WoodConsumptionDi
       return;
     }
     
-    onSave(formData as WoodConsumption);
-    
-    setFormData({
-      id: `WC${Math.floor(Math.random() * 10000).toString().padStart(3, '0')}`,
-      date: format(new Date(), 'yyyy-MM-dd'),
-      quantity: 0,
-      sector: '',
-      recordedBy: '',
-      notes: ''
-    });
-    
+    onSave(formData);
     onOpenChange(false);
-    
-    toast({
-      title: "Consumo registrado",
-      description: "O consumo de lenha foi registrado com sucesso!"
-    });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Registrar Consumo de Lenha</DialogTitle>
+          <DialogTitle>{consumption ? 'Editar Consumo' : 'Registrar Consumo de Lenha'}</DialogTitle>
           <DialogDescription>
             Preencha as informações do consumo de lenha nos campos abaixo.
           </DialogDescription>
@@ -94,27 +85,14 @@ const WoodConsumptionDialog = ({ open, onOpenChange, onSave }: WoodConsumptionDi
         
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           <div className="space-y-2">
-            <Label>Data</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-left font-normal"
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {format(parseDate(formData.date || ''), 'dd/MM/yyyy', { locale: ptBR })}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={parseDate(formData.date || '')}
-                  onSelect={(date) => handleChange('date', formatDateString(date || new Date()))}
-                  locale={ptBR}
-                  className={cn("p-3 pointer-events-auto")}
-                />
-              </PopoverContent>
-            </Popover>
+            <Label htmlFor="date">Data</Label>
+            <Input 
+              id="date" 
+              type="date"
+              value={formData.date} 
+              onChange={(e) => handleChange('date', e.target.value)}
+              required
+            />
           </div>
           
           <div className="grid grid-cols-2 gap-4">
@@ -126,47 +104,51 @@ const WoodConsumptionDialog = ({ open, onOpenChange, onSave }: WoodConsumptionDi
                 step="0.1"
                 min="0"
                 value={formData.quantity} 
-                onChange={(e) => handleChange('quantity', parseFloat(e.target.value))}
-                placeholder="0.0"
+                onChange={(e) => handleChange('quantity', parseFloat(e.target.value) || 0)}
+                required
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="sector">Setor</Label>
+              <Label htmlFor="oven">Forno</Label>
               <Input 
-                id="sector" 
-                value={formData.sector} 
-                onChange={(e) => handleChange('sector', e.target.value)}
+                id="oven" 
+                value={formData.oven} 
+                onChange={(e) => handleChange('oven', e.target.value)}
                 placeholder="Ex: Forno 1"
+                required
               />
             </div>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="recordedBy">Registrado por</Label>
+            <Label htmlFor="responsible">Responsável</Label>
             <Input 
-              id="recordedBy" 
-              value={formData.recordedBy} 
-              onChange={(e) => handleChange('recordedBy', e.target.value)}
+              id="responsible" 
+              value={formData.responsible} 
+              onChange={(e) => handleChange('responsible', e.target.value)}
               placeholder="Nome do responsável"
+              required
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="notes">Observações</Label>
-            <Textarea 
-              id="notes" 
-              value={formData.notes} 
-              onChange={(e) => handleChange('notes', e.target.value)}
-              placeholder="Observações adicionais (opcional)"
+            <Label htmlFor="observations">Observações</Label>
+            <Input 
+              id="observations" 
+              value={formData.observations} 
+              onChange={(e) => handleChange('observations', e.target.value)}
+              placeholder="Observações adicionais"
             />
           </div>
           
           <DialogFooter>
-            <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit">Registrar Consumo</Button>
+            <Button type="submit">
+              {consumption ? 'Atualizar' : 'Registrar'} Consumo
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -1,169 +1,71 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
-import { Calendar, Filter, Plus, Search, TreePine, ShoppingCart, Flame, Pause, CheckCircle } from 'lucide-react';
+import { Calendar, Filter, Plus, Search, TreePine, ShoppingCart, Flame } from 'lucide-react';
 import WoodPurchaseDialog from '@/components/wood/WoodPurchaseDialog';
 import WoodConsumptionDialog from '@/components/wood/WoodConsumptionDialog';
 import { useToast } from '@/hooks/use-toast';
-import { WoodPurchase, WoodConsumption } from '@/types';
-
-// Mock data for wood purchases
-const initialPurchases: WoodPurchase[] = [
-  {
-    id: 'WP001',
-    date: '2023-11-05',
-    supplier: 'Lenhas do Zé',
-    quantity: 10,
-    unitPrice: 50,
-    totalValue: 500
-  },
-  {
-    id: 'WP002',
-    date: '2023-11-15',
-    supplier: 'Lenhas da Maria',
-    quantity: 12,
-    unitPrice: 52,
-    totalValue: 624
-  },
-  {
-    id: 'WP003',
-    date: '2023-10-28',
-    supplier: 'Lenhas do Zé',
-    quantity: 8,
-    unitPrice: 48,
-    totalValue: 384
-  },
-  {
-    id: 'WP004',
-    date: '2023-10-10',
-    supplier: 'Lenhas da Maria',
-    quantity: 15,
-    unitPrice: 55,
-    totalValue: 825
-  }
-];
-
-// Mock data for wood consumption
-const initialConsumption: WoodConsumption[] = [
-  {
-    id: 'WC001',
-    date: '2023-11-01',
-    oven: 'Forno 1',
-    quantity: 2.5,
-    responsible: 'Carlos',
-    observations: 'Consumo normal'
-  },
-  {
-    id: 'WC002',
-    date: '2023-11-08',
-    oven: 'Forno 2',
-    quantity: 3.0,
-    responsible: 'Maria',
-    observations: 'Alta produção'
-  },
-  {
-    id: 'WC003',
-    date: '2023-10-25',
-    oven: 'Forno 1',
-    quantity: 2.0,
-    responsible: 'Carlos',
-    observations: 'Manutenção no forno'
-  },
-  {
-    id: 'WC004',
-    date: '2023-10-12',
-    oven: 'Forno 2',
-    quantity: 3.5,
-    responsible: 'Maria',
-    observations: 'Teste de novo processo'
-  }
-];
+import { 
+  useWoodPurchases, 
+  useCreateWoodPurchase, 
+  useUpdateWoodPurchase, 
+  useDeleteWoodPurchase 
+} from '@/hooks/useWoodPurchases';
+import { 
+  useWoodConsumptions, 
+  useCreateWoodConsumption, 
+  useUpdateWoodConsumption, 
+  useDeleteWoodConsumption 
+} from '@/hooks/useWoodConsumptions';
 
 const WoodPage = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [selectedMonth, setSelectedMonth] = useState<string>('');
-  const [purchases, setPurchases] = useState(initialPurchases);
-  const [consumption, setConsumption] = useState(initialConsumption);
+  
+  // Real database hooks
+  const { data: purchases = [], isLoading: purchasesLoading } = useWoodPurchases();
+  const { data: consumption = [], isLoading: consumptionLoading } = useWoodConsumptions();
+  const createPurchase = useCreateWoodPurchase();
+  const updatePurchase = useUpdateWoodPurchase();
+  const deletePurchase = useDeleteWoodPurchase();
+  const createConsumption = useCreateWoodConsumption();
+  const updateConsumption = useUpdateWoodConsumption();
+  const deleteConsumption = useDeleteWoodConsumption();
   
   // Dialog states
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
   const [consumptionDialogOpen, setConsumptionDialogOpen] = useState(false);
-  const [selectedPurchase, setSelectedPurchase] = useState<WoodPurchase | undefined>(undefined);
-  const [selectedConsumption, setSelectedConsumption] = useState<WoodConsumption | undefined>(undefined);
+  const [selectedPurchase, setSelectedPurchase] = useState<any | undefined>(undefined);
+  const [selectedConsumption, setSelectedConsumption] = useState<any | undefined>(undefined);
 
-  // Handle add/edit purchase
-  const handleSavePurchase = (purchaseData: WoodPurchase) => {
-    if (selectedPurchase) {
-      // Update existing purchase
-      setPurchases(prev =>
-        prev.map(p => p.id === purchaseData.id ? purchaseData : p)
-      );
-    } else {
-      // Add new purchase
-      setPurchases(prev => [...prev, purchaseData]);
-    }
-    setPurchaseDialogOpen(false);
-    setSelectedPurchase(undefined);
-  };
-
-  // Handle add/edit consumption
-  const handleSaveConsumption = (consumptionData: WoodConsumption) => {
-    if (selectedConsumption) {
-      // Update existing consumption
-      setConsumption(prev =>
-        prev.map(c => c.id === consumptionData.id ? consumptionData : c)
-      );
-    } else {
-      // Add new consumption
-      setConsumption(prev => [...prev, consumptionData]);
-    }
-    setConsumptionDialogOpen(false);
-    setSelectedConsumption(undefined);
-  };
-
-  // Handle edit purchase
-  const handleEditPurchase = (purchase: WoodPurchase) => {
-    setSelectedPurchase(purchase);
-    setPurchaseDialogOpen(true);
-  };
-
-  // Handle edit consumption
-  const handleEditConsumption = (consumptionItem: WoodConsumption) => {
-    setSelectedConsumption(consumptionItem);
-    setConsumptionDialogOpen(true);
-  };
-
-  // Handle delete purchase
-  const handleDeletePurchase = (id: string) => {
-    if (confirm("Tem certeza que deseja excluir esta compra?")) {
-      setPurchases(prev => prev.filter(p => p.id !== id));
-      toast({
-        title: "Compra excluída",
-        description: "A compra foi excluída com sucesso."
+  // Generate month options for the last 12 months
+  const monthOptions = useMemo(() => {
+    const options = [];
+    const currentDate = new Date();
+    
+    for (let i = 0; i < 12; i++) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const monthLabel = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+      
+      options.push({
+        value: monthKey,
+        label: monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)
       });
     }
-  };
+    
+    return options;
+  }, []);
 
-  // Handle delete consumption
-  const handleDeleteConsumption = (id: string) => {
-    if (confirm("Tem certeza que deseja excluir este consumo?")) {
-      setConsumption(prev => prev.filter(c => c.id !== id));
-      toast({
-        title: "Consumo excluído",
-        description: "O consumo foi excluído com sucesso."
-      });
-    }
-  };
-
-  // Set current month as default filter
-  useEffect(() => {
+  // Set current month as default
+  React.useEffect(() => {
     if (!selectedMonth) {
       const currentDate = new Date();
       const currentMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
@@ -171,47 +73,110 @@ const WoodPage = () => {
     }
   }, [selectedMonth]);
 
-  // Filter purchases by search and month
-  const filteredPurchases = purchases.filter(purchase => {
-    const matchesSearch = purchase.supplier.toLowerCase().includes(search.toLowerCase());
-    const purchaseMonth = `${new Date(purchase.date).getFullYear()}-${String(new Date(purchase.date).getMonth() + 1).padStart(2, '0')}`;
-    const matchesMonth = selectedMonth === '' || purchaseMonth === selectedMonth;
-    return matchesSearch && matchesMonth;
-  });
+  // Filter data by selected month
+  const filteredPurchases = useMemo(() => {
+    return purchases.filter(purchase => {
+      const matchesSearch = purchase.supplier?.toLowerCase().includes(search.toLowerCase()) || false;
+      const purchaseMonth = purchase.date ? purchase.date.substring(0, 7) : '';
+      const matchesMonth = selectedMonth === '' || purchaseMonth === selectedMonth;
+      return matchesSearch && matchesMonth;
+    });
+  }, [purchases, search, selectedMonth]);
 
-  // Filter consumption by search and month
-  const filteredConsumption = consumption.filter(consumptionItem => {
-    const matchesSearch = consumptionItem.oven.toLowerCase().includes(search.toLowerCase()) ||
-      consumptionItem.responsible.toLowerCase().includes(search.toLowerCase());
-    const consumptionMonth = `${new Date(consumptionItem.date).getFullYear()}-${String(new Date(consumptionItem.date).getMonth() + 1).padStart(2, '0')}`;
-    const matchesMonth = selectedMonth === '' || consumptionMonth === selectedMonth;
-    return matchesSearch && matchesMonth;
-  });
+  const filteredConsumption = useMemo(() => {
+    return consumption.filter(consumptionItem => {
+      const matchesSearch = (consumptionItem.oven?.toLowerCase().includes(search.toLowerCase()) ||
+        consumptionItem.responsible?.toLowerCase().includes(search.toLowerCase())) || false;
+      const consumptionMonth = consumptionItem.date ? consumptionItem.date.substring(0, 7) : '';
+      const matchesMonth = selectedMonth === '' || consumptionMonth === selectedMonth;
+      return matchesSearch && matchesMonth;
+    });
+  }, [consumption, search, selectedMonth]);
 
-  // Calculate current stock
-  const initialStock = 50;
-  const totalPurchased = purchases.reduce((acc, purchase) => acc + purchase.quantity, 0);
-  const totalConsumed = consumption.reduce((acc, consumptionItem) => acc + consumptionItem.quantity, 0);
-  const currentStock = initialStock + totalPurchased - totalConsumed;
+  // Calculate stats
+  const totalPurchased = purchases.reduce((acc, purchase) => acc + Number(purchase.quantity || 0), 0);
+  const totalConsumed = consumption.reduce((acc, consumptionItem) => acc + Number(consumptionItem.quantity || 0), 0);
+  const currentStock = 50 + totalPurchased - totalConsumed; // Assuming initial stock of 50
 
-  // Calculate monthly purchases
-  const monthlyPurchases = filteredPurchases.reduce((acc, purchase) => acc + purchase.quantity, 0);
+  const monthlyPurchases = filteredPurchases.reduce((acc, purchase) => acc + Number(purchase.quantity || 0), 0);
+  const monthlyConsumption = filteredConsumption.reduce((acc, consumptionItem) => acc + Number(consumptionItem.quantity || 0), 0);
+  const totalSpent = filteredPurchases.reduce((acc, purchase) => acc + Number(purchase.total_value || 0), 0);
 
-  // Calculate monthly consumption
-  const monthlyConsumption = filteredConsumption.reduce((acc, consumptionItem) => acc + consumptionItem.quantity, 0);
+  // Handle save purchase
+  const handleSavePurchase = (purchaseData: any) => {
+    if (selectedPurchase) {
+      updatePurchase.mutate({
+        purchaseId: selectedPurchase.id,
+        purchaseData: purchaseData
+      });
+    } else {
+      createPurchase.mutate(purchaseData);
+    }
+    setPurchaseDialogOpen(false);
+    setSelectedPurchase(undefined);
+  };
 
-  // Calculate total spent in the selected month
-  const totalSpent = filteredPurchases.reduce((acc, purchase) => acc + purchase.totalValue, 0);
+  // Handle save consumption
+  const handleSaveConsumption = (consumptionData: any) => {
+    if (selectedConsumption) {
+      updateConsumption.mutate({
+        consumptionId: selectedConsumption.id,
+        consumptionData: consumptionData
+      });
+    } else {
+      createConsumption.mutate(consumptionData);
+    }
+    setConsumptionDialogOpen(false);
+    setSelectedConsumption(undefined);
+  };
+
+  // Handle edit purchase
+  const handleEditPurchase = (purchase: any) => {
+    setSelectedPurchase(purchase);
+    setPurchaseDialogOpen(true);
+  };
+
+  // Handle edit consumption
+  const handleEditConsumption = (consumptionItem: any) => {
+    setSelectedConsumption(consumptionItem);
+    setConsumptionDialogOpen(true);
+  };
+
+  // Handle delete purchase
+  const handleDeletePurchase = (id: string) => {
+    deletePurchase.mutate(id);
+  };
+
+  // Handle delete consumption
+  const handleDeleteConsumption = (id: string) => {
+    deleteConsumption.mutate(id);
+  };
 
   // Format date
   const formatDate = (dateString: string) => {
     try {
-      const dateParts = dateString.split('-');
-      return `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+      return new Date(dateString).toLocaleDateString('pt-BR');
     } catch (e) {
       return dateString;
     }
   };
+
+  if (purchasesLoading || consumptionLoading) {
+    return (
+      <div className="flex min-h-screen bg-background">
+        <Sidebar />
+        <div className={cn("flex-1 flex flex-col", !isMobile && "ml-64")}>
+          <Navbar title="Lenha" subtitle="Gestão de Lenha" />
+          <main className="flex-1 px-6 py-6 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-gray-600">Carregando dados...</p>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -302,7 +267,10 @@ const WoodPage = () => {
                 </Button>
                 <Button 
                   className="gap-2 text-sm"
-                  onClick={() => setPurchaseDialogOpen(true)}
+                  onClick={() => {
+                    setSelectedPurchase(undefined);
+                    setPurchaseDialogOpen(true);
+                  }}
                 >
                   <Plus className="w-4 h-4" />
                   {isMobile ? 'Compra' : 'Nova Compra'}
@@ -310,7 +278,10 @@ const WoodPage = () => {
                 <Button 
                   variant="outline" 
                   className="gap-2 text-sm"
-                  onClick={() => setConsumptionDialogOpen(true)}
+                  onClick={() => {
+                    setSelectedConsumption(undefined);
+                    setConsumptionDialogOpen(true);
+                  }}
                 >
                   <Plus className="w-4 h-4" />
                   {isMobile ? 'Consumo' : 'Registrar Consumo'}
@@ -322,12 +293,17 @@ const WoodPage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <div className="space-y-1">
                 <h4 className="text-sm font-medium">Mês</h4>
-                <input
-                  type="month"
+                <select
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
                   className="w-full p-2 text-sm rounded-md border border-input bg-background"
-                />
+                >
+                  {monthOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
@@ -354,8 +330,8 @@ const WoodPage = () => {
                         <td className="p-2 md:p-4 text-xs md:text-sm">{formatDate(purchase.date)}</td>
                         <td className="p-2 md:p-4 text-xs md:text-sm">{purchase.supplier}</td>
                         <td className="p-2 md:p-4 text-xs md:text-sm">{purchase.quantity}m³</td>
-                        <td className="p-2 md:p-4 text-xs md:text-sm">R$ {purchase.unitPrice.toFixed(2)}</td>
-                        <td className="p-2 md:p-4 text-xs md:text-sm font-medium">R$ {purchase.totalValue.toFixed(2)}</td>
+                        <td className="p-2 md:p-4 text-xs md:text-sm">R$ {Number(purchase.unit_price).toFixed(2)}</td>
+                        <td className="p-2 md:p-4 text-xs md:text-sm font-medium">R$ {Number(purchase.total_value).toFixed(2)}</td>
                         <td className="p-2 md:p-4">
                           <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
                             <Button 
@@ -407,20 +383,20 @@ const WoodPage = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {filteredConsumption.map((consumption) => (
-                      <tr key={consumption.id} className="hover:bg-muted/50 transition-colors">
-                        <td className="p-2 md:p-4 text-xs md:text-sm">{formatDate(consumption.date)}</td>
-                        <td className="p-2 md:p-4 text-xs md:text-sm">{consumption.oven}</td>
-                        <td className="p-2 md:p-4 text-xs md:text-sm">{consumption.quantity}m³</td>
-                        <td className="p-2 md:p-4 text-xs md:text-sm">{consumption.responsible}</td>
-                        <td className="p-2 md:p-4 text-xs md:text-sm">{consumption.observations || '-'}</td>
+                    {filteredConsumption.map((consumptionItem) => (
+                      <tr key={consumptionItem.id} className="hover:bg-muted/50 transition-colors">
+                        <td className="p-2 md:p-4 text-xs md:text-sm">{formatDate(consumptionItem.date)}</td>
+                        <td className="p-2 md:p-4 text-xs md:text-sm">{consumptionItem.oven}</td>
+                        <td className="p-2 md:p-4 text-xs md:text-sm">{consumptionItem.quantity}m³</td>
+                        <td className="p-2 md:p-4 text-xs md:text-sm">{consumptionItem.responsible}</td>
+                        <td className="p-2 md:p-4 text-xs md:text-sm">{consumptionItem.observations || '-'}</td>
                         <td className="p-2 md:p-4">
                           <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
                             <Button 
                               variant="ghost" 
                               size="sm"
                               className="text-xs"
-                              onClick={() => handleEditConsumption(consumption)}
+                              onClick={() => handleEditConsumption(consumptionItem)}
                             >
                               Editar
                             </Button>
@@ -428,7 +404,7 @@ const WoodPage = () => {
                               variant="ghost" 
                               size="sm"
                               className="text-xs text-red-500 hover:text-red-700 hover:bg-red-50"
-                              onClick={() => handleDeleteConsumption(consumption.id)}
+                              onClick={() => handleDeleteConsumption(consumptionItem.id)}
                             >
                               Excluir
                             </Button>
@@ -455,12 +431,14 @@ const WoodPage = () => {
         open={purchaseDialogOpen} 
         onOpenChange={setPurchaseDialogOpen}
         onSave={handleSavePurchase}
+        purchase={selectedPurchase}
       />
       
       <WoodConsumptionDialog 
         open={consumptionDialogOpen} 
         onOpenChange={setConsumptionDialogOpen}
         onSave={handleSaveConsumption}
+        consumption={selectedConsumption}
       />
     </div>
   );

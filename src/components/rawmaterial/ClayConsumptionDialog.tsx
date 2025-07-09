@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,52 +11,62 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ClayConsumption } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { CalendarIcon } from 'lucide-react';
-import { Textarea } from '@/components/ui/textarea';
 
 interface ClayConsumptionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (consumption: ClayConsumption) => void;
+  onSave: (consumption: any) => void;
+  consumption?: any;
 }
 
-const ClayConsumptionDialog = ({ open, onOpenChange, onSave }: ClayConsumptionDialogProps) => {
+const ClayConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: ClayConsumptionDialogProps) => {
   const { toast } = useToast();
   
-  const [formData, setFormData] = useState<Partial<ClayConsumption>>({
-    id: `CC${Math.floor(Math.random() * 10000).toString().padStart(3, '0')}`,
-    date: format(new Date(), 'yyyy-MM-dd'),
-    trucksQuantity: 0,
+  const [formData, setFormData] = useState({
+    date: new Date().toISOString().split('T')[0],
+    trucks_quantity: 0,
     supplier: '',
     origin: '',
-    truckId: '',
-    recordedBy: '',
+    truck_id: '',
+    recorded_by: '',
     notes: ''
   });
 
-  const parseDate = (dateStr: string): Date => {
-    return new Date(dateStr);
-  };
+  useEffect(() => {
+    if (consumption) {
+      setFormData({
+        date: consumption.date ? 
+          new Date(consumption.date).toISOString().split('T')[0] : 
+          new Date().toISOString().split('T')[0],
+        trucks_quantity: Number(consumption.trucks_quantity) || 0,
+        supplier: consumption.supplier || '',
+        origin: consumption.origin || '',
+        truck_id: consumption.truck_id || '',
+        recorded_by: consumption.recorded_by || '',
+        notes: consumption.notes || ''
+      });
+    } else {
+      setFormData({
+        date: new Date().toISOString().split('T')[0],
+        trucks_quantity: 0,
+        supplier: '',
+        origin: '',
+        truck_id: '',
+        recorded_by: '',
+        notes: ''
+      });
+    }
+  }, [consumption, open]);
 
-  const formatDateString = (date: Date): string => {
-    return format(date, 'yyyy-MM-dd');
-  };
-
-  const handleChange = (field: keyof ClayConsumption, value: any) => {
+  const handleChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.trucksQuantity || !formData.recordedBy) {
+    if (!formData.trucks_quantity || !formData.recorded_by) {
       toast({
         title: "Erro ao salvar",
         description: "Preencha todos os campos obrigatórios",
@@ -65,84 +75,42 @@ const ClayConsumptionDialog = ({ open, onOpenChange, onSave }: ClayConsumptionDi
       return;
     }
     
-    onSave(formData as ClayConsumption);
-    
-    setFormData({
-      id: `CC${Math.floor(Math.random() * 10000).toString().padStart(3, '0')}`,
-      date: format(new Date(), 'yyyy-MM-dd'),
-      trucksQuantity: 0,
-      supplier: '',
-      origin: '',
-      truckId: '',
-      recordedBy: '',
-      notes: ''
-    });
-    
+    onSave(formData);
     onOpenChange(false);
-    
-    toast({
-      title: "Consumo registrado",
-      description: "O consumo de barro foi registrado com sucesso!"
-    });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Registrar Consumo de Barro</DialogTitle>
+          <DialogTitle>{consumption ? 'Editar Consumo' : 'Registrar Consumo de Barro'}</DialogTitle>
           <DialogDescription>
-            Preencha as informações do consumo de barro nos campos abaixo.
+            Preencha as informações do consumo de barro.
           </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           <div className="space-y-2">
-            <Label>Data</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-left font-normal"
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {format(parseDate(formData.date || ''), 'dd/MM/yyyy', { locale: ptBR })}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={parseDate(formData.date || '')}
-                  onSelect={(date) => handleChange('date', formatDateString(date || new Date()))}
-                  locale={ptBR}
-                  className={cn("p-3 pointer-events-auto")}
-                />
-              </PopoverContent>
-            </Popover>
+            <Label htmlFor="date">Data</Label>
+            <Input 
+              id="date" 
+              type="date"
+              value={formData.date} 
+              onChange={(e) => handleChange('date', e.target.value)}
+              required
+            />
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="trucksQuantity">Quantidade de Caminhões</Label>
-              <Input 
-                id="trucksQuantity" 
-                type="number"
-                min="0"
-                value={formData.trucksQuantity} 
-                onChange={(e) => handleChange('trucksQuantity', parseInt(e.target.value))}
-                placeholder="0"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="truckId">ID do Caminhão</Label>
-              <Input 
-                id="truckId" 
-                value={formData.truckId} 
-                onChange={(e) => handleChange('truckId', e.target.value)}
-                placeholder="Ex: CAM-001"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="trucks_quantity">Quantidade de Caminhões</Label>
+            <Input 
+              id="trucks_quantity" 
+              type="number"
+              min="1"
+              value={formData.trucks_quantity} 
+              onChange={(e) => handleChange('trucks_quantity', parseInt(e.target.value) || 0)}
+              required
+            />
           </div>
           
           <div className="space-y-2">
@@ -151,7 +119,7 @@ const ClayConsumptionDialog = ({ open, onOpenChange, onSave }: ClayConsumptionDi
               id="supplier" 
               value={formData.supplier} 
               onChange={(e) => handleChange('supplier', e.target.value)}
-              placeholder="Nome do fornecedor (opcional)"
+              placeholder="Nome do fornecedor"
             />
           </div>
           
@@ -161,35 +129,48 @@ const ClayConsumptionDialog = ({ open, onOpenChange, onSave }: ClayConsumptionDi
               id="origin" 
               value={formData.origin} 
               onChange={(e) => handleChange('origin', e.target.value)}
-              placeholder="Local de origem do barro (opcional)"
+              placeholder="Local de origem do barro"
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="recordedBy">Registrado por</Label>
+            <Label htmlFor="truck_id">ID do Caminhão</Label>
             <Input 
-              id="recordedBy" 
-              value={formData.recordedBy} 
-              onChange={(e) => handleChange('recordedBy', e.target.value)}
+              id="truck_id" 
+              value={formData.truck_id} 
+              onChange={(e) => handleChange('truck_id', e.target.value)}
+              placeholder="Identificação do caminhão"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="recorded_by">Registrado por</Label>
+            <Input 
+              id="recorded_by" 
+              value={formData.recorded_by} 
+              onChange={(e) => handleChange('recorded_by', e.target.value)}
               placeholder="Nome do responsável"
+              required
             />
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="notes">Observações</Label>
-            <Textarea 
+            <Input 
               id="notes" 
               value={formData.notes} 
               onChange={(e) => handleChange('notes', e.target.value)}
-              placeholder="Observações adicionais (opcional)"
+              placeholder="Observações adicionais"
             />
           </div>
           
           <DialogFooter>
-            <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit">Registrar Consumo</Button>
+            <Button type="submit">
+              {consumption ? 'Atualizar' : 'Registrar'} Consumo
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

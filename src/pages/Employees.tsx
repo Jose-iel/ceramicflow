@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -47,9 +46,7 @@ const EmployeesPage = () => {
   };
 
   const handleDeleteEmployee = (id: string) => {
-    if (confirm("Tem certeza que deseja excluir este funcionário?")) {
-      deleteEmployee.mutate(id);
-    }
+    deleteEmployee.mutate(id);
   };
 
   if (isLoading) {

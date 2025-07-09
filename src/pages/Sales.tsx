@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -59,13 +58,24 @@ const Sales = () => {
   const handleSaveSale = (saleData: any) => {
     if (editingSale) {
       updateSaleMutation.mutate({ saleId: editingSale.id, payload: saleData }, {
-        onSuccess: () => setDialogOpen(false),
+        onSuccess: () => {
+          setDialogOpen(false);
+          setEditingSale(null);
+        },
       });
     } else {
       createSaleMutation.mutate(saleData, {
-        onSuccess: () => setDialogOpen(false),
+        onSuccess: () => {
+          setDialogOpen(false);
+          setEditingSale(null);
+        },
       });
     }
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setEditingSale(null);
   };
 
   return (
@@ -275,7 +285,7 @@ const Sales = () => {
 
             <SaleDialog
               open={dialogOpen}
-              onOpenChange={setDialogOpen}
+              onOpenChange={handleDialogClose}
               sale={editingSale}
               onSave={handleSaveSale}
             />

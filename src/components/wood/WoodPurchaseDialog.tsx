@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,63 +11,73 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { WoodPurchase } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { CalendarIcon } from 'lucide-react';
-import { Textarea } from '@/components/ui/textarea';
 
 interface WoodPurchaseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (purchase: WoodPurchase) => void;
+  onSave: (purchase: any) => void;
+  purchase?: any;
 }
 
-const WoodPurchaseDialog = ({ open, onOpenChange, onSave }: WoodPurchaseDialogProps) => {
+const WoodPurchaseDialog = ({ open, onOpenChange, onSave, purchase }: WoodPurchaseDialogProps) => {
   const { toast } = useToast();
   
-  const [formData, setFormData] = useState<Partial<WoodPurchase>>({
-    id: `WP${Math.floor(Math.random() * 10000).toString().padStart(3, '0')}`,
-    date: format(new Date(), 'yyyy-MM-dd'),
+  const [formData, setFormData] = useState({
+    date: new Date().toISOString().split('T')[0],
     supplier: '',
     quantity: 0,
-    unitPrice: 0,
-    totalValue: 0,
-    invoiceNumber: '',
+    unit_price: 0,
+    total_value: 0,
+    invoice_number: '',
     notes: ''
   });
 
-  const parseDate = (dateStr: string): Date => {
-    return new Date(dateStr);
-  };
+  useEffect(() => {
+    if (purchase) {
+      setFormData({
+        date: purchase.date ? 
+          new Date(purchase.date).toISOString().split('T')[0] : 
+          new Date().toISOString().split('T')[0],
+        supplier: purchase.supplier || '',
+        quantity: Number(purchase.quantity) || 0,
+        unit_price: Number(purchase.unit_price) || 0,
+        total_value: Number(purchase.total_value) || 0,
+        invoice_number: purchase.invoice_number || '',
+        notes: purchase.notes || ''
+      });
+    } else {
+      setFormData({
+        date: new Date().toISOString().split('T')[0],
+        supplier: '',
+        quantity: 0,
+        unit_price: 0,
+        total_value: 0,
+        invoice_number: '',
+        notes: ''
+      });
+    }
+  }, [purchase, open]);
 
-  const formatDateString = (date: Date): string => {
-    return format(date, 'yyyy-MM-dd');
-  };
-
-  const handleChange = (field: keyof WoodPurchase, value: any) => {
+  const handleChange = (field: string, value: any) => {
     setFormData(prev => {
-      const updated = { ...prev, [field]: value };
+      const newData = { ...prev, [field]: value };
       
-      // Auto calculate total value
-      if (field === 'quantity' || field === 'unitPrice') {
-        const quantity = field === 'quantity' ? value : prev.quantity || 0;
-        const unitPrice = field === 'unitPrice' ? value : prev.unitPrice || 0;
-        updated.totalValue = quantity * unitPrice;
+      // Auto calculate total when quantity or unit_price changes
+      if (field === 'quantity' || field === 'unit_price') {
+        const quantity = field === 'quantity' ? Number(value) : newData.quantity;
+        const unitPrice = field === 'unit_price' ? Number(value) : newData.unit_price;
+        newData.total_value = quantity * unitPrice;
       }
       
-      return updated;
+      return newData;
     });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.supplier || !formData.quantity || !formData.unitPrice) {
+    if (!formData.supplier || !formData.quantity || !formData.unit_price) {
       toast({
         title: "Erro ao salvar",
         description: "Preencha todos os campos obrigatórios",
@@ -76,60 +86,30 @@ const WoodPurchaseDialog = ({ open, onOpenChange, onSave }: WoodPurchaseDialogPr
       return;
     }
     
-    onSave(formData as WoodPurchase);
-    
-    setFormData({
-      id: `WP${Math.floor(Math.random() * 10000).toString().padStart(3, '0')}`,
-      date: format(new Date(), 'yyyy-MM-dd'),
-      supplier: '',
-      quantity: 0,
-      unitPrice: 0,
-      totalValue: 0,
-      invoiceNumber: '',
-      notes: ''
-    });
-    
+    onSave(formData);
     onOpenChange(false);
-    
-    toast({
-      title: "Compra registrada",
-      description: "A compra de lenha foi registrada com sucesso!"
-    });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Nova Compra de Lenha</DialogTitle>
+          <DialogTitle>{purchase ? 'Editar Compra' : 'Nova Compra de Lenha'}</DialogTitle>
           <DialogDescription>
-            Preencha as informações da compra de lenha nos campos abaixo.
+            Preencha as informações da compra de lenha.
           </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           <div className="space-y-2">
-            <Label>Data da Compra</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-left font-normal"
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {format(parseDate(formData.date || ''), 'dd/MM/yyyy', { locale: ptBR })}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={parseDate(formData.date || '')}
-                  onSelect={(date) => handleChange('date', formatDateString(date || new Date()))}
-                  locale={ptBR}
-                  className={cn("p-3 pointer-events-auto")}
-                />
-              </PopoverContent>
-            </Popover>
+            <Label htmlFor="date">Data</Label>
+            <Input 
+              id="date" 
+              type="date"
+              value={formData.date} 
+              onChange={(e) => handleChange('date', e.target.value)}
+              required
+            />
           </div>
           
           <div className="space-y-2">
@@ -139,6 +119,7 @@ const WoodPurchaseDialog = ({ open, onOpenChange, onSave }: WoodPurchaseDialogPr
               value={formData.supplier} 
               onChange={(e) => handleChange('supplier', e.target.value)}
               placeholder="Nome do fornecedor"
+              required
             />
           </div>
           
@@ -151,62 +132,66 @@ const WoodPurchaseDialog = ({ open, onOpenChange, onSave }: WoodPurchaseDialogPr
                 step="0.1"
                 min="0"
                 value={formData.quantity} 
-                onChange={(e) => handleChange('quantity', parseFloat(e.target.value))}
-                placeholder="0.0"
+                onChange={(e) => handleChange('quantity', parseFloat(e.target.value) || 0)}
+                required
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="unitPrice">Preço por m³ (R$)</Label>
+              <Label htmlFor="unit_price">Preço por m³ (R$)</Label>
               <Input 
-                id="unitPrice" 
+                id="unit_price" 
                 type="number"
                 step="0.01"
                 min="0"
-                value={formData.unitPrice} 
-                onChange={(e) => handleChange('unitPrice', parseFloat(e.target.value))}
-                placeholder="0.00"
+                value={formData.unit_price} 
+                onChange={(e) => handleChange('unit_price', parseFloat(e.target.value) || 0)}
+                required
               />
             </div>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="totalValue">Valor Total (R$)</Label>
+            <Label htmlFor="total_value">Valor Total (R$)</Label>
             <Input 
-              id="totalValue" 
+              id="total_value" 
               type="number"
               step="0.01"
-              value={formData.totalValue?.toFixed(2) || '0.00'} 
+              min="0"
+              value={formData.total_value} 
+              onChange={(e) => handleChange('total_value', parseFloat(e.target.value) || 0)}
               disabled
-              className="bg-muted"
+              className="bg-gray-100"
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="invoiceNumber">Número da Nota Fiscal</Label>
+            <Label htmlFor="invoice_number">Número da Nota Fiscal</Label>
             <Input 
-              id="invoiceNumber" 
-              value={formData.invoiceNumber} 
-              onChange={(e) => handleChange('invoiceNumber', e.target.value)}
-              placeholder="NF-12345 (opcional)"
+              id="invoice_number" 
+              value={formData.invoice_number} 
+              onChange={(e) => handleChange('invoice_number', e.target.value)}
+              placeholder="Opcional"
             />
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="notes">Observações</Label>
-            <Textarea 
+            <Input 
               id="notes" 
               value={formData.notes} 
               onChange={(e) => handleChange('notes', e.target.value)}
-              placeholder="Observações adicionais (opcional)"
+              placeholder="Observações adicionais"
             />
           </div>
           
           <DialogFooter>
-            <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit">Registrar Compra</Button>
+            <Button type="submit">
+              {purchase ? 'Atualizar' : 'Salvar'} Compra
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

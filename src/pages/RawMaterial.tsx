@@ -1,61 +1,34 @@
+
 import React, { useState, useMemo } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { ClayConsumption } from '@/types';
 import { Mountain, Plus, Truck, Calendar } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ClayConsumptionDialog from '@/components/rawmaterial/ClayConsumptionDialog';
 import { useToast } from '@/hooks/use-toast';
-
-// Mock data
-const mockClayConsumptions: ClayConsumption[] = [
-  {
-    id: 'CC001',
-    date: '2023-12-01',
-    trucksQuantity: 8,
-    supplier: 'Barreiro Central',
-    origin: 'Fazenda Santa Maria',
-    truckId: 'CAM-001',
-    recordedBy: 'Carlos Oliveira',
-    notes: 'Barro de boa qualidade'
-  },
-  {
-    id: 'CC002',
-    date: '2023-12-02',
-    trucksQuantity: 6,
-    supplier: 'Extração Norte',
-    truckId: 'CAM-002',
-    recordedBy: 'Ana Costa',
-  },
-  {
-    id: 'CC003',
-    date: '2023-11-15',
-    trucksQuantity: 10,
-    supplier: 'Barreiro Central',
-    origin: 'Fazenda São José',
-    truckId: 'CAM-003',
-    recordedBy: 'João Silva',
-    notes: 'Material argiloso de primeira'
-  },
-  {
-    id: 'CC004',
-    date: '2023-11-28',
-    trucksQuantity: 7,
-    supplier: 'Mineração ABC',
-    truckId: 'CAM-001',
-    recordedBy: 'Maria Santos',
-  }
-];
+import { 
+  useClayConsumptions, 
+  useCreateClayConsumption, 
+  useUpdateClayConsumption, 
+  useDeleteClayConsumption 
+} from '@/hooks/useClayConsumptions';
 
 const RawMaterialPage = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
-  const [clayConsumptions, setClayConsumptions] = useState<ClayConsumption[]>(mockClayConsumptions);
+  
+  // Real database hooks
+  const { data: clayConsumptions = [], isLoading } = useClayConsumptions();
+  const createClayConsumption = useCreateClayConsumption();
+  const updateClayConsumption = useUpdateClayConsumption();
+  const deleteClayConsumption = useDeleteClayConsumption();
+  
   const [showDialog, setShowDialog] = useState(false);
+  const [editingConsumption, setEditingConsumption] = useState<any | null>(null);
   
   // Set current month as default
   const currentDate = new Date();
@@ -84,19 +57,54 @@ const RawMaterialPage = () => {
   // Filter data by selected month
   const filteredConsumptions = useMemo(() => {
     return clayConsumptions.filter(consumption => {
-      const consumptionMonth = consumption.date.substring(0, 7); // YYYY-MM
+      const consumptionMonth = consumption.date ? consumption.date.substring(0, 7) : '';
       return consumptionMonth === selectedMonth;
     });
   }, [clayConsumptions, selectedMonth]);
   
-  const totalMonthlyTrucks = filteredConsumptions.reduce((sum, item) => sum + item.trucksQuantity, 0);
+  const totalMonthlyTrucks = filteredConsumptions.reduce((sum, item) => sum + Number(item.trucks_quantity || 0), 0);
   const averageDailyConsumption = filteredConsumptions.length > 0 
     ? totalMonthlyTrucks / filteredConsumptions.length 
     : 0;
 
-  const handleSaveConsumption = (consumption: ClayConsumption) => {
-    setClayConsumptions(prev => [...prev, consumption]);
+  const handleSaveConsumption = (consumption: any) => {
+    if (editingConsumption) {
+      updateClayConsumption.mutate({
+        consumptionId: editingConsumption.id,
+        consumptionData: consumption
+      });
+    } else {
+      createClayConsumption.mutate(consumption);
+    }
+    setEditingConsumption(null);
+    setShowDialog(false);
   };
+
+  const handleEditConsumption = (consumption: any) => {
+    setEditingConsumption(consumption);
+    setShowDialog(true);
+  };
+
+  const handleDeleteConsumption = (id: string) => {
+    deleteClayConsumption.mutate(id);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen bg-background">
+        <Sidebar />
+        <div className={cn("flex-1 flex flex-col", !isMobile && "ml-64")}>
+          <Navbar title="Matéria-Prima" subtitle="Gestão de Consumo de Barro" />
+          <main className="flex-1 px-6 py-6 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-gray-600">Carregando dados...</p>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -167,7 +175,13 @@ const RawMaterialPage = () => {
 
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold">Consumo de Barro</h2>
-            <Button className="gap-2" onClick={() => setShowDialog(true)}>
+            <Button 
+              className="gap-2" 
+              onClick={() => {
+                setEditingConsumption(null);
+                setShowDialog(true);
+              }}
+            >
               <Plus className="w-4 h-4" />
               Registrar Consumo
             </Button>
@@ -188,10 +202,10 @@ const RawMaterialPage = () => {
                     <div key={consumption.id} className="flex justify-between items-center p-4 border rounded-lg">
                       <div>
                         <h4 className="font-medium">
-                          {consumption.trucksQuantity} caminhões de barro
+                          {consumption.trucks_quantity} caminhões de barro
                         </h4>
                         <p className="text-sm text-muted-foreground">
-                          {new Date(consumption.date).toLocaleDateString('pt-BR')} - por {consumption.recordedBy}
+                          {new Date(consumption.date).toLocaleDateString('pt-BR')} - por {consumption.recorded_by}
                         </p>
                         {consumption.supplier && (
                           <p className="text-sm text-muted-foreground">
@@ -203,9 +217,9 @@ const RawMaterialPage = () => {
                             Origem: {consumption.origin}
                           </p>
                         )}
-                        {consumption.truckId && (
+                        {consumption.truck_id && (
                           <p className="text-sm text-muted-foreground">
-                            Caminhão: {consumption.truckId}
+                            Caminhão: {consumption.truck_id}
                           </p>
                         )}
                         {consumption.notes && (
@@ -215,7 +229,23 @@ const RawMaterialPage = () => {
                       <div className="text-right">
                         <div className="flex items-center gap-2">
                           <Truck className="w-5 h-5 text-muted-foreground" />
-                          <span className="text-lg font-semibold">{consumption.trucksQuantity}</span>
+                          <span className="text-lg font-semibold">{consumption.trucks_quantity}</span>
+                        </div>
+                        <div className="flex gap-1 mt-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditConsumption(consumption)}
+                          >
+                            Editar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDeleteConsumption(consumption.id)}
+                          >
+                            Excluir
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -231,6 +261,7 @@ const RawMaterialPage = () => {
         open={showDialog}
         onOpenChange={setShowDialog}
         onSave={handleSaveConsumption}
+        consumption={editingConsumption}
       />
     </div>
   );
