@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Vehicle, VehicleStatus, VehicleType } from '@/types';
+import { VehicleStatus, VehicleType } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
@@ -24,28 +24,52 @@ import { CalendarIcon } from 'lucide-react';
 interface VehicleDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  vehicle?: Vehicle;
-  onSave: (vehicle: Vehicle) => void;
+  vehicle?: any;
+  onSave: (vehicle: any) => void;
 }
 
 const VehicleDialog = ({ open, onOpenChange, vehicle, onSave }: VehicleDialogProps) => {
   const { toast } = useToast();
   const isEditing = !!vehicle;
   
-  const [formData, setFormData] = useState<Partial<Vehicle>>(
-    vehicle || {
-      id: `V${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
-      model: '',
-      type: VehicleType.TRUCK,
-      acquisitionDate: '01/01/2023',
-      lastMaintenance: format(new Date(), 'dd/MM/yyyy'),
-      status: VehicleStatus.OPERATIONAL,
-      hourMeter: 0
+  const [formData, setFormData] = useState({
+    model: '',
+    type: VehicleType.TRUCK,
+    acquisitionDate: format(new Date(), 'dd/MM/yyyy'),
+    lastMaintenance: format(new Date(), 'dd/MM/yyyy'),
+    status: VehicleStatus.OPERATIONAL,
+    hourMeter: 0
+  });
+
+  // Update form when vehicle prop changes
+  useEffect(() => {
+    if (vehicle) {
+      setFormData({
+        model: vehicle.model || '',
+        type: vehicle.type || VehicleType.TRUCK,
+        acquisitionDate: vehicle.acquisition_date ? 
+          format(new Date(vehicle.acquisition_date), 'dd/MM/yyyy') : 
+          format(new Date(), 'dd/MM/yyyy'),
+        lastMaintenance: vehicle.last_maintenance ? 
+          format(new Date(vehicle.last_maintenance), 'dd/MM/yyyy') : 
+          format(new Date(), 'dd/MM/yyyy'),
+        status: vehicle.status || VehicleStatus.OPERATIONAL,
+        hourMeter: vehicle.hour_meter || 0
+      });
+    } else {
+      setFormData({
+        model: '',
+        type: VehicleType.TRUCK,
+        acquisitionDate: format(new Date(), 'dd/MM/yyyy'),
+        lastMaintenance: format(new Date(), 'dd/MM/yyyy'),
+        status: VehicleStatus.OPERATIONAL,
+        hourMeter: 0
+      });
     }
-  );
+  }, [vehicle]);
 
   // Handle form field changes
-  const handleChange = (field: keyof Vehicle, value: any) => {
+  const handleChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -79,27 +103,19 @@ const VehicleDialog = ({ open, onOpenChange, vehicle, onSave }: VehicleDialogPro
     }
     
     // Save vehicle
-    onSave(formData as Vehicle);
+    onSave(formData);
     
-    // Reset form and close dialog
+    // Reset form if not editing
     if (!isEditing) {
       setFormData({
-        id: `V${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
         model: '',
         type: VehicleType.TRUCK,
-        acquisitionDate: '01/01/2023',
+        acquisitionDate: format(new Date(), 'dd/MM/yyyy'),
         lastMaintenance: format(new Date(), 'dd/MM/yyyy'),
         status: VehicleStatus.OPERATIONAL,
         hourMeter: 0
       });
     }
-    
-    onOpenChange(false);
-    
-    toast({
-      title: isEditing ? "Veículo atualizado" : "Veículo adicionado",
-      description: `${formData.model} foi ${isEditing ? 'atualizado' : 'adicionado'} com sucesso!`
-    });
   };
 
   return (
@@ -116,16 +132,6 @@ const VehicleDialog = ({ open, onOpenChange, vehicle, onSave }: VehicleDialogPro
         
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="id">ID</Label>
-              <Input 
-                id="id" 
-                value={formData.id} 
-                onChange={(e) => handleChange('id', e.target.value)}
-                disabled={isEditing}
-              />
-            </div>
-            
             <div className="space-y-2">
               <Label htmlFor="type">Tipo</Label>
               <Select 
@@ -147,27 +153,6 @@ const VehicleDialog = ({ open, onOpenChange, vehicle, onSave }: VehicleDialogPro
               </Select>
             </div>
             
-            <div className="space-y-2 col-span-2">
-              <Label htmlFor="model">Modelo</Label>
-              <Input 
-                id="model" 
-                value={formData.model} 
-                onChange={(e) => handleChange('model', e.target.value)}
-                placeholder="Ex: Toyota 8FGU25"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="hourMeter">Horímetro</Label>
-              <Input 
-                id="hourMeter" 
-                type="number"
-                min="0"
-                value={formData.hourMeter} 
-                onChange={(e) => handleChange('hourMeter', parseInt(e.target.value))}
-              />
-            </div>
-            
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
               <Select 
@@ -183,6 +168,28 @@ const VehicleDialog = ({ open, onOpenChange, vehicle, onSave }: VehicleDialogPro
                   <SelectItem value={VehicleStatus.STOPPED}>Parada</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            
+            <div className="space-y-2 col-span-2">
+              <Label htmlFor="model">Modelo</Label>
+              <Input 
+                id="model" 
+                value={formData.model} 
+                onChange={(e) => handleChange('model', e.target.value)}
+                placeholder="Ex: Toyota 8FGU25"
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="hourMeter">Horímetro</Label>
+              <Input 
+                id="hourMeter" 
+                type="number"
+                min="0"
+                value={formData.hourMeter} 
+                onChange={(e) => handleChange('hourMeter', parseInt(e.target.value) || 0)}
+              />
             </div>
           </div>
           
@@ -201,7 +208,7 @@ const VehicleDialog = ({ open, onOpenChange, vehicle, onSave }: VehicleDialogPro
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
-                  selected={parseDate(formData.acquisitionDate || '')}
+                  selected={parseDate(formData.acquisitionDate)}
                   onSelect={(date) => handleChange('acquisitionDate', formatDateString(date || new Date()))}
                   locale={ptBR}
                   className={cn("p-3 pointer-events-auto")}
@@ -225,7 +232,7 @@ const VehicleDialog = ({ open, onOpenChange, vehicle, onSave }: VehicleDialogPro
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
-                  selected={parseDate(formData.lastMaintenance || '')}
+                  selected={parseDate(formData.lastMaintenance)}
                   onSelect={(date) => handleChange('lastMaintenance', formatDateString(date || new Date()))}
                   locale={ptBR}
                   className={cn("p-3 pointer-events-auto")}

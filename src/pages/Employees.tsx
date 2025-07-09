@@ -1,317 +1,189 @@
 
 import React, { useState } from 'react';
-import Navbar from '@/components/layout/Navbar';
-import Sidebar from '@/components/layout/Sidebar';
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { Plus, Search, Filter, Edit, Trash2 } from 'lucide-react';
+import Sidebar from '@/components/layout/Sidebar';
+import Navbar from '@/components/layout/Navbar';
 import { Input } from '@/components/ui/input';
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Filter, Plus, Search, User, AlertTriangle, CheckCircle } from 'lucide-react';
-import { Employee, CertificateStatus, EmployeeRole } from '@/types';
 import EmployeeDialog from '@/components/employees/EmployeeDialog';
-import { useToast } from '@/hooks/use-toast';
+import { useEmployees, useCreateEmployee, useUpdateEmployee, useDeleteEmployee } from '@/hooks/useEmployees';
 
 const EmployeesPage = () => {
   const isMobile = useIsMobile();
-  const { toast } = useToast();
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('all');
-  const [shiftFilter, setShiftFilter] = useState<string>('all');
-  const [certificateFilter, setCertificateFilter] = useState<string>('all');
-  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [showDialog, setShowDialog] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState<any | null>(null);
 
-  // Dialog states
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-  
-  // Filter employees based on search and filters
-  const filteredEmployees = employees.filter(employee => {
-    // Search filter
-    const matchesSearch = employee.name.toLowerCase().includes(search.toLowerCase()) || 
-                          employee.cpf.includes(search) ||
-                          employee.id.toLowerCase().includes(search.toLowerCase());
-    
-    // Role filter
-    const matchesRole = roleFilter === 'all' || employee.role === roleFilter;
-    
-    // Shift filter
-    const matchesShift = shiftFilter === 'all' || employee.shift === shiftFilter;
-    
-    // Certificate filter
-    let matchesCertificate = true;
-    if (certificateFilter === 'expired') {
-      matchesCertificate = employee.asoStatus === CertificateStatus.EXPIRED || employee.nrStatus === CertificateStatus.EXPIRED;
-    } else if (certificateFilter === 'warning') {
-      matchesCertificate = employee.asoStatus === CertificateStatus.WARNING || employee.nrStatus === CertificateStatus.WARNING;
-    } else if (certificateFilter === 'regular') {
-      matchesCertificate = employee.asoStatus === CertificateStatus.REGULAR && employee.nrStatus === CertificateStatus.REGULAR;
-    }
-    
-    return matchesSearch && matchesRole && matchesShift && matchesCertificate;
-  });
+  // Use real database hooks
+  const { data: employees = [], isLoading } = useEmployees();
+  const createEmployee = useCreateEmployee();
+  const updateEmployee = useUpdateEmployee();
+  const deleteEmployee = useDeleteEmployee();
 
-  // Format date
-  const formatDate = (dateString: string) => {
-    return dateString;
-  };
-  
-  // Get unique roles and shifts for filters
-  const roles = [...new Set(employees.map(emp => emp.role))];
-  const shifts = [...new Set(employees.map(emp => emp.shift))];
+  // Filter employees
+  const filteredEmployees = employees.filter(employee => 
+    employee.name.toLowerCase().includes(search.toLowerCase()) ||
+    employee.role.toLowerCase().includes(search.toLowerCase())
+  );
 
-  // Calculate stats
-  const totalEmployees = employees.length;
-  const employeesWithValidCertificates = employees.filter(emp => 
-    emp.asoStatus === CertificateStatus.REGULAR && emp.nrStatus === CertificateStatus.REGULAR
-  ).length;
-  const employeesWithWarningCertificates = employees.filter(emp => 
-    emp.asoStatus === CertificateStatus.WARNING || emp.nrStatus === CertificateStatus.WARNING
-  ).length;
-  const employeesWithExpiredCertificates = employees.filter(emp => 
-    emp.asoStatus === CertificateStatus.EXPIRED || emp.nrStatus === CertificateStatus.EXPIRED
-  ).length;
-
-  // Get certificate status badge variant
-  const getCertificateStatusVariant = (status: CertificateStatus) => {
-    switch (status) {
-      case CertificateStatus.REGULAR:
-        return 'default';
-      case CertificateStatus.WARNING:
-        return 'secondary';
-      case CertificateStatus.EXPIRED:
-        return 'outline';
-      default:
-        return 'outline';
-    }
-  };
-
-  // Handle add/edit employee
-  const handleSaveEmployee = (employeeData: Employee) => {
-    if (editDialogOpen) {
-      // Update existing employee
-      setEmployees(prev => 
-        prev.map(e => e.id === employeeData.id ? employeeData : e)
-      );
+  const handleSaveEmployee = (employeeData: any) => {
+    if (editingEmployee) {
+      updateEmployee.mutate({
+        employeeId: editingEmployee.id,
+        employeeData: employeeData
+      });
     } else {
-      // Add new employee
-      setEmployees(prev => [...prev, employeeData]);
+      createEmployee.mutate(employeeData);
     }
+    setEditingEmployee(null);
+    setShowDialog(false);
   };
 
-  // Handle delete employee
+  const handleEditEmployee = (employee: any) => {
+    setEditingEmployee(employee);
+    setShowDialog(true);
+  };
+
   const handleDeleteEmployee = (id: string) => {
     if (confirm("Tem certeza que deseja excluir este funcionário?")) {
-      setEmployees(prev => prev.filter(e => e.id !== id));
-      toast({
-        title: "Funcionário excluído",
-        description: "O funcionário foi excluído com sucesso."
-      });
+      deleteEmployee.mutate(id);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen bg-background">
+        <Sidebar />
+        <div className={cn("flex-1 flex flex-col", !isMobile && "ml-64")}>
+          <Navbar title="Funcionários" subtitle="Gestão de Pessoal" />
+          <main className="flex-1 px-6 py-6 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-gray-600">Carregando funcionários...</p>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       
       <div className={cn(
-        "flex-1 flex flex-col min-w-0",
+        "flex-1 flex flex-col",
         !isMobile && "ml-64"
       )}>
         <Navbar 
           title="Funcionários" 
-          subtitle="Gerenciamento de Pessoal"
+          subtitle="Gestão de Pessoal"
         />
         
-        <main className="flex-1 px-3 md:px-6 py-4 md:py-6 overflow-x-hidden">
-          {/* Stats cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
-            <div className="bg-card border rounded-lg p-3 md:p-4 shadow">
-              <h3 className="text-xs md:text-sm font-medium text-muted-foreground mb-2">Total de Funcionários</h3>
-              <div className="flex items-center justify-between">
-                <p className="text-lg md:text-2xl font-bold">{totalEmployees}</p>
-                <div className="p-1.5 md:p-2 bg-primary/10 rounded-full">
-                  <User className="w-4 h-4 md:w-5 md:h-5 text-primary" />
-                </div>
-              </div>
+        <main className="flex-1 px-6 py-6">
+          {/* Header with search and actions */}
+          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Input 
+                type="text" 
+                placeholder="Buscar funcionário..." 
+                className="pl-10"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
             </div>
-            
-            <div className="bg-card border rounded-lg p-3 md:p-4 shadow">
-              <h3 className="text-xs md:text-sm font-medium text-muted-foreground mb-2">Certificados Regulares</h3>
-              <div className="flex items-center justify-between">
-                <p className="text-lg md:text-2xl font-bold text-green-600">{employeesWithValidCertificates}</p>
-                <div className="p-1.5 md:p-2 bg-green-100 rounded-full">
-                  <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-card border rounded-lg p-3 md:p-4 shadow">
-              <h3 className="text-xs md:text-sm font-medium text-muted-foreground mb-2">Próximos ao Vencimento</h3>
-              <div className="flex items-center justify-between">
-                <p className="text-lg md:text-2xl font-bold text-yellow-600">{employeesWithWarningCertificates}</p>
-                <div className="p-1.5 md:p-2 bg-yellow-100 rounded-full">
-                  <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-yellow-600" />
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-card border rounded-lg p-3 md:p-4 shadow">
-              <h3 className="text-xs md:text-sm font-medium text-muted-foreground mb-2">Certificados Vencidos</h3>
-              <div className="flex items-center justify-between">
-                <p className="text-lg md:text-2xl font-bold text-red-600">{employeesWithExpiredCertificates}</p>
-                <div className="p-1.5 md:p-2 bg-red-100 rounded-full">
-                  <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
-                </div>
-              </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex items-center gap-2">
+                <Filter className="w-4 h-4" />
+                Filtrar
+              </Button>
+              <Button 
+                className="gap-2" 
+                onClick={() => {
+                  setEditingEmployee(null);
+                  setShowDialog(true);
+                }}
+              >
+                <Plus className="w-4 h-4" />
+                Novo Funcionário
+              </Button>
             </div>
           </div>
 
-          {/* Filter section */}
-          <div className="flex flex-col gap-3 mb-4 md:mb-6">
-            <div className="flex flex-col sm:flex-row gap-3 sm:justify-between">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input 
-                  type="text" 
-                  placeholder="Buscar funcionário..." 
-                  className="pl-10"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" className="flex items-center gap-2 text-sm">
-                  <Filter className="w-4 h-4" />
-                  {isMobile ? 'Filtrar' : 'Filtrar'}
-                </Button>
-                <Button 
-                  className="gap-2 text-sm"
-                  onClick={() => {
-                    setSelectedEmployee(null);
-                    setAddDialogOpen(true);
-                  }}
-                >
-                  <Plus className="w-4 h-4" />
-                  {isMobile ? 'Novo' : 'Novo Funcionário'}
-                </Button>
-              </div>
-            </div>
-            
-            {/* Filter options */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              <div className="space-y-1">
-                <h4 className="text-sm font-medium">Cargo</h4>
-                <select 
-                  className="w-full p-2 text-sm rounded-md border border-input bg-background"
-                  value={roleFilter}
-                  onChange={(e) => setRoleFilter(e.target.value)}
-                >
-                  <option value="all">Todos</option>
-                  {roles.map((role) => (
-                    <option key={role} value={role}>{role}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-sm font-medium">Turno</h4>
-                <select 
-                  className="w-full p-2 text-sm rounded-md border border-input bg-background"
-                  value={shiftFilter}
-                  onChange={(e) => setShiftFilter(e.target.value)}
-                >
-                  <option value="all">Todos</option>
-                  {shifts.map((shift) => (
-                    <option key={shift} value={shift}>{shift}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-1">
-                <h4 className="text-sm font-medium">Status dos Certificados</h4>
-                <select 
-                  className="w-full p-2 text-sm rounded-md border border-input bg-background"
-                  value={certificateFilter}
-                  onChange={(e) => setCertificateFilter(e.target.value)}
-                >
-                  <option value="all">Todos</option>
-                  <option value="regular">Regular</option>
-                  <option value="warning">Próximo ao Vencimento</option>
-                  <option value="expired">Vencido</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          
-          {/* Employee List */}
-          <div className="bg-card rounded-lg shadow overflow-hidden">
+          {/* Employees Table */}
+          <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[800px]">
-                <thead className="bg-muted/50">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
                   <tr>
-                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">ID</th>
-                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Nome</th>
-                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Cargo</th>
-                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">CPF</th>
-                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Contato</th>
-                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Turno</th>
-                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">ASO</th>
-                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">NR</th>
-                    <th className="p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground">Ações</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Nome
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Cargo
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Contato
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Turno
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      ASO
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      NR
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Ações
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
+                <tbody className="bg-white divide-y divide-gray-200">
                   {filteredEmployees.map((employee) => (
-                    <tr key={employee.id} className="hover:bg-muted/50 transition-colors">
-                      <td className="p-2 md:p-4 text-xs md:text-sm">{employee.id}</td>
-                      <td className="p-2 md:p-4">
-                        <div className="text-xs md:text-sm font-medium">{employee.name}</div>
-                        <div className="text-xs text-muted-foreground">Admitido em {employee.registrationDate}</div>
-                      </td>
-                      <td className="p-2 md:p-4 text-xs md:text-sm">{employee.role}</td>
-                      <td className="p-2 md:p-4 text-xs md:text-sm">{employee.cpf}</td>
-                      <td className="p-2 md:p-4 text-xs md:text-sm">{employee.contact}</td>
-                      <td className="p-2 md:p-4 text-xs md:text-sm">{employee.shift}</td>
-                      <td className="p-2 md:p-4">
-                        <Badge variant={getCertificateStatusVariant(employee.asoStatus)} className="text-xs">
-                          {employee.asoStatus === CertificateStatus.REGULAR && 'Regular'}
-                          {employee.asoStatus === CertificateStatus.WARNING && 'Próximo'}
-                          {employee.asoStatus === CertificateStatus.EXPIRED && 'Vencido'}
-                        </Badge>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          Vence: {employee.asoExpirationDate}
+                    <tr key={employee.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {employee.name}
                         </div>
                       </td>
-                      <td className="p-2 md:p-4">
-                        <Badge variant={getCertificateStatusVariant(employee.nrStatus)} className="text-xs">
-                          {employee.nrStatus === CertificateStatus.REGULAR && 'Regular'}
-                          {employee.nrStatus === CertificateStatus.WARNING && 'Próximo'}
-                          {employee.nrStatus === CertificateStatus.EXPIRED && 'Vencido'}
-                        </Badge>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          Vence: {employee.nrExpirationDate}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{employee.role}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{employee.contact || '-'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{employee.shift || '-'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {employee.aso_expiration_date || '-'}
                         </div>
                       </td>
-                      <td className="p-2 md:p-4">
-                        <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
-                          <Button 
-                            variant="ghost" 
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {employee.nr_expiration_date || '-'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex justify-end gap-2">
+                          <Button
                             size="sm"
-                            className="text-xs"
-                            onClick={() => {
-                              setSelectedEmployee(employee);
-                              setEditDialogOpen(true);
-                            }}
+                            variant="outline"
+                            onClick={() => handleEditEmployee(employee)}
                           >
-                            Editar
+                            <Edit className="h-4 w-4" />
                           </Button>
-                          <Button 
-                            variant="ghost" 
+                          <Button
                             size="sm"
-                            className="text-xs text-red-500 hover:text-red-700 hover:bg-red-50"
+                            variant="destructive"
                             onClick={() => handleDeleteEmployee(employee.id)}
                           >
-                            Excluir
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </td>
@@ -320,27 +192,21 @@ const EmployeesPage = () => {
                 </tbody>
               </table>
             </div>
-            
-            {filteredEmployees.length === 0 && (
-              <div className="p-6 md:p-8 text-center">
-                <p className="text-muted-foreground text-sm md:text-base">Nenhum funcionário encontrado</p>
-              </div>
-            )}
           </div>
+
+          {filteredEmployees.length === 0 && (
+            <div className="text-center p-8 text-muted-foreground">
+              <p>Nenhum funcionário encontrado</p>
+              <p className="text-sm mt-2">Adicione um novo funcionário para começar</p>
+            </div>
+          )}
         </main>
       </div>
 
-      {/* Add/Edit Employee Dialog */}
-      <EmployeeDialog 
-        open={addDialogOpen} 
-        onOpenChange={setAddDialogOpen}
-        onSave={handleSaveEmployee}
-      />
-      
-      <EmployeeDialog 
-        open={editDialogOpen} 
-        onOpenChange={setEditDialogOpen}
-        employee={selectedEmployee || undefined}
+      <EmployeeDialog
+        open={showDialog}
+        onOpenChange={setShowDialog}
+        employee={editingEmployee}
         onSave={handleSaveEmployee}
       />
     </div>

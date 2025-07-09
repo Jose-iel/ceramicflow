@@ -5,22 +5,26 @@ import Sidebar from '@/components/layout/Sidebar';
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { Vehicle, VehicleStatus, VehicleType } from '@/types';
+import { VehicleStatus, VehicleType } from '@/types';
 import { Filter, Search, Plus, Edit, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import VehicleDialog from '@/components/vehicle/VehicleDialog';
-import { useToast } from '@/hooks/use-toast';
+import { useVehicles, useCreateVehicle, useUpdateVehicle, useDeleteVehicle } from '@/hooks/useVehicles';
 
 const VehiclesPage = () => {
   const isMobile = useIsMobile();
-  const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [type, setType] = useState<string>('all');
   const [status, setStatus] = useState<string>('all');
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [showDialog, setShowDialog] = useState(false);
-  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const [editingVehicle, setEditingVehicle] = useState<any | null>(null);
+
+  // Use real database hooks
+  const { data: vehicles = [], isLoading } = useVehicles();
+  const createVehicle = useCreateVehicle();
+  const updateVehicle = useUpdateVehicle();
+  const deleteVehicle = useDeleteVehicle();
   
   // Filter vehicles
   const filteredVehicles = vehicles.filter(vehicle => {
@@ -33,37 +37,27 @@ const VehiclesPage = () => {
     return matchesSearch && matchesType && matchesStatus;
   });
 
-  const handleSaveVehicle = (vehicle: Vehicle) => {
+  const handleSaveVehicle = (vehicleData: any) => {
     if (editingVehicle) {
-      // Update existing vehicle
-      setVehicles(prev => prev.map(v => v.id === vehicle.id ? vehicle : v));
-      toast({
-        title: "Veículo atualizado",
-        description: "O veículo foi atualizado com sucesso."
+      updateVehicle.mutate({
+        vehicleId: editingVehicle.id,
+        vehicleData: vehicleData
       });
     } else {
-      // Add new vehicle
-      setVehicles(prev => [...prev, vehicle]);
-      toast({
-        title: "Veículo adicionado",
-        description: "O veículo foi adicionado com sucesso."
-      });
+      createVehicle.mutate(vehicleData);
     }
     setEditingVehicle(null);
+    setShowDialog(false);
   };
 
-  const handleEditVehicle = (vehicle: Vehicle) => {
+  const handleEditVehicle = (vehicle: any) => {
     setEditingVehicle(vehicle);
     setShowDialog(true);
   };
 
   const handleDeleteVehicle = (id: string) => {
     if (confirm("Tem certeza que deseja excluir este veículo?")) {
-      setVehicles(prev => prev.filter(v => v.id !== id));
-      toast({
-        title: "Veículo excluído",
-        description: "O veículo foi excluído com sucesso."
-      });
+      deleteVehicle.mutate(id);
     }
   };
 
@@ -71,6 +65,23 @@ const VehiclesPage = () => {
     setShowDialog(false);
     setEditingVehicle(null);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen bg-background">
+        <Sidebar />
+        <div className={cn("flex-1 flex flex-col", !isMobile && "ml-64")}>
+          <Navbar title="Frota" subtitle="Gerenciamento de Veículos" />
+          <main className="flex-1 px-6 py-6 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-gray-600">Carregando veículos...</p>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-background">
