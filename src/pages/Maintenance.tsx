@@ -11,83 +11,12 @@ import { Maintenance, MaintenanceStatus } from '@/types';
 import MaintenanceDialog from '@/components/maintenance/MaintenanceDialog';
 import { useToast } from '@/hooks/use-toast';
 
-// Mock data para manutenções existentes
-const initialMaintenance: Maintenance[] = [
-  {
-    id: 'M001',
-    vehicleId: 'V001',
-    vehicleModel: 'Toyota 8FGU25',
-    issue: 'Vazamento de óleo hidráulico',
-    reportedBy: 'Carlos Silva',
-    reportedDate: '2023-11-15',
-    status: MaintenanceStatus.WAITING
-  },
-  {
-    id: 'M002',
-    vehicleId: 'V003',
-    vehicleModel: 'John Deere 6110B',
-    issue: 'Motor de tração com ruído anormal',
-    reportedBy: 'João Pereira',
-    reportedDate: '2023-11-10',
-    status: MaintenanceStatus.IN_PROGRESS
-  },
-  {
-    id: 'M003',
-    vehicleId: 'V004',
-    vehicleModel: 'Hyster E50XN',
-    issue: 'Bateria não segura carga completa',
-    reportedBy: 'Maria Oliveira',
-    reportedDate: '2023-11-05',
-    status: MaintenanceStatus.IN_PROGRESS
-  },
-  {
-    id: 'M004',
-    vehicleId: 'V001',
-    vehicleModel: 'Toyota 8FGU25',
-    issue: 'Freios necessitando ajuste',
-    reportedBy: 'Pedro Santos',
-    reportedDate: '2023-10-28',
-    status: MaintenanceStatus.COMPLETED,
-    completedDate: '2023-11-03'
-  },
-  {
-    id: 'M005',
-    vehicleId: 'V002',
-    vehicleModel: 'Mercedes Atego',
-    issue: 'Revisão programada 1000h',
-    reportedBy: 'Ana Costa',
-    reportedDate: '2023-10-25',
-    status: MaintenanceStatus.COMPLETED,
-    completedDate: '2023-10-30'
-  }
-];
-
-// Mock data para veículos disponíveis (baseado na frota real)
-const availableVehicles = [
-  { id: 'V001', model: 'Toyota 8FGU25' },
-  { id: 'V002', model: 'Mercedes Atego' },
-  { id: 'V003', model: 'John Deere 6110B' },
-  { id: 'V004', model: 'Hyster E50XN' },
-  { id: 'V005', model: 'Caterpillar 930K' },
-  { id: 'V006', model: 'JCB 3CX' },
-  { id: 'V007', model: 'Crown RR5725' },
-  { id: 'V008', model: 'Yale GLP050' }
-];
-
-const availableOperators = [
-  { id: 'OP001', name: 'Carlos Silva' },
-  { id: 'OP002', name: 'Maria Oliveira' },
-  { id: 'OP003', name: 'João Pereira' },
-  { id: 'OP004', name: 'Ana Costa' },
-  { id: 'SV001', name: 'Pedro Santos' }
-];
-
 const MaintenancePage = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [maintenanceItems, setMaintenanceItems] = useState<Maintenance[]>(initialMaintenance);
+  const [maintenanceItems, setMaintenanceItems] = useState<Maintenance[]>([]);
   
   // Dialog states
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -396,8 +325,8 @@ const MaintenancePage = () => {
         open={addDialogOpen} 
         onOpenChange={setAddDialogOpen}
         onSave={handleSaveMaintenance}
-        availableVehicles={availableVehicles}
-        availableOperators={availableOperators}
+        availableVehicles={[]}
+        availableOperators={[]}
       />
       
       <MaintenanceDialog 
@@ -405,8 +334,8 @@ const MaintenancePage = () => {
         onOpenChange={setEditDialogOpen}
         maintenance={selectedMaintenance || undefined}
         onSave={handleSaveMaintenance}
-        availableVehicles={availableVehicles}
-        availableOperators={availableOperators}
+        availableVehicles={[]}
+        availableOperators={[]}
       />
     </div>
   );

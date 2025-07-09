@@ -12,81 +12,12 @@ import { Operation, OperationStatus } from '@/types';
 import OperationDialog from '@/components/operations/OperationDialog';
 import { useToast } from '@/hooks/use-toast';
 
-// Mock data para operações existentes
-const initialOperations: Operation[] = [
-  {
-    id: 'OP001',
-    type: 'Coleta de Barro',
-    location: 'Fazenda A',
-    operator: 'Carlos Silva',
-    startDate: '2023-11-15',
-    endDate: null,
-    status: OperationStatus.IN_PROGRESS
-  },
-  {
-    id: 'OP002',
-    type: 'Transporte de Lenha',
-    location: 'Pátio Central',
-    operator: 'Maria Oliveira',
-    startDate: '2023-11-10',
-    endDate: '2023-11-12',
-    status: OperationStatus.COMPLETED
-  },
-  {
-    id: 'OP003',
-    type: 'Alimentação do Forno',
-    location: 'Forno 1',
-    operator: 'João Pereira',
-    startDate: '2023-11-05',
-    endDate: null,
-    status: OperationStatus.PAUSED
-  },
-  {
-    id: 'OP004',
-    type: 'Manutenção Preventiva',
-    location: 'Setor de Manutenção',
-    operator: 'Ana Costa',
-    startDate: '2023-10-28',
-    endDate: '2023-10-30',
-    status: OperationStatus.COMPLETED
-  },
-  {
-    id: 'OP005',
-    type: 'Controle de Qualidade',
-    location: 'Laboratório',
-    operator: 'Pedro Santos',
-    startDate: '2023-10-25',
-    endDate: null,
-    status: OperationStatus.IN_PROGRESS
-  }
-];
-
-// Mock data para operadores e veículos disponíveis
-const availableOperators = [
-  { id: 'OP001', name: 'Carlos Silva' },
-  { id: 'OP002', name: 'Maria Oliveira' },
-  { id: 'OP003', name: 'João Pereira' },
-  { id: 'OP004', name: 'Ana Costa' },
-  { id: 'SV001', name: 'Pedro Santos' }
-];
-
-const availableForklifts = [
-  { id: 'V001', model: 'Toyota 8FGU25' },
-  { id: 'V002', model: 'Mercedes Atego' },
-  { id: 'V003', model: 'John Deere 6110B' },
-  { id: 'V004', model: 'Hyster E50XN' },
-  { id: 'V005', model: 'Caterpillar 930K' },
-  { id: 'V006', model: 'JCB 3CX' },
-  { id: 'V007', model: 'Crown RR5725' },
-  { id: 'V008', model: 'Yale GLP050' }
-];
-
 const OperationsPage = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [operations, setOperations] = useState<Operation[]>(initialOperations);
+  const [operations, setOperations] = useState<Operation[]>([]);
   
   // Dialog states
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -425,8 +356,8 @@ const OperationsPage = () => {
         open={addDialogOpen} 
         onOpenChange={setAddDialogOpen}
         onSave={handleSaveOperation}
-        availableOperators={availableOperators}
-        availableForklifts={availableForklifts}
+        availableOperators={[]}
+        availableForklifts={[]}
       />
       
       <OperationDialog 
@@ -434,8 +365,8 @@ const OperationsPage = () => {
         onOpenChange={setEditDialogOpen}
         operation={selectedOperation || undefined}
         onSave={handleSaveOperation}
-        availableOperators={availableOperators}
-        availableForklifts={availableForklifts}
+        availableOperators={[]}
+        availableForklifts={[]}
       />
     </div>
   );

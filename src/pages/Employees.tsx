@@ -12,75 +12,6 @@ import { Employee, CertificateStatus, EmployeeRole } from '@/types';
 import EmployeeDialog from '@/components/employees/EmployeeDialog';
 import { useToast } from '@/hooks/use-toast';
 
-// Mock data for employees
-const initialEmployees: Employee[] = [
-  {
-    id: 'EMP001',
-    name: 'Carlos Silva',
-    role: EmployeeRole.FORNEIRO,
-    cpf: '123.456.789-00',
-    contact: '(11) 99999-1234',
-    shift: 'Manhã',
-    registrationDate: '15/01/2023',
-    asoExpirationDate: '15/01/2024',
-    nrExpirationDate: '20/12/2023',
-    asoStatus: CertificateStatus.REGULAR,
-    nrStatus: CertificateStatus.WARNING
-  },
-  {
-    id: 'EMP002',
-    name: 'Maria Oliveira',
-    role: EmployeeRole.MOTORISTA,
-    cpf: '987.654.321-00',
-    contact: '(11) 88888-5678',
-    shift: 'Tarde',
-    registrationDate: '22/03/2023',
-    asoExpirationDate: '22/03/2024',
-    nrExpirationDate: '10/02/2024',
-    asoStatus: CertificateStatus.REGULAR,
-    nrStatus: CertificateStatus.REGULAR
-  },
-  {
-    id: 'EMP003',
-    name: 'João Santos',
-    role: EmployeeRole.OPERADOR_MAQUINAS,
-    cpf: '456.789.123-00',
-    contact: '(11) 77777-9012',
-    shift: 'Noite',
-    registrationDate: '10/05/2023',
-    asoExpirationDate: '05/11/2023',
-    nrExpirationDate: '15/11/2023',
-    asoStatus: CertificateStatus.EXPIRED,
-    nrStatus: CertificateStatus.EXPIRED
-  },
-  {
-    id: 'EMP004',
-    name: 'Ana Costa',
-    role: EmployeeRole.SUPERVISOR,
-    cpf: '789.123.456-00',
-    contact: '(11) 66666-3456',
-    shift: 'Manhã',
-    registrationDate: '08/07/2023',
-    asoExpirationDate: '08/07/2024',
-    nrExpirationDate: '20/01/2024',
-    asoStatus: CertificateStatus.REGULAR,
-    nrStatus: CertificateStatus.WARNING
-  },
-  {
-    id: 'EMP005',
-    name: 'Pedro Mendes',
-    role: EmployeeRole.ADMINISTRATIVO,
-    cpf: '321.654.987-00',
-    contact: '(11) 55555-7890',
-    shift: 'Manhã',
-    registrationDate: '12/09/2023',
-    asoExpirationDate: '12/09/2024',
-    nrExpirationDate: '25/03/2024',
-    asoStatus: CertificateStatus.REGULAR,
-    nrStatus: CertificateStatus.REGULAR
-  }
-];
-
 const EmployeesPage = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
@@ -88,7 +19,7 @@ const EmployeesPage = () => {
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [shiftFilter, setShiftFilter] = useState<string>('all');
   const [certificateFilter, setCertificateFilter] = useState<string>('all');
-  const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
+  const [employees, setEmployees] = useState<Employee[]>([]);
 
   // Dialog states
   const [addDialogOpen, setAddDialogOpen] = useState(false);

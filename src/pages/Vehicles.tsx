@@ -6,51 +6,11 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { Vehicle, VehicleStatus, VehicleType } from '@/types';
-import { Filter, Search, Plus } from 'lucide-react';
+import { Filter, Search, Plus, Edit, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import VehicleCard from '@/components/vehicle/VehicleCard';
 import VehicleDialog from '@/components/vehicle/VehicleDialog';
 import { useToast } from '@/hooks/use-toast';
-
-// Mock data for vehicles
-const initialVehicles: Vehicle[] = [
-  {
-    id: 'V001',
-    model: 'Toyota 8FGU25',
-    type: VehicleType.GAS,
-    acquisitionDate: '10/05/2022',
-    lastMaintenance: '15/09/2023',
-    status: VehicleStatus.OPERATIONAL,
-    hourMeter: 12583,
-  },
-  {
-    id: 'V002',
-    model: 'Mercedes Atego',
-    type: VehicleType.TRUCK,
-    acquisitionDate: '22/11/2021',
-    lastMaintenance: '30/10/2023',
-    status: VehicleStatus.OPERATIONAL,
-    hourMeter: 8452,
-  },
-  {
-    id: 'V003',
-    model: 'John Deere 6110B',
-    type: VehicleType.TRACTOR,
-    acquisitionDate: '04/03/2022',
-    lastMaintenance: '12/08/2023',
-    status: VehicleStatus.MAINTENANCE,
-    hourMeter: 10974,
-  },
-  {
-    id: 'V004',
-    model: 'Hyster E50XN',
-    type: VehicleType.ELECTRIC,
-    acquisitionDate: '18/07/2022',
-    lastMaintenance: '05/11/2023',
-    status: VehicleStatus.STOPPED,
-    hourMeter: 6782,
-  },
-];
 
 const VehiclesPage = () => {
   const isMobile = useIsMobile();
@@ -58,8 +18,9 @@ const VehiclesPage = () => {
   const [search, setSearch] = useState('');
   const [type, setType] = useState<string>('all');
   const [status, setStatus] = useState<string>('all');
-  const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [showDialog, setShowDialog] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   
   // Filter vehicles
   const filteredVehicles = vehicles.filter(vehicle => {
@@ -73,7 +34,27 @@ const VehiclesPage = () => {
   });
 
   const handleSaveVehicle = (vehicle: Vehicle) => {
-    setVehicles(prev => [...prev, vehicle]);
+    if (editingVehicle) {
+      // Update existing vehicle
+      setVehicles(prev => prev.map(v => v.id === vehicle.id ? vehicle : v));
+      toast({
+        title: "Veículo atualizado",
+        description: "O veículo foi atualizado com sucesso."
+      });
+    } else {
+      // Add new vehicle
+      setVehicles(prev => [...prev, vehicle]);
+      toast({
+        title: "Veículo adicionado",
+        description: "O veículo foi adicionado com sucesso."
+      });
+    }
+    setEditingVehicle(null);
+  };
+
+  const handleEditVehicle = (vehicle: Vehicle) => {
+    setEditingVehicle(vehicle);
+    setShowDialog(true);
   };
 
   const handleDeleteVehicle = (id: string) => {
@@ -84,6 +65,11 @@ const VehiclesPage = () => {
         description: "O veículo foi excluído com sucesso."
       });
     }
+  };
+
+  const handleDialogClose = () => {
+    setShowDialog(false);
+    setEditingVehicle(null);
   };
 
   return (
@@ -120,7 +106,13 @@ const VehiclesPage = () => {
                 <Filter className="w-4 h-4" />
                 Filtrar
               </Button>
-              <Button className="gap-2" onClick={() => setShowDialog(true)}>
+              <Button 
+                className="gap-2" 
+                onClick={() => {
+                  setEditingVehicle(null);
+                  setShowDialog(true);
+                }}
+              >
                 <Plus className="w-4 h-4" />
                 Novo Veículo
               </Button>
@@ -164,17 +156,45 @@ const VehiclesPage = () => {
           {/* Vehicles grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredVehicles.map((vehicle) => (
-              <VehicleCard 
-                key={vehicle.id} 
-                vehicle={vehicle} 
-                onClick={() => console.log(`Clicked on ${vehicle.id}`)}
-              />
+              <div key={vehicle.id} className="relative group">
+                <VehicleCard 
+                  vehicle={vehicle} 
+                  onClick={() => console.log(`Clicked on ${vehicle.id}`)}
+                />
+                
+                {/* Action buttons overlay */}
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-1">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditVehicle(vehicle);
+                    }}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="h-8 w-8 p-0 bg-red-500/90 hover:bg-red-600"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteVehicle(vehicle.id);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             ))}
           </div>
           
           {filteredVehicles.length === 0 && (
             <div className="text-center p-8 text-muted-foreground">
               <p>Nenhum veículo encontrado</p>
+              <p className="text-sm mt-2">Adicione um novo veículo para começar</p>
             </div>
           )}
         </main>
@@ -182,8 +202,9 @@ const VehiclesPage = () => {
       
       <VehicleDialog
         open={showDialog}
-        onOpenChange={setShowDialog}
+        onOpenChange={handleDialogClose}
         onSave={handleSaveVehicle}
+        vehicle={editingVehicle}
       />
     </div>
   );
