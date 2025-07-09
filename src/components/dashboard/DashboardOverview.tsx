@@ -1,10 +1,10 @@
 
 import React from 'react';
 import StatusCard from './StatusCard';
-import SalesCard from '@/components/sales/SalesCard';
+import SalesSection from './SalesSection';
 import { 
   Truck, Users, AlertTriangle, CheckCircle, 
-  Clock, TreePine, Settings, Calendar, Mountain
+  Clock, TreePine, Settings, Mountain
 } from 'lucide-react';
 import { DashboardStats } from '@/types';
 
@@ -32,32 +32,29 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   stats = initialStats 
 }) => {
   return (
-    <section className="space-y-6">
+    <section className="space-y-8">
+      {/* Seção de Vendas - Nova seção dedicada */}
       <div className="slide-enter" style={{ animationDelay: '0.1s' }}>
-        <h2 className="text-2xl font-semibold mb-4">Vendas e Operação</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-          <div className="lg:col-span-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <StatusCard 
-                title="Operações Ativas" 
-                value={stats.activeOperations} 
-                icon={Truck} 
-                status="success"
-                change={{ value: 5, trend: 'up' }}
-              />
-              <StatusCard 
-                title="Manutenções Pendentes" 
-                value={stats.pendingMaintenances} 
-                icon={Settings} 
-                status="warning" 
-              />
-            </div>
-          </div>
-          <div>
-            <SalesCard />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <SalesSection />
+      </div>
+
+      {/* Seção de Operações - Reorganizada */}
+      <div className="slide-enter" style={{ animationDelay: '0.2s' }}>
+        <h2 className="text-2xl font-semibold mb-4">Operações</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <StatusCard 
+            title="Operações Ativas" 
+            value={stats.activeOperations} 
+            icon={Truck} 
+            status="success"
+            change={{ value: 5, trend: 'up' }}
+          />
+          <StatusCard 
+            title="Manutenções Pendentes" 
+            value={stats.pendingMaintenances} 
+            icon={Settings} 
+            status="warning" 
+          />
           <StatusCard 
             title="Consumo de Lenha (m³)" 
             value={stats.monthlyWoodConsumption} 
@@ -73,7 +70,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         </div>
       </div>
 
-      <div className="slide-enter" style={{ animationDelay: '0.2s' }}>
+      <div className="slide-enter" style={{ animationDelay: '0.3s' }}>
         <h2 className="text-2xl font-semibold mb-4">Status dos Funcionários</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatusCard 
@@ -103,7 +100,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         </div>
       </div>
 
-      <div className="slide-enter" style={{ animationDelay: '0.3s' }}>
+      <div className="slide-enter" style={{ animationDelay: '0.4s' }}>
         <h2 className="text-2xl font-semibold mb-4">Status da Frota</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatusCard 
