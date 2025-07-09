@@ -1,26 +1,25 @@
 
 import { QueryClient } from '@tanstack/react-query';
 
-// Configuração otimizada do React Query para cache agressivo
+// Configuração mais agressiva para velocidade máxima
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // Cache por 10 minutos (tempo longo para reduzir consultas)
-      staleTime: 10 * 60 * 1000, 
-      // Manter dados em cache por 15 minutos
-      gcTime: 15 * 60 * 1000,
-      // Refetch apenas quando necessário
+      // Cache muito agressivo - 30 minutos
+      staleTime: 30 * 60 * 1000, 
+      // Manter dados em cache por 1 hora
+      gcTime: 60 * 60 * 1000,
+      // Desabilitar refetch automático para máxima velocidade
       refetchOnWindowFocus: false,
-      refetchOnReconnect: 'always',
+      refetchOnReconnect: false,
       refetchOnMount: false,
-      // Retry apenas uma vez em caso de erro
-      retry: 1,
-      retryDelay: 1000,
+      // Sem retry para falhas rápidas
+      retry: false,
+      // Background updates apenas se necessário
+      refetchInterval: false,
     },
     mutations: {
-      // Retry para mutations em caso de erro de rede
-      retry: 1,
-      retryDelay: 1000,
+      retry: false,
     },
   },
 });

@@ -11,7 +11,7 @@ interface AuthContextType {
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
-  hasRoutePermission: (routePath: string) => Promise<boolean>;
+  hasRoutePermission: (routePath: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -21,6 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [permissionsCache, setPermissionsCache] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -29,11 +30,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(currentSession);
         setUser(currentSession?.user || null);
         
-        // Carregar perfil do usuário se estiver autenticado
         if (currentSession?.user) {
           try {
             const userProfile = await AuthService.getCurrentProfile();
             setProfile(userProfile);
+            
+            // Pre-carregar permissões para todas as rotas principais
+            const routes = ['dashboard', 'vehicles', 'employees', 'operations', 'maintenance', 'wood', 'raw-material', 'gas-supply', 'sales', 'operators', 'forklifts', 'reports', 'admin'];
+            const permissionsPromises = routes.map(async (route) => {
+              try {
+                const hasPermission = await AuthService.hasRoutePermission(currentSession.user.id, route);
+                return { route, hasPermission };
+              } catch {
+                return { route, hasPermission: false };
+              }
+            });
+            
+            const permissions = await Promise.all(permissionsPromises);
+            const permissionsMap = permissions.reduce((acc, { route, hasPermission }) => {
+              acc[route] = hasPermission;
+              return acc;
+            }, {} as Record<string, boolean>);
+            
+            setPermissionsCache(permissionsMap);
           } catch (error) {
             console.error('Error loading user profile:', error);
           }
@@ -52,7 +71,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user || null);
         
-        // Carregar perfil quando o usuário fizer login
         if (session?.user && event === 'SIGNED_IN') {
           try {
             const userProfile = await AuthService.getCurrentProfile();
@@ -62,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         } else if (event === 'SIGNED_OUT') {
           setProfile(null);
+          setPermissionsCache({});
         }
         
         setIsLoading(false);
@@ -78,7 +97,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(authUser);
       setSession(authSession);
       
-      // Carregar perfil após login
       if (authUser) {
         try {
           const userProfile = await AuthService.getCurrentProfile();
@@ -97,14 +115,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await AuthService.signOut();
       setProfile(null);
+      setPermissionsCache({});
     } finally {
       setIsLoading(false);
     }
   };
 
-  const hasRoutePermission = async (routePath: string): Promise<boolean> => {
+  // Função otimizada que usa cache
+  const hasRoutePermission = (routePath: string): boolean => {
     if (!user) return false;
-    return AuthService.hasRoutePermission(user.id, routePath);
+    
+    // Se é admin, sempre permitir
+    if (profile?.is_admin) return true;
+    
+    // Usar cache se disponível
+    if (permissionsCache.hasOwnProperty(routePath)) {
+      return permissionsCache[routePath];
+    }
+    
+    // Se não tem no cache, assumir falso para evitar loading
+    return false;
   };
 
   return (
