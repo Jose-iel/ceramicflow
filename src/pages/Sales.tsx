@@ -10,7 +10,12 @@ import { Plus, Edit, Trash2, ShoppingCart, CalendarDays } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import SaleDialog from '@/components/sales/SaleDialog';
-import { useSales, useCreateSale, useUpdateSale, useDeleteSale } from '@/integrations/supabase/hooks';
+import { 
+  useSalesOptimized, 
+  useCreateSaleOptimized, 
+  useUpdateSaleOptimized, 
+  useDeleteSaleOptimized 
+} from '@/integrations/supabase/hooks';
 import type { Sale } from '@/integrations/supabase/api/sales';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
@@ -31,10 +36,11 @@ const Sales = () => {
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
   const isMobile = useIsMobile();
 
-  const { data: sales = [], isLoading } = useSales();
-  const createSaleMutation = useCreateSale();
-  const updateSaleMutation = useUpdateSale();
-  const deleteSaleMutation = useDeleteSale();
+  // Usando hooks otimizados com cache
+  const { data: sales = [], isLoading } = useSalesOptimized();
+  const createSaleMutation = useCreateSaleOptimized();
+  const updateSaleMutation = useUpdateSaleOptimized();
+  const deleteSaleMutation = useDeleteSaleOptimized();
 
   const handleAddNew = () => {
     setEditingSale(null);

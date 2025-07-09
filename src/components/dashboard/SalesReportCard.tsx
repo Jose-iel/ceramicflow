@@ -3,11 +3,12 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, ShoppingCart, Package, DollarSign } from 'lucide-react';
-import { useSalesStats } from '@/integrations/supabase/hooks';
+import { useSalesStatsOptimized } from '@/integrations/supabase/hooks';
 import AnimatedCounter from '@/components/common/AnimatedCounter';
 
 const SalesReportCard = () => {
-  const { data: stats, isLoading } = useSalesStats();
+  // Usando hook otimizado com cache
+  const { data: stats, isLoading } = useSalesStatsOptimized();
 
   if (isLoading) {
     return (
