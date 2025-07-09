@@ -14,6 +14,7 @@ import OperationsPage from "./pages/Operations";
 import MaintenancePage from "./pages/Maintenance";
 import WoodPage from "./pages/Wood";
 import RawMaterialPage from "./pages/RawMaterial";
+import SalesPage from "./pages/Sales";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import AdminBackoffice from "./pages/AdminBackoffice";
@@ -64,6 +65,11 @@ const App = () => (
             <Route path="/raw-material" element={
               <ProtectedRoute>
                 <RawMaterialPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/sales" element={
+              <ProtectedRoute>
+                <SalesPage />
               </ProtectedRoute>
             } />
             <Route path="/reports" element={

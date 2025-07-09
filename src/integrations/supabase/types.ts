@@ -427,6 +427,59 @@ export type Database = {
         }
         Relationships: []
       }
+      sales: {
+        Row: {
+          brick_quantity: number
+          ceramic_id: string
+          created_at: string
+          customer_contact: string | null
+          customer_name: string
+          id: string
+          notes: string | null
+          price_per_thousand: number
+          recorded_by: string
+          sale_date: string
+          total_value: number
+          updated_at: string
+        }
+        Insert: {
+          brick_quantity: number
+          ceramic_id: string
+          created_at?: string
+          customer_contact?: string | null
+          customer_name: string
+          id?: string
+          notes?: string | null
+          price_per_thousand: number
+          recorded_by: string
+          sale_date?: string
+          total_value: number
+          updated_at?: string
+        }
+        Update: {
+          brick_quantity?: number
+          ceramic_id?: string
+          created_at?: string
+          customer_contact?: string | null
+          customer_name?: string
+          id?: string
+          notes?: string | null
+          price_per_thousand?: number
+          recorded_by?: string
+          sale_date?: string
+          total_value?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_ceramic_id_fkey"
+            columns: ["ceramic_id"]
+            isOneToOne: false
+            referencedRelation: "ceramics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_level_permissions: {
         Row: {
           created_at: string | null

@@ -2,6 +2,7 @@
 export * from './auth';
 export * from './backoffice';
 export * from './user-levels';
+export * from './sales';
 
 // Re-export client for direct access when needed
 export { supabase } from '../client';
