@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useContext, createContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { AuthService } from '../api/auth';
@@ -27,6 +28,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const currentSession = await AuthService.getSession();
         setSession(currentSession);
         setUser(currentSession?.user || null);
+        
+        // Carregar perfil do usuário se estiver autenticado
+        if (currentSession?.user) {
+          try {
+            const userProfile = await AuthService.getCurrentProfile();
+            setProfile(userProfile);
+          } catch (error) {
+            console.error('Error loading user profile:', error);
+          }
+        }
       } catch (error) {
         console.error('Error initializing auth:', error);
       } finally {
@@ -40,6 +51,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async (event, session) => {
         setSession(session);
         setUser(session?.user || null);
+        
+        // Carregar perfil quando o usuário fizer login
+        if (session?.user && event === 'SIGNED_IN') {
+          try {
+            const userProfile = await AuthService.getCurrentProfile();
+            setProfile(userProfile);
+          } catch (error) {
+            console.error('Error loading user profile:', error);
+          }
+        } else if (event === 'SIGNED_OUT') {
+          setProfile(null);
+        }
+        
         setIsLoading(false);
       }
     );
@@ -53,6 +77,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { user: authUser, session: authSession } = await AuthService.signIn({ email, password });
       setUser(authUser);
       setSession(authSession);
+      
+      // Carregar perfil após login
+      if (authUser) {
+        try {
+          const userProfile = await AuthService.getCurrentProfile();
+          setProfile(userProfile);
+        } catch (error) {
+          console.error('Error loading user profile after login:', error);
+        }
+      }
     } finally {
       setIsLoading(false);
     }
@@ -62,6 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       await AuthService.signOut();
+      setProfile(null);
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return AuthService.hasRoutePermission(user.id, routePath);
   };
 
-    return (
+  return (
     <AuthContext.Provider value={{
       user,
       session,

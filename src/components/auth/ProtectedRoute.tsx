@@ -13,11 +13,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, profile, loading: authLoading, hasRoutePermission } = useAuth();
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   
-  const routePath = location.pathname.split('/')[1] || 'dashboard';
+  // Extrair o caminho da rota (sem a barra inicial)
+  const routePath = location.pathname.replace('/', '') || 'dashboard';
 
   useEffect(() => {
     if (authLoading) {
-      setHasPermission(null); // Reset permission state while auth is loading
+      setHasPermission(null);
       return;
     }
 
@@ -26,19 +27,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       return;
     }
 
+    // Se o usuário é admin, permitir acesso a todas as rotas
     if (profile?.is_admin) {
       setHasPermission(true);
       return;
     }
     
+    // Verificar permissão específica da rota
     if (user && user.id && routePath) {
       hasRoutePermission(routePath).then((data) => {
         setHasPermission(data);
+      }).catch((error) => {
+        console.error('Error checking route permission:', error);
+        setHasPermission(false);
       });
     } else {
       setHasPermission(false);
     }
-  }, [user, profile, authLoading, navigate, location, routePath]);
+  }, [user, profile, authLoading, navigate, location, routePath, hasRoutePermission]);
 
   useEffect(() => {
     if (hasPermission === false) {

@@ -53,6 +53,12 @@ const systemRoutes: Route[] = [
     path: '/reports',
     name: 'Relatórios',
     description: 'Relatórios e análises do sistema'
+  },
+  {
+    id: 'admin',
+    path: '/admin',
+    name: 'Administração',
+    description: 'Painel administrativo do sistema'
   }
 ];
 
