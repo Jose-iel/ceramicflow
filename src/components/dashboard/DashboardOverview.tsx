@@ -6,31 +6,8 @@ import {
   Truck, Users, AlertTriangle, CheckCircle, 
   Clock, TreePine, Settings, Mountain
 } from 'lucide-react';
-import { DashboardStats } from '@/types';
 
-// Mock data for initial rendering
-const initialStats: DashboardStats = {
-  totalVehicles: 15,
-  operationalVehicles: 9,
-  stoppedVehicles: 3,
-  maintenanceVehicles: 3,
-  totalEmployees: 20,
-  employeesWithValidCertificates: 16,
-  employeesWithWarningCertificates: 3,
-  employeesWithExpiredCertificates: 1,
-  activeOperations: 7,
-  pendingMaintenances: 4,
-  monthlyWoodConsumption: 245.5,
-  monthlyClayConsumption: 89
-};
-
-interface DashboardOverviewProps {
-  stats?: DashboardStats;
-}
-
-const DashboardOverview: React.FC<DashboardOverviewProps> = ({ 
-  stats = initialStats 
-}) => {
+const DashboardOverview = () => {
   return (
     <section className="space-y-8">
       {/* Seção de Vendas - Card de Relatório */}
@@ -45,26 +22,25 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StatusCard 
             title="Operações Ativas" 
-            value={stats.activeOperations} 
+            value={0} 
             icon={Truck} 
             status="success"
-            change={{ value: 5, trend: 'up' }}
           />
           <StatusCard 
             title="Manutenções Pendentes" 
-            value={stats.pendingMaintenances} 
+            value={0} 
             icon={Settings} 
             status="warning" 
           />
           <StatusCard 
             title="Consumo de Lenha (m³)" 
-            value={stats.monthlyWoodConsumption} 
+            value={0} 
             icon={TreePine} 
             status="info" 
           />
           <StatusCard 
             title="Consumo de Barro (caminhões)" 
-            value={stats.monthlyClayConsumption} 
+            value={0} 
             icon={Mountain} 
             status="info" 
           />
@@ -76,25 +52,25 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatusCard 
             title="Total de Funcionários" 
-            value={stats.totalEmployees} 
+            value={0} 
             icon={Users} 
             status="info" 
           />
           <StatusCard 
             title="ASO e NR Regulares" 
-            value={stats.employeesWithValidCertificates} 
+            value={0} 
             icon={CheckCircle} 
             status="success" 
           />
           <StatusCard 
             title="Próximo do Vencimento" 
-            value={stats.employeesWithWarningCertificates} 
+            value={0} 
             icon={AlertTriangle} 
             status="warning" 
           />
           <StatusCard 
             title="ASO/NR Vencidos" 
-            value={stats.employeesWithExpiredCertificates} 
+            value={0} 
             icon={AlertTriangle} 
             status="danger" 
           />
@@ -106,26 +82,25 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatusCard 
             title="Total de Veículos" 
-            value={stats.totalVehicles} 
+            value={0} 
             icon={Truck} 
             status="info" 
           />
           <StatusCard 
             title="Em Operação" 
-            value={stats.operationalVehicles} 
+            value={0} 
             icon={CheckCircle} 
             status="success"
-            change={{ value: 12, trend: 'up' }}
           />
           <StatusCard 
             title="Em Manutenção" 
-            value={stats.maintenanceVehicles} 
+            value={0} 
             icon={Settings} 
             status="warning" 
           />
           <StatusCard 
             title="Parados" 
-            value={stats.stoppedVehicles} 
+            value={0} 
             icon={Clock} 
             status="neutral" 
           />

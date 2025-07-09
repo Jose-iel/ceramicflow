@@ -3,51 +3,9 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
-import VehicleCard from '@/components/vehicle/VehicleCard';
-import { Vehicle, VehicleStatus, VehicleType } from '@/types';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
-
-// Mock data temporário até implementarmos dados reais
-const mockVehicles: Vehicle[] = [
-  {
-    id: 'G001',
-    model: 'Toyota 8FGU25',
-    type: VehicleType.GAS,
-    acquisitionDate: '10/05/2022',
-    lastMaintenance: '15/09/2023',
-    status: VehicleStatus.OPERATIONAL,
-    hourMeter: 12583,
-  },
-  {
-    id: 'E002',
-    model: 'Hyster E50XN',
-    type: VehicleType.ELECTRIC,
-    acquisitionDate: '22/11/2021',
-    lastMaintenance: '30/10/2023',
-    status: VehicleStatus.OPERATIONAL,
-    hourMeter: 8452,
-  },
-  {
-    id: 'T003',
-    model: 'John Deere 6110B',
-    type: VehicleType.TRACTOR,
-    acquisitionDate: '04/03/2022',
-    lastMaintenance: '12/08/2023',
-    status: VehicleStatus.MAINTENANCE,
-    hourMeter: 10974,
-  },
-  {
-    id: 'C004',
-    model: 'Mercedes Atego',
-    type: VehicleType.TRUCK,
-    acquisitionDate: '18/07/2022',
-    lastMaintenance: '05/11/2023',
-    status: VehicleStatus.STOPPED,
-    hourMeter: 6782,
-  },
-];
 
 const Index = () => {
   const isMobile = useIsMobile();
@@ -86,25 +44,6 @@ const Index = () => {
         
         <main className="flex-1 px-4 md:px-6 py-4 md:py-6 overflow-x-hidden">
           <DashboardOverview />
-          
-          <section className="mt-6 md:mt-8 slide-enter" style={{ animationDelay: '0.4s' }}>
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
-              <h2 className="text-xl md:text-2xl font-semibold">Veículos Em Destaque</h2>
-              <button className="text-sm text-primary hover:underline self-start sm:self-auto">
-                Ver todos
-              </button>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {mockVehicles.map((vehicle) => (
-                <VehicleCard 
-                  key={vehicle.id} 
-                  vehicle={vehicle} 
-                  onClick={() => {}}
-                />
-              ))}
-            </div>
-          </section>
         </main>
       </div>
     </div>
