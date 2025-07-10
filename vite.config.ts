@@ -17,6 +17,9 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Garantir que React e React-DOM usem a mesma versão
+      "react": path.resolve(__dirname, "./node_modules/react"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
   },
   build: {
@@ -81,5 +84,13 @@ export default defineConfig(({ mode }) => ({
   // Definir variáveis de ambiente
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode),
+    // Fix para React 18 na Vercel
+    global: 'globalThis',
+  },
+  
+  // Configurações específicas para resolver conflitos React/React-DOM
+  esbuild: {
+    // Compatibilidade com navegadores mais antigos
+    target: 'es2020',
   },
 }));
