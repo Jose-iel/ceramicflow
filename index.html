@@ -7,37 +7,12 @@
     <meta name="description" content="CeramicFlow Project" />
     <meta name="author" content="Jose Castro" />
     <meta property="og:image" content="/og-image.png" />
-    <script>
-      // Debug script for production
-      window.addEventListener('error', function(e) {
-        console.error('Global error:', e.error, e.filename, e.lineno);
-      });
-      
-      window.addEventListener('unhandledrejection', function(e) {
-        console.error('Unhandled promise rejection:', e.reason);
-      });
-      
-      console.log('HTML loaded, checking environment...');
-      console.log('Location:', window.location.href);
-      console.log('User Agent:', navigator.userAgent);
-    </script>
   </head>
 
   <body>
     <div id="root"></div>
+    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
-    
-    <script>
-      // Check if React app loaded
-      setTimeout(() => {
-        const root = document.getElementById('root');
-        if (!root || !root.innerHTML.trim()) {
-          console.error('React app did not load - root element is empty');
-          document.body.innerHTML = '<div style="padding: 20px; font-family: Arial;"><h1>Loading Error</h1><p>The React application failed to load. Check the console for errors.</p></div>';
-        } else {
-          console.log('React app loaded successfully');
-        }
-      }, 3000);
-    </script>
   </body>
 </html>
