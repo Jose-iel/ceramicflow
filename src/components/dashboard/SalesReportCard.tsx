@@ -1,14 +1,14 @@
-
-import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, ShoppingCart, Package, DollarSign } from 'lucide-react';
 import { useSalesStatsOptimized } from '@/integrations/supabase/hooks';
 import AnimatedCounter from '@/components/common/AnimatedCounter';
+import { useMonthFilter } from '@/hooks/useMonthFilter';
 
 const SalesReportCard = () => {
-  // Usando hook otimizado com cache
-  const { data: stats, isLoading } = useSalesStatsOptimized();
+  const { selectedMonth } = useMonthFilter();
+  // Usando hook otimizado com cache e filtro de mês
+  const { data: stats, isLoading } = useSalesStatsOptimized(selectedMonth);
 
   if (isLoading) {
     return (

@@ -1,23 +1,22 @@
-
-import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
-import { Plus, Search, Filter, Edit, Trash2, Calendar, User } from 'lucide-react';
-import Sidebar from '@/components/layout/Sidebar';
-import Navbar from '@/components/layout/Navbar';
-import { Input } from '@/components/ui/input';
-import MaintenanceDialog from '@/components/maintenance/MaintenanceDialog';
+import { useState, useMemo, Suspense, lazy } from 'react';
+import { Plus, Calendar, User, Wrench, AlertTriangle } from 'lucide-react';
+import PageLayout from '@/components/common/PageLayout';
+import DataTable from '@/components/common/DataTable';
+// Lazy load do dialog
+const MaintenanceDialog = lazy(() => import('@/components/maintenance/MaintenanceDialog'));
 import { Badge } from '@/components/ui/badge';
-import { useMaintenances, useCreateMaintenance, useUpdateMaintenance, useDeleteMaintenance } from '@/hooks/useMaintenances';
-import { useVehicles } from '@/hooks/useVehicles';
-import { useEmployees } from '@/hooks/useEmployees';
+import { useMaintenances, useCreateMaintenance, useUpdateMaintenance, useDeleteMaintenance } from '@/hooks';
+import { CreateMaintenancePayload, Maintenance } from '@/integrations/supabase/api';
+import { useVehicles } from '@/hooks';
+import { useEmployees } from '@/hooks';
+import type { Employee } from '@/integrations/supabase/api/employees';
+import { useMonthFilter } from '@/hooks/useMonthFilter';
 
 const MaintenancePage = () => {
-  const isMobile = useIsMobile();
   const [search, setSearch] = useState('');
   const [showDialog, setShowDialog] = useState(false);
-  const [editingMaintenance, setEditingMaintenance] = useState<any | null>(null);
+  const [editingMaintenance, setEditingMaintenance] = useState<Maintenance | null>(null);
+  const { selectedMonth, setSelectedMonth, filterDataByMonth } = useMonthFilter();
 
   // Use real database hooks
   const { data: maintenances = [], isLoading } = useMaintenances();
@@ -27,38 +26,32 @@ const MaintenancePage = () => {
   const updateMaintenance = useUpdateMaintenance();
   const deleteMaintenance = useDeleteMaintenance();
 
-  // Prepare data for selects
-  const availableVehicles = vehicles.map(vehicle => ({
-    id: vehicle.id,
-    model: vehicle.model
-  }));
+  // Filter maintenances by month and search
+  const filteredMaintenances = useMemo(() => {
+    // First filter by month using the reported_date field
+    const monthFiltered = filterDataByMonth(maintenances.map(maintenance => ({ ...maintenance, date: maintenance.reported_date })));
+    // Then filter by search
+    return monthFiltered.filter(maintenance => 
+      maintenance.issue?.toLowerCase().includes(search.toLowerCase()) ||
+      maintenance.vehicles?.model?.toLowerCase().includes(search.toLowerCase()) ||
+      maintenance.reported_by?.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [maintenances, search, filterDataByMonth]);
 
-  const availableOperators = employees.map(employee => ({
-    id: employee.id,
-    name: employee.name
-  }));
-
-  // Filter maintenances
-  const filteredMaintenances = maintenances.filter(maintenance => 
-    maintenance.issue?.toLowerCase().includes(search.toLowerCase()) ||
-    maintenance.vehicles?.model?.toLowerCase().includes(search.toLowerCase()) ||
-    maintenance.reported_by?.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const handleSaveMaintenance = (maintenanceData: any) => {
+  const handleSaveMaintenance = (maintenanceData: Omit<CreateMaintenancePayload, 'id'>) => {
     if (editingMaintenance) {
       updateMaintenance.mutate({
-        maintenanceId: editingMaintenance.id,
-        maintenanceData: maintenanceData
+        maintenanceId: editingMaintenance.id!,
+        payload: maintenanceData as CreateMaintenancePayload
       });
     } else {
-      createMaintenance.mutate(maintenanceData);
+      createMaintenance.mutate(maintenanceData as CreateMaintenancePayload);
     }
     setEditingMaintenance(null);
     setShowDialog(false);
   };
 
-  const handleEditMaintenance = (maintenance: any) => {
+  const handleEditMaintenance = (maintenance: Maintenance) => {
     setEditingMaintenance(maintenance);
     setShowDialog(true);
   };
@@ -71,7 +64,7 @@ const MaintenancePage = () => {
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
-      'WAITING': { label: 'Aguardando', variant: 'outline' as const },
+      'PENDING': { label: 'Pendente', variant: 'destructive' as const },
       'IN_PROGRESS': { label: 'Em Andamento', variant: 'default' as const },
       'COMPLETED': { label: 'Concluída', variant: 'secondary' as const },
     };
@@ -80,143 +73,127 @@ const MaintenancePage = () => {
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen bg-background">
-        <Sidebar />
-        <div className={cn("flex-1 flex flex-col", !isMobile && "ml-64")}>
-          <Navbar title="Manutenção" subtitle="Gestão de Manutenções" />
-          <main className="flex-1 px-6 py-6 flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-gray-600">Carregando manutenções...</p>
-            </div>
-          </main>
-        </div>
-      </div>
-    );
-  }
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '-';
+    try {
+      return new Date(dateString).toLocaleDateString('pt-BR');
+    } catch (e) {
+      return dateString;
+    }
+  };
+
+  // Calculate stats
+  const totalMaintenances = filteredMaintenances.length;
+  const pendingMaintenances = filteredMaintenances.filter(m => m.status === 'PENDING').length;
+  const inProgressMaintenances = filteredMaintenances.filter(m => m.status === 'IN_PROGRESS').length;
+  const completedMaintenances = filteredMaintenances.filter(m => m.status === 'COMPLETED').length;
+
+  // Stats cards configuration
+  const statsCards = [
+    {
+      title: "Total de Manutenções",
+      value: totalMaintenances,
+      subtitle: "no período",
+      icon: Wrench,
+      iconColor: "text-blue-600",
+      iconBgColor: "bg-blue-100"
+    },
+    {
+      title: "Pendentes",
+      value: pendingMaintenances,
+      subtitle: "aguardando execução",
+      icon: AlertTriangle,
+      iconColor: "text-red-600",
+      iconBgColor: "bg-red-100"
+    },
+    {
+      title: "Em Andamento",
+      value: inProgressMaintenances,
+      subtitle: "sendo executadas",
+      icon: User,
+      iconColor: "text-orange-600",
+      iconBgColor: "bg-orange-100"
+    },
+    {
+      title: "Concluídas",
+      value: completedMaintenances,
+      subtitle: "finalizadas",
+      icon: Calendar,
+      iconColor: "text-green-600",
+      iconBgColor: "bg-green-100"
+    }
+  ];
+
+  // Actions configuration
+  const actions = [
+    {
+      label: "Nova Manutenção",
+      onClick: () => {
+        setEditingMaintenance(null);
+        setShowDialog(true);
+      },
+      icon: <Plus className="w-4 h-4" />
+    }
+  ];
+
+  // Table columns
+  const columns = [
+    { key: 'vehicles', label: 'Veículo', render: (value: unknown) => (value as { model: string })?.model || 'N/A' },
+    { key: 'issue', label: 'Problema' },
+    { key: 'reported_by', label: 'Reportado por' },
+    { key: 'reported_date', label: 'Data Relatório', render: (value: unknown) => formatDate(value as string) },
+    { key: 'status', label: 'Status', render: (value: unknown) => getStatusBadge(value as string) },
+    { key: 'completed_date', label: 'Data Conclusão', render: (value: unknown) => formatDate(value as string) }
+  ];
+
+  // Table actions
+  const tableActions = [
+    {
+      label: "Editar",
+      onClick: (row: Record<string, unknown>) => handleEditMaintenance(row as unknown as Maintenance)
+    },
+    {
+      label: "Excluir",
+      variant: "ghost" as const,
+      className: "text-red-500 hover:text-red-700 hover:bg-red-50",
+      onClick: (row: Record<string, unknown>) => handleDeleteMaintenance((row as unknown as Maintenance).id!)
+    }
+  ];
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      
-      <div className={cn(
-        "flex-1 flex flex-col",
-        !isMobile && "ml-64"
-      )}>
-        <Navbar 
-          title="Manutenção" 
-          subtitle="Gestão de Manutenções"
+    <PageLayout
+      title="Manutenções"
+      subtitle="Controle de Manutenções de Veículos"
+      selectedMonth={selectedMonth}
+      onMonthChange={setSelectedMonth}
+      statsCards={statsCards}
+      searchValue={search}
+      onSearchChange={setSearch}
+      searchPlaceholder="Buscar por problema, veículo ou responsável..."
+      actions={actions}
+      isLoading={isLoading}
+    >
+      <div className="space-y-6">
+        <DataTable
+          data={filteredMaintenances as unknown as Record<string, unknown>[]}
+          columns={columns}
+          actions={tableActions}
+          emptyMessage="Nenhuma manutenção encontrada para este período"
+          minWidth="800px"
         />
-        
-        <main className="flex-1 px-6 py-6">
-          {/* Header with search and actions */}
-          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input 
-                type="text" 
-                placeholder="Buscar manutenção..." 
-                className="pl-10"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" className="flex items-center gap-2">
-                <Filter className="w-4 h-4" />
-                Filtrar
-              </Button>
-              <Button 
-                className="gap-2" 
-                onClick={() => {
-                  setEditingMaintenance(null);
-                  setShowDialog(true);
-                }}
-              >
-                <Plus className="w-4 h-4" />
-                Nova Manutenção
-              </Button>
-            </div>
-          </div>
-
-          {/* Maintenances Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredMaintenances.map((maintenance) => (
-              <div key={maintenance.id} className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {maintenance.vehicles?.model || 'Veículo não especificado'}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {maintenance.vehicles?.type || ''}
-                    </p>
-                  </div>
-                  {getStatusBadge(maintenance.status)}
-                </div>
-
-                <div className="space-y-2 mb-4">
-                  <div className="text-sm text-gray-900">
-                    <strong>Problema:</strong> {maintenance.issue}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <User className="w-4 h-4" />
-                    {maintenance.reported_by}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Calendar className="w-4 h-4" />
-                    {maintenance.reported_date ? 
-                      new Date(maintenance.reported_date).toLocaleDateString('pt-BR') : 
-                      'Data não informada'
-                    }
-                  </div>
-                  {maintenance.completed_date && (
-                    <div className="text-sm text-gray-600">
-                      <strong>Concluída em:</strong> {new Date(maintenance.completed_date).toLocaleDateString('pt-BR')}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex justify-end gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleEditMaintenance(maintenance)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDeleteMaintenance(maintenance.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {filteredMaintenances.length === 0 && (
-            <div className="text-center p-8 text-muted-foreground">
-              <p>Nenhuma manutenção encontrada</p>
-              <p className="text-sm mt-2">Adicione uma nova manutenção para começar</p>
-            </div>
-          )}
-        </main>
       </div>
 
-      <MaintenanceDialog
-        open={showDialog}
-        onOpenChange={setShowDialog}
-        maintenance={editingMaintenance}
-        onSave={handleSaveMaintenance}
-        availableVehicles={availableVehicles}
-        availableOperators={availableOperators}
-      />
-    </div>
+      <Suspense fallback={<div />}>
+        <MaintenanceDialog
+          open={showDialog}
+          onOpenChange={setShowDialog}
+          onSave={handleSaveMaintenance}
+          maintenance={editingMaintenance}
+          availableVehicles={vehicles.map(v => ({ id: v.id, model: v.model }))}
+          availableOperators={(employees as Employee[]).map(e => ({ id: e.id, name: e.name }))}
+        />
+      </Suspense>
+    </PageLayout>
   );
 };
 

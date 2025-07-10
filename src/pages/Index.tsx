@@ -1,16 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
-import Navbar from '@/components/layout/Navbar';
-import Sidebar from '@/components/layout/Sidebar';
+import { useState, useEffect } from 'react';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
+import PageLayout from '@/components/common/PageLayout';
 import { useAuth } from '@/hooks/useAuth';
+import { useMonthFilter } from '@/hooks/useMonthFilter';
 
 const Index = () => {
-  const isMobile = useIsMobile();
   const [currentDate, setCurrentDate] = useState<string>('');
   const { user } = useAuth();
+  const { selectedMonth, setSelectedMonth } = useMonthFilter();
   
   useEffect(() => {
     // Set current date in Brazilian format
@@ -30,23 +28,16 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      
-      <div className={cn(
-        "flex-1 flex flex-col min-w-0",
-        !isMobile && "ml-64"
-      )}>
-        <Navbar 
-          title="Dashboard" 
-          subtitle={currentDate}
-        />
-        
-        <main className="flex-1 px-4 md:px-6 py-4 md:py-6 overflow-x-hidden">
-          <DashboardOverview />
-        </main>
-      </div>
-    </div>
+    <PageLayout
+      title="Dashboard"
+      subtitle={currentDate}
+      selectedMonth={selectedMonth}
+      onMonthChange={setSelectedMonth}
+      statsCards={[]} // Dashboard tem seus próprios cards
+      showSearch={false} // Dashboard não precisa de busca
+    >
+      <DashboardOverview />
+    </PageLayout>
   );
 };
 

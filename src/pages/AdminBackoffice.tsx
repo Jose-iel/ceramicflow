@@ -1,9 +1,7 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Users, Shield, Building2, Route as RouteIcon } from 'lucide-react';
+import { Users, Shield, Building2, Route as RouteIcon } from 'lucide-react';
 import UserLevelsTab from '@/components/backoffice/UserLevelsTab';
 import UsersTab from '@/components/backoffice/UsersTab';
 import CeramicsTab from '@/components/backoffice/CeramicsTab';

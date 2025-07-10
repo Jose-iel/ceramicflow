@@ -1,5 +1,4 @@
 
-import React from 'react';
 import StatusCard from './StatusCard';
 import SalesReportCard from './SalesReportCard';
 import { 
@@ -7,9 +6,11 @@ import {
   Clock, TreePine, Settings, Mountain
 } from 'lucide-react';
 import { useDashboardOverview } from '@/hooks/useDashboard';
+import { useMonthFilter } from '@/hooks/useMonthFilter';
 
 const DashboardOverview = () => {
-  const { data: dashboardData, isLoading } = useDashboardOverview();
+  const { selectedMonth } = useMonthFilter();
+  const { data: dashboardData, isLoading } = useDashboardOverview(selectedMonth);
 
   if (isLoading) {
     return (

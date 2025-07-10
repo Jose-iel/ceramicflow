@@ -6,13 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { UserLevelAccess, Route } from '@/types/backoffice';
 import { useRoutes, useUserLevelPermissions } from '@/integrations/supabase/hooks';
+import { UserLevel } from '@/integrations/supabase/api/user-levels';
 
 interface UserLevelDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  userLevel: any | null;
+  userLevel: UserLevel | null;
   onSave: (levelData: { name: string; description?: string; permissions: string[] }) => void;
 }
 
@@ -28,6 +28,7 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
 
   useEffect(() => {
     if (open) {
+      const permissionsString = currentPermissions.join(',');
       if (userLevel) {
         setFormData({
           name: userLevel.name,
@@ -42,7 +43,7 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
         });
       }
     }
-  }, [open, userLevel, currentPermissions.join(',')]);
+  }, [open, userLevel, currentPermissions]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,8 +86,8 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
               name="name"
               value={formData.name}
               onChange={handleChange}
-              readOnly={!!userLevel}
-              className={!!userLevel ? 'bg-gray-100' : ''}
+              readOnly={Boolean(userLevel)}
+              className={userLevel ? 'bg-gray-100' : ''}
               placeholder="Ex: Marketing"
             />
           </div>

@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Users } from 'lucide-react';
 import { Ceramic } from '@/types/backoffice';
+import { CreateCeramicPayload } from '@/integrations/supabase/api/backoffice';
 import CeramicDialog from './CeramicDialog';
 import { useCeramicsData, useCreateCeramic, useUpdateCeramic, useDeleteCeramic } from '@/integrations/supabase/hooks';
 
@@ -35,7 +36,7 @@ const CeramicsTab = () => {
     deleteCeramicMutation.mutate(ceramicId);
   };
 
-  const handleSaveCeramic = (ceramicData: any) => {
+  const handleSaveCeramic = (ceramicData: CreateCeramicPayload) => {
     if (editingCeramic) {
       updateCeramicMutation.mutate({ ceramicId: editingCeramic.id, ceramicData }, {
         onSuccess: () => setDialogOpen(false),
@@ -191,7 +192,7 @@ const CeramicsTab = () => {
           open={dialogOpen}
           onOpenChange={setDialogOpen}
           ceramic={editingCeramic}
-          onSave={handleSaveCeramic as any}
+          onSave={handleSaveCeramic}
         />
       </CardContent>
     </Card>

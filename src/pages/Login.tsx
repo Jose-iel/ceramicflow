@@ -43,10 +43,11 @@ const Login = () => {
       const from = location.state?.from?.pathname || '/dashboard';
       navigate(from, { replace: true });
       
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Verifique suas credenciais e tente novamente.";
       toast({
         title: "Erro no login",
-        description: error.message || "Verifique suas credenciais e tente novamente.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

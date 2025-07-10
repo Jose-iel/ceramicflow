@@ -1,12 +1,15 @@
-import React from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Clock, Shield, Truck, BarChart3, Users, Calendar, CheckCircle, Star, ArrowRight, Mountain, Factory, Zap, Target, Award, Phone, Mail, MapPin } from 'lucide-react';
+import { Clock, Shield, Truck, BarChart3, Users, Calendar, CheckCircle, Star, ArrowRight, Mountain, Factory, Zap, Target, Award, Phone, Mail, MapPin, Menu, X } from 'lucide-react';
 
 const LandingPage = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   return <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-red-50">
       {/* Navigation */}
       <nav className="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
@@ -16,6 +19,8 @@ const LandingPage = () => {
               <Mountain className="h-8 w-8 text-orange-600" />
               <span className="text-xl font-bold text-gray-900">CeramicFlow</span>
             </div>
+            
+            {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-gray-600 hover:text-orange-600 transition-colors">Recursos</a>
               <a href="#pricing" className="text-gray-600 hover:text-orange-600 transition-colors">Preços</a>
@@ -26,7 +31,55 @@ const LandingPage = () => {
                 </Button>
               </Link>
             </div>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleMenu}
+                className="text-gray-600 hover:text-orange-600 hover:bg-orange-50"
+              >
+                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
+            </div>
           </div>
+
+          {/* Mobile Menu */}
+          {isMenuOpen && (
+            <div className="md:hidden border-t border-gray-200 bg-white/95 backdrop-blur-md">
+              <div className="px-2 pt-2 pb-3 space-y-1">
+                <a 
+                  href="#features" 
+                  className="block px-3 py-2 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Recursos
+                </a>
+                <a 
+                  href="#pricing" 
+                  className="block px-3 py-2 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Preços
+                </a>
+                <a 
+                  href="#faq" 
+                  className="block px-3 py-2 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-md transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  FAQ
+                </a>
+                <div className="pt-2">
+                  <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                    <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white">
+                      Login
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
@@ -47,13 +100,13 @@ const LandingPage = () => {
                 Aumente sua produtividade em até 40% com tecnologia feita especialmente para cerâmicas.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/login">
-                  <Button size="lg" className="bg-orange-600 hover:bg-orange-700 hover:shadow-lg text-white px-8 py-4 text-lg transition-all duration-200">
+                <Link to="/login" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full bg-orange-600 hover:bg-orange-700 hover:shadow-lg text-white px-8 py-4 text-lg transition-all duration-200">
                     Comece Grátis Por 7 Dias
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
-                <Button size="lg" variant="outline" className="border-orange-200 text-orange-600 hover:bg-orange-50 hover:border-orange-300 hover:shadow-md px-8 py-4 text-lg transition-all duration-200">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto border-orange-200 text-orange-600 hover:bg-orange-50 hover:border-orange-300 hover:shadow-md px-8 py-4 text-lg transition-all duration-200">
                   Agende uma Demo
                 </Button>
               </div>
@@ -330,13 +383,13 @@ const LandingPage = () => {
             Junte-se a centenas de ceramistas que já transformaram seus negócios com o CeramicFlow
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/login">
-              <Button size="lg" className="bg-white text-orange-600 hover:bg-orange-100 hover:shadow-lg px-8 py-4 text-lg font-semibold transition-all duration-200 transform hover:scale-105">
+            <Link to="/login" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full bg-white text-orange-600 hover:bg-orange-100 hover:shadow-lg px-8 py-4 text-lg font-semibold transition-all duration-200 transform hover:scale-105">
                 Começar Teste Gratuito
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="border-white text-white bg-transparent hover:bg-white hover:text-orange-600 hover:shadow-md px-8 py-4 text-lg transition-all duration-200">
+            <Button size="lg" variant="outline" className="w-full sm:w-auto border-white text-white bg-transparent hover:bg-white hover:text-orange-600 hover:shadow-md px-8 py-4 text-lg transition-all duration-200">
               Agendar Demonstração
             </Button>
           </div>

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 
 import { useState, useEffect, useContext, createContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
@@ -6,7 +7,7 @@ import { AuthService } from '../api/auth';
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  profile: any;
+  profile: Record<string, unknown> | null;
   loading: boolean;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
@@ -19,7 +20,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [permissionsCache, setPermissionsCache] = useState<Record<string, boolean>>({});
   const [initializationComplete, setInitializationComplete] = useState(false);
@@ -50,13 +51,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const adminCache = {
               'dashboard': true, 'vehicles': true, 'employees': true, 
               'operations': true, 'maintenance': true, 'wood': true, 
-              'raw-material': true, 'gas-supply': true, 'sales': true, 
-              'operators': true, 'forklifts': true, 'reports': true, 'admin': true
+              'raw-material': true, 'sales': true, 'reports': true, 'admin': true
             };
             setPermissionsCache(adminCache);
           } else {
             // Para usuários não-admin, carregar permissões apenas uma vez
-            const routes = ['dashboard', 'vehicles', 'employees', 'operations', 'maintenance', 'wood', 'raw-material', 'gas-supply', 'sales', 'operators', 'forklifts', 'reports', 'admin'];
+            const routes = ['dashboard', 'vehicles', 'employees', 'operations', 'maintenance', 'wood', 'raw-material', 'sales', 'reports', 'admin'];
             
             try {
               const permissionsPromises = routes.map(async (route) => {
@@ -177,3 +177,6 @@ export function useAuth() {
   }
   return context;
 }
+
+// Alias for centralized hooks
+export const useAuthOptimized = useAuth;

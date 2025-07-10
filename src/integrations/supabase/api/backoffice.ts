@@ -25,7 +25,7 @@ export interface CreateCeramicPayload {
   is_active: boolean;
 }
 
-export interface UpdateCeramicPayload extends CreateCeramicPayload {}
+export type UpdateCeramicPayload = CreateCeramicPayload;
 
 export interface UsersTabData {
   users: BackofficeUser[];

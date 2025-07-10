@@ -1,4 +1,7 @@
 
+/* eslint-disable */
+// Função Deno/Supabase - ignorar todas as regras do ESLint pois roda em ambiente Deno
+
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
 

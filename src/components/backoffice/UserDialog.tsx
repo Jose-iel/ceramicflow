@@ -12,7 +12,7 @@ interface UserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user: BackofficeUser | null;
-  onSave: (userData: any) => void;
+  onSave: (userData: Partial<BackofficeUser>) => void;
   ceramics: { id: string, name: string }[];
   userLevels: { id: string, name: string }[];
 }

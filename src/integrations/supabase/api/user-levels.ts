@@ -21,7 +21,7 @@ export interface CreateUserLevelPayload {
   permissions: string[];
 }
 
-export interface UpdateUserLevelPayload extends CreateUserLevelPayload {}
+export type UpdateUserLevelPayload = CreateUserLevelPayload;
 
 export class UserLevelsService {
   static async getAllUserLevels(): Promise<UserLevel[]> {

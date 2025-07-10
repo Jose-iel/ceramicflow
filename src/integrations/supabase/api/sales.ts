@@ -26,7 +26,7 @@ export interface CreateSalePayload {
   recorded_by: string;
 }
 
-export interface UpdateSalePayload extends Partial<CreateSalePayload> {}
+export type UpdateSalePayload = Partial<CreateSalePayload>;
 
 export interface SalesStats {
   totalSales: number;
@@ -38,6 +38,7 @@ export interface SalesStats {
 export class SalesService {
   static async getCurrentUserCeramicId(): Promise<string> {
     const { data: { session } } = await supabase.auth.getSession();
+    
     if (!session?.user?.id) {
       throw new Error('Usuário não autenticado');
     }
@@ -56,23 +57,28 @@ export class SalesService {
   }
 
   static async getAllSales(): Promise<Sale[]> {
-    const ceramicId = await this.getCurrentUserCeramicId();
+    try {
+      const ceramicId = await SalesService.getCurrentUserCeramicId();
 
-    const { data, error } = await supabase
-      .from('sales')
-      .select('*')
-      .eq('ceramic_id', ceramicId)
-      .order('sale_date', { ascending: false });
+      const { data, error } = await supabase
+        .from('sales')
+        .select('*')
+        .eq('ceramic_id', ceramicId)
+        .order('sale_date', { ascending: false });
 
-    if (error) {
-      throw new Error(error.message);
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Erro ao buscar vendas:', error);
+      throw error;
     }
-
-    return data || [];
   }
 
   static async createSale(payload: CreateSalePayload): Promise<void> {
-    const ceramicId = await this.getCurrentUserCeramicId();
+    const ceramicId = await SalesService.getCurrentUserCeramicId();
 
     const { error } = await supabase
       .from('sales')
@@ -109,12 +115,51 @@ export class SalesService {
   }
 
   static async getSalesStats(): Promise<SalesStats> {
-    const ceramicId = await this.getCurrentUserCeramicId();
+    const ceramicId = await SalesService.getCurrentUserCeramicId();
 
     const { data, error } = await supabase
       .from('sales')
       .select('brick_quantity, total_value, price_per_thousand')
       .eq('ceramic_id', ceramicId);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (!data || data.length === 0) {
+      return {
+        totalSales: 0,
+        totalRevenue: 0,
+        totalQuantity: 0,
+        averagePrice: 0,
+      };
+    }
+
+    const totalSales = data.length;
+    const totalRevenue = data.reduce((sum, sale) => sum + Number(sale.total_value), 0);
+    const totalQuantity = data.reduce((sum, sale) => sum + sale.brick_quantity, 0);
+    const averagePrice = data.reduce((sum, sale) => sum + Number(sale.price_per_thousand), 0) / data.length;
+
+    return {
+      totalSales,
+      totalRevenue,
+      totalQuantity,
+      averagePrice,
+    };
+  }
+
+  static async getSalesStatsByMonth(selectedMonth: string): Promise<SalesStats> {
+    const ceramicId = await SalesService.getCurrentUserCeramicId();
+
+    const startDate = `${selectedMonth}-01`;
+    const endDate = `${selectedMonth}-31`;
+
+    const { data, error } = await supabase
+      .from('sales')
+      .select('brick_quantity, total_value, price_per_thousand')
+      .eq('ceramic_id', ceramicId)
+      .gte('sale_date', startDate)
+      .lte('sale_date', endDate);
 
     if (error) {
       throw new Error(error.message);

@@ -11,7 +11,7 @@ interface AnimatedCounterProps {
 
 const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
   value,
-  duration = 1000,
+  duration = 0.2,
   className,
   formatter = (val) => val.toString()
 }) => {
@@ -58,7 +58,7 @@ const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
         cancelAnimationFrame(rafRef.current);
       }
     };
-  }, [value, duration]);
+  }, [value, duration, displayValue]);
   
   const formattedValue = formatter(displayValue);
   

@@ -1,4 +1,3 @@
-
 // Vehicle Types (previously Forklift)
 export enum VehicleType {
   GAS = "Gás",
@@ -89,9 +88,9 @@ export interface Operation {
 
 // Maintenance Types
 export enum MaintenanceStatus {
-  WAITING = "Aguardando",
-  IN_PROGRESS = "Em andamento", 
-  COMPLETED = "Concluído"
+  WAITING = "WAITING",
+  IN_PROGRESS = "IN_PROGRESS", 
+  COMPLETED = "COMPLETED"
 }
 
 export interface Maintenance {
@@ -141,18 +140,7 @@ export interface ClayConsumption {
   notes?: string;
 }
 
-// Gas Supply Type - Updated with correct properties
-export interface GasSupply {
-  id: string;
-  date: string;
-  vehicleId: string;
-  vehicleModel: string;
-  quantity: number;
-  unitPrice: number;
-  totalValue: number;
-  supplier?: string;
-  recordedBy: string;
-}
+
 
 // Dashboard Types
 export interface DashboardStats {
@@ -182,11 +170,90 @@ export interface StatusCardProps {
   };
 }
 
-// Legacy compatibility exports for Forklift components
-export type Forklift = Vehicle;
-export type User = Employee;
-export type ForkliftType = VehicleType;
-export type ForkliftStatus = VehicleStatus;
-export const ForkliftType = VehicleType;
-export const ForkliftStatus = VehicleStatus;
-export const UserRole = EmployeeRole;
+
+
+// Wood Management Types
+export interface WoodPurchaseRawData {
+  id: string;
+  ceramic_id: string;
+  date: string;
+  supplier: string;
+  quantity: number;
+  unit_price: number;
+  total_value: number;
+  invoice_number?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WoodPurchaseDbData {
+  ceramic_id: string;
+  date: string;
+  supplier: string;
+  quantity: number;
+  unit_price: number;
+  total_value: number;
+  invoice_number?: string;
+  notes?: string;
+}
+
+export interface WoodConsumptionRawData {
+  id: string;
+  ceramic_id: string;
+  date: string;
+  quantity: number;
+  oven?: string;
+  responsible?: string;
+  observations?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WoodConsumptionDbData {
+  ceramic_id: string;
+  date: string;
+  quantity: number;
+  oven?: string;
+  responsible?: string;
+  observations?: string;
+}
+
+// Clay Consumption Types - Data from database (snake_case)
+export interface ClayConsumptionRawData {
+  id: string;
+  ceramic_id: string;
+  date: string;
+  trucks_quantity: number;
+  supplier?: string;
+  origin?: string;
+  truck_id?: string;
+  recorded_by: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Clay Consumption Types - Data for database operations (snake_case)
+export interface ClayConsumptionDbData {
+  ceramic_id: string;
+  date: string;
+  trucks_quantity: number;
+  supplier?: string;
+  origin?: string;
+  truck_id?: string;
+  recorded_by: string;
+  notes?: string;
+}
+
+// Clay Consumption Types - Internal usage (camelCase)
+export interface ClayConsumptionData {
+  id?: string;
+  date: string;
+  trucksQuantity: number;
+  supplier?: string;
+  origin?: string;
+  truckId?: string;
+  recordedBy: string;
+  notes?: string;
+}

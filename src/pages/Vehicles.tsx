@@ -1,24 +1,36 @@
 
-import React, { useState } from 'react';
-import Navbar from '@/components/layout/Navbar';
-import Sidebar from '@/components/layout/Sidebar';
-import { Button } from "@/components/ui/button";
-import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
+import React, { useState, Suspense, lazy } from 'react';
+import { Plus, Edit, Trash2, Car, Truck, Settings } from 'lucide-react';
 import { VehicleStatus, VehicleType } from '@/types';
-import { Filter, Search, Plus, Edit, Trash2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import VehicleCard from '@/components/vehicle/VehicleCard';
-import VehicleDialog from '@/components/vehicle/VehicleDialog';
-import { useVehicles, useCreateVehicle, useUpdateVehicle, useDeleteVehicle } from '@/hooks/useVehicles';
+// Lazy load do dialog
+const VehicleDialog = lazy(() => import('@/components/vehicle/VehicleDialog'));
+import { useVehicles, useCreateVehicle, useUpdateVehicle, useDeleteVehicle } from '@/hooks';
+import { Vehicle, CreateVehiclePayload } from '@/integrations/supabase/api';
+import PageLayout from '@/components/common/PageLayout';
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from '@/components/ui/input';
+import { Search, Filter } from 'lucide-react';
+
+// Tipo para veículo transformado para exibição
+type TransformedVehicle = {
+  id: string;
+  model: string;
+  type: VehicleType;
+  acquisitionDate: string;
+  lastMaintenance: string;
+  status: VehicleStatus;
+  hourMeter: number;
+  capacity?: string;
+};
 
 const VehiclesPage = () => {
-  const isMobile = useIsMobile();
   const [search, setSearch] = useState('');
   const [type, setType] = useState<string>('all');
   const [status, setStatus] = useState<string>('all');
   const [showDialog, setShowDialog] = useState(false);
-  const [editingVehicle, setEditingVehicle] = useState<any | null>(null);
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
 
   // Use real database hooks
   const { data: vehicles = [], isLoading } = useVehicles();
@@ -51,11 +63,11 @@ const VehiclesPage = () => {
     return matchesSearch && matchesType && matchesStatus;
   });
 
-  const handleSaveVehicle = (vehicleData: any) => {
+  const handleSaveVehicle = (vehicleData: CreateVehiclePayload) => {
     if (editingVehicle) {
       updateVehicle.mutate({
         vehicleId: editingVehicle.id,
-        vehicleData: vehicleData
+        payload: vehicleData
       });
     } else {
       createVehicle.mutate(vehicleData);
@@ -64,10 +76,10 @@ const VehiclesPage = () => {
     setShowDialog(false);
   };
 
-  const handleEditVehicle = (vehicle: any) => {
+  const handleEditVehicle = (vehicle: TransformedVehicle) => {
     // Find original vehicle data from database
     const originalVehicle = vehicles.find(v => v.id === vehicle.id);
-    setEditingVehicle(originalVehicle);
+    setEditingVehicle(originalVehicle || null);
     setShowDialog(true);
   };
 
@@ -82,158 +94,138 @@ const VehiclesPage = () => {
     setEditingVehicle(null);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen bg-background">
-        <Sidebar />
-        <div className={cn("flex-1 flex flex-col", !isMobile && "ml-64")}>
-          <Navbar title="Frota" subtitle="Gerenciamento de Veículos" />
-          <main className="flex-1 px-6 py-6 flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-gray-600">Carregando veículos...</p>
-            </div>
-          </main>
-        </div>
-      </div>
-    );
-  }
+  // Calculate stats
+  const totalVehicles = filteredVehicles.length;
+  const activeVehicles = filteredVehicles.filter(v => v.status === VehicleStatus.OPERATIONAL).length;
+  const maintenanceVehicles = filteredVehicles.filter(v => v.status === VehicleStatus.MAINTENANCE).length;
+
+  // Stats cards configuration
+  const statsCards = [
+    {
+      title: 'Total de Veículos',
+      value: totalVehicles.toString(),
+      subtitle: 'veículos cadastrados',
+      icon: Car
+    },
+    {
+      title: 'Veículos Ativos',
+      value: activeVehicles.toString(),
+      subtitle: 'em operação',
+      icon: Truck
+    },
+    {
+      title: 'Em Manutenção',
+      value: maintenanceVehicles.toString(),
+      subtitle: 'necessitam reparo',
+      icon: Settings
+    }
+  ];
+
+  // Actions configuration
+  const actions = [
+    {
+      label: "Novo Veículo",
+      mobileLabel: "Novo",
+      onClick: () => {
+        setEditingVehicle(null);
+        setShowDialog(true);
+      },
+      icon: <Plus className="w-4 h-4" />,
+      className: 'w-full sm:w-auto'
+    }
+  ];
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      
-      <div className={cn(
-        "flex-1 flex flex-col",
-        !isMobile && "ml-64"
-      )}>
-        <Navbar 
-          title="Frota" 
-          subtitle="Gerenciamento de Veículos"
-        />
-        
-        <main className="flex-1 px-6 py-6">
-          {/* Filter section */}
-          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input 
-                type="text" 
-                placeholder="Buscar veículo..." 
-                className="pl-10"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2"
-              >
-                <Filter className="w-4 h-4" />
-                Filtrar
-              </Button>
-              <Button 
-                className="gap-2" 
-                onClick={() => {
-                  setEditingVehicle(null);
-                  setShowDialog(true);
-                }}
-              >
-                <Plus className="w-4 h-4" />
-                Novo Veículo
-              </Button>
-            </div>
-          </div>
-          
-          {/* Filter options */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Tipo</h4>
-              <select 
-                className="w-full p-2 rounded-md border border-input bg-background"
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-              >
-                <option value="all">Todos</option>
-                <option value={VehicleType.GAS}>Empilhadeira Gás</option>
-                <option value={VehicleType.ELECTRIC}>Empilhadeira Elétrica</option>
-                <option value={VehicleType.TRUCK}>Caminhão</option>
-                <option value={VehicleType.TRACTOR}>Trator</option>
-                <option value={VehicleType.RETRACTABLE}>Empilhadeira Retrátil</option>
-                <option value={VehicleType.LOADER}>Pá Carregadeira</option>
-                <option value={VehicleType.EXCAVATOR}>Retro Escavadeira</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Status</h4>
-              <select 
-                className="w-full p-2 rounded-md border border-input bg-background"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <option value="all">Todos</option>
-                <option value={VehicleStatus.OPERATIONAL}>Em Operação</option>
-                <option value={VehicleStatus.MAINTENANCE}>Manutenção</option>
-                <option value={VehicleStatus.STOPPED}>Parado</option>
-              </select>
-            </div>
-          </div>
+    <PageLayout
+      title="Frota"
+      subtitle="Gerenciamento de Veículos"
+      isLoading={isLoading}
+      selectedMonth=""
+      onMonthChange={() => {}}
+      showMonthFilter={false}
+      statsCards={statsCards}
+      searchValue={search}
+      onSearchChange={setSearch}
+      searchPlaceholder="Buscar por modelo ou ID..."
+      actions={actions}
+    >
+      <div className="space-y-6">
+        {/* Filters - mobile friendly */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <Select value={type} onValueChange={setType}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <Filter className="w-4 h-4 mr-2" />
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os tipos</SelectItem>
+              <SelectItem value="truck">Caminhão</SelectItem>
+              <SelectItem value="car">Carro</SelectItem>
+              <SelectItem value="motorcycle">Moto</SelectItem>
+              <SelectItem value="heavy_machinery">Máquina Pesada</SelectItem>
+            </SelectContent>
+          </Select>
 
-          {/* Vehicles grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredVehicles.map((vehicle) => (
-              <div key={vehicle.id} className="relative group">
-                <VehicleCard 
-                  vehicle={vehicle} 
-                  onClick={() => console.log(`Clicked on ${vehicle.id}`)}
-                />
-                
-                {/* Action buttons overlay */}
-                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-1">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="h-8 w-8 p-0 bg-white/90 hover:bg-white"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEditVehicle(vehicle);
-                    }}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="h-8 w-8 p-0 bg-red-500/90 hover:bg-red-600"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteVehicle(vehicle.id);
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+          <Select value={status} onValueChange={setStatus}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os status</SelectItem>
+              <SelectItem value="active">Ativo</SelectItem>
+              <SelectItem value="inactive">Inativo</SelectItem>
+              <SelectItem value="maintenance">Manutenção</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Vehicles Grid - responsive */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+          {filteredVehicles.map((vehicle) => (
+            <div key={vehicle.id} className="relative group">
+              <VehicleCard vehicle={vehicle} />
+              
+              {/* Action buttons overlay - touch friendly */}
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-1">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="h-9 w-9 p-0 bg-white/90 hover:bg-white touch-manipulation"
+                  onClick={() => handleEditVehicle(vehicle)}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  className="h-9 w-9 p-0 bg-red-500/90 hover:bg-red-600 touch-manipulation"
+                  onClick={() => handleDeleteVehicle(vehicle.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
-            ))}
-          </div>
-          
-          {filteredVehicles.length === 0 && (
-            <div className="text-center p-8 text-muted-foreground">
-              <p>Nenhum veículo encontrado</p>
-              <p className="text-sm mt-2">Adicione um novo veículo para começar</p>
             </div>
-          )}
-        </main>
+          ))}
+        </div>
+
+        {filteredVehicles.length === 0 && (
+          <div className="text-center p-8 text-muted-foreground">
+            <Car className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p className="text-lg font-medium mb-2">Nenhum veículo encontrado</p>
+            <p className="text-sm">Tente ajustar os filtros ou adicione um novo veículo</p>
+          </div>
+        )}
       </div>
-      
-      <VehicleDialog
-        open={showDialog}
-        onOpenChange={handleDialogClose}
-        onSave={handleSaveVehicle}
-        vehicle={editingVehicle}
-      />
-    </div>
+
+      <Suspense fallback={<div />}>
+        <VehicleDialog
+          open={showDialog}
+          onOpenChange={handleDialogClose}
+          vehicle={editingVehicle}
+          onSave={handleSaveVehicle}
+        />
+      </Suspense>
+    </PageLayout>
   );
 };
 

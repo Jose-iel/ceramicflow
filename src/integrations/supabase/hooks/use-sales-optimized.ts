@@ -1,7 +1,7 @@
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { SalesService } from '../api/sales';
-import type { CreateSalePayload, UpdateSalePayload } from '../api/sales';
+import type { CreateSalePayload, UpdateSalePayload, Sale } from '../api/sales';
 import { useToast } from '@/hooks/use-toast';
 import { useOptimizedQuery } from '@/hooks/useOptimizedQuery';
 import { invalidateRelatedQueries, updateCacheOptimistically } from '@/lib/queryClient';
@@ -17,12 +17,14 @@ export function useSalesOptimized() {
 }
 
 // Hook otimizado para estatísticas de vendas
-export function useSalesStatsOptimized() {
+export function useSalesStatsOptimized(selectedMonth?: string) {
   return useOptimizedQuery({
-    queryKey: ['salesStats'],
-    queryFn: SalesService.getSalesStats,
-    staleTime: 10 * 60 * 1000, // 10 minutos
-    gcTime: 15 * 60 * 1000, // 15 minutos
+    queryKey: ['salesStats', selectedMonth],
+    queryFn: () => selectedMonth 
+      ? SalesService.getSalesStatsByMonth(selectedMonth)
+      : SalesService.getSalesStats(),
+    staleTime: 2 * 60 * 1000, // 2 minutos - mais reativo
+    gcTime: 5 * 60 * 1000, // 5 minutos
   });
 }
 
@@ -51,7 +53,7 @@ export function useCreateSaleOptimized() {
           updated_at: new Date().toISOString(),
         };
         
-        queryClient.setQueryData(['sales'], (old: any) => [optimisticSale, ...old]);
+        queryClient.setQueryData(['sales'], (old: Sale[] = []) => [optimisticSale, ...old]);
       }
 
       return { previousSales, previousStats };
@@ -76,7 +78,7 @@ export function useCreateSaleOptimized() {
         description: "Operação realizada com sucesso." 
       });
       // Invalidar apenas quando necessário
-      invalidateRelatedQueries(queryClient, ['sales', 'salesStats']);
+      invalidateRelatedQueries(queryClient, ['sales', 'salesStats', 'dashboard-overview']);
     },
   });
 }
@@ -95,8 +97,8 @@ export function useUpdateSaleOptimized() {
       const previousSales = queryClient.getQueryData(['sales']);
       
       // Atualização otimista
-      queryClient.setQueryData(['sales'], (old: any) => 
-        old?.map((sale: any) => 
+      queryClient.setQueryData(['sales'], (old: Sale[] = []) => 
+        old?.map((sale: Sale) => 
           sale.id === saleId 
             ? { ...sale, ...payload, updated_at: new Date().toISOString() }
             : sale
@@ -120,7 +122,7 @@ export function useUpdateSaleOptimized() {
         title: "Venda atualizada", 
         description: "Operação realizada com sucesso." 
       });
-      invalidateRelatedQueries(queryClient, ['sales', 'salesStats']);
+      invalidateRelatedQueries(queryClient, ['sales', 'salesStats', 'dashboard-overview']);
     },
   });
 }
@@ -138,8 +140,8 @@ export function useDeleteSaleOptimized() {
       const previousSales = queryClient.getQueryData(['sales']);
       
       // Atualização otimista - remover da lista
-      queryClient.setQueryData(['sales'], (old: any) => 
-        old?.filter((sale: any) => sale.id !== saleId)
+      queryClient.setQueryData(['sales'], (old: Sale[] = []) => 
+        old?.filter((sale: Sale) => sale.id !== saleId)
       );
 
       return { previousSales };
@@ -156,7 +158,7 @@ export function useDeleteSaleOptimized() {
     },
     onSuccess: () => {
       toast({ title: "Venda excluída com sucesso" });
-      invalidateRelatedQueries(queryClient, ['sales', 'salesStats']);
+      invalidateRelatedQueries(queryClient, ['sales', 'salesStats', 'dashboard-overview']);
     },
   });
 }

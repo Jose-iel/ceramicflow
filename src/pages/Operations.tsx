@@ -1,23 +1,47 @@
-
-import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
-import { Plus, Search, Filter, Edit, Trash2, MapPin } from 'lucide-react';
-import Sidebar from '@/components/layout/Sidebar';
-import Navbar from '@/components/layout/Navbar';
-import { Input } from '@/components/ui/input';
+import { useState, useMemo } from 'react';
+import { Plus, MapPin, Clock, Settings } from 'lucide-react';
+import PageLayout from '@/components/common/PageLayout';
+import DataTable from '@/components/common/DataTable';
 import OperationDialog from '@/components/operations/OperationDialog';
 import { Badge } from '@/components/ui/badge';
-import { useOperations, useCreateOperation, useUpdateOperation, useDeleteOperation } from '@/hooks/useOperations';
-import { useVehicles } from '@/hooks/useVehicles';
-import { useEmployees } from '@/hooks/useEmployees';
+import { useOperations, useCreateOperation, useUpdateOperation, useDeleteOperation } from '@/hooks';
+import { CreateOperationPayload, Operation } from '@/integrations/supabase/api';
+import { useVehicles } from '@/hooks';
+import { useEmployees } from '@/hooks';
+import type { Employee } from '@/integrations/supabase/api/employees';
+import { useMonthFilter } from '@/hooks/useMonthFilter';
+import { OperationStatus } from '@/types';
+
+// Tipo para dados brutos do Supabase
+type OperationRawData = {
+  id: string;
+  type: string;
+  location?: string;
+  operator: string;
+  start_date?: string;
+  end_date?: string;
+  status: OperationStatus | string;
+  employee_id?: string;
+  vehicle_id?: string;
+  operation_type: string;
+  description?: string;
+  initial_hour_meter?: number;
+  current_hour_meter?: number;
+  start_time?: string;
+  end_time?: string;
+  gas_consumption?: number;
+  ceramic_id: string;
+  created_at: string;
+  updated_at: string;
+  vehicles?: { model: string; type: string } | null;
+  employees?: { name: string } | null;
+};
 
 const OperationsPage = () => {
-  const isMobile = useIsMobile();
   const [search, setSearch] = useState('');
   const [showDialog, setShowDialog] = useState(false);
-  const [editingOperation, setEditingOperation] = useState<any | null>(null);
+  const [editingOperation, setEditingOperation] = useState<OperationRawData | null>(null);
+  const { selectedMonth, setSelectedMonth, filterDataByMonth } = useMonthFilter();
 
   // Use real database hooks
   const { data: operations = [], isLoading } = useOperations();
@@ -27,38 +51,32 @@ const OperationsPage = () => {
   const updateOperation = useUpdateOperation();
   const deleteOperation = useDeleteOperation();
 
-  // Prepare data for selects
-  const availableOperators = employees.map(employee => ({
-    id: employee.id,
-    name: employee.name
-  }));
+  // Filter operations by month and search
+  const filteredOperations = useMemo(() => {
+    // First filter by month using the start_date field
+    const monthFiltered = filterDataByMonth(operations.map(operation => ({ ...operation, date: operation.start_date })));
+    // Then filter by search
+    return monthFiltered.filter(operation => 
+      operation.type?.toLowerCase().includes(search.toLowerCase()) ||
+      operation.location?.toLowerCase().includes(search.toLowerCase()) ||
+      operation.operator?.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [operations, search, filterDataByMonth]);
 
-  const availableForklifts = vehicles.map(vehicle => ({
-    id: vehicle.id,
-    model: vehicle.model
-  }));
-
-  // Filter operations
-  const filteredOperations = operations.filter(operation => 
-    operation.type?.toLowerCase().includes(search.toLowerCase()) ||
-    operation.location?.toLowerCase().includes(search.toLowerCase()) ||
-    operation.operator?.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const handleSaveOperation = (operationData: any) => {
+  const handleSaveOperation = (operationData: Record<string, unknown>) => {
     if (editingOperation) {
       updateOperation.mutate({
         operationId: editingOperation.id,
-        operationData: operationData
+        payload: operationData as unknown as CreateOperationPayload
       });
     } else {
-      createOperation.mutate(operationData);
+      createOperation.mutate(operationData as unknown as CreateOperationPayload);
     }
     setEditingOperation(null);
     setShowDialog(false);
   };
 
-  const handleEditOperation = (operation: any) => {
+  const handleEditOperation = (operation: OperationRawData) => {
     setEditingOperation(operation);
     setShowDialog(true);
   };
@@ -80,141 +98,165 @@ const OperationsPage = () => {
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen bg-background">
-        <Sidebar />
-        <div className={cn("flex-1 flex flex-col", !isMobile && "ml-64")}>
-          <Navbar title="Operações" subtitle="Controle Operacional" />
-          <main className="flex-1 px-6 py-6 flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-gray-600">Carregando operações...</p>
-            </div>
-          </main>
-        </div>
-      </div>
-    );
-  }
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString('pt-BR');
+    } catch (e) {
+      return dateString;
+    }
+  };
+
+  // Calculate stats
+  const totalOperations = filteredOperations.length;
+  const activeOperations = filteredOperations.filter(op => op.status === 'IN_PROGRESS').length;
+  const completedOperations = filteredOperations.filter(op => op.status === 'COMPLETED').length;
+  const totalGasConsumption = filteredOperations.reduce((sum, op) => sum + (op.gas_consumption || 0), 0);
+
+  // Stats cards configuration
+  const statsCards = [
+    {
+      title: "Total de Operações",
+      value: totalOperations,
+      subtitle: "operações no período",
+      icon: Settings,
+      iconColor: "text-blue-600",
+      iconBgColor: "bg-blue-100"
+    },
+    {
+      title: "Em Andamento",
+      value: activeOperations,
+      subtitle: "operações ativas",
+      icon: Clock,
+      iconColor: "text-orange-600",
+      iconBgColor: "bg-orange-100"
+    },
+    {
+      title: "Concluídas",
+      value: completedOperations,
+      subtitle: "operações finalizadas",
+      icon: MapPin,
+      iconColor: "text-green-600",
+      iconBgColor: "bg-green-100"
+    },
+    {
+      title: "Consumo de Gás",
+      value: `${totalGasConsumption.toFixed(1)}L`,
+      subtitle: "total consumido",
+      icon: Settings,
+      iconColor: "text-red-600",
+      iconBgColor: "bg-red-100"
+    }
+  ];
+
+  // Actions configuration
+  const actions = [
+    {
+      label: "Nova Operação",
+      onClick: () => {
+        setEditingOperation(null);
+        setShowDialog(true);
+      },
+      icon: <Plus className="w-4 h-4" />
+    }
+  ];
+
+  // Table columns - mobile responsive
+  const columns = [
+    { 
+      key: 'type', 
+      label: 'Tipo',
+      className: 'min-w-[120px]'
+    },
+    { 
+      key: 'location', 
+      label: 'Local', 
+      render: (value: unknown) => (value as string) || '-',
+      className: 'min-w-[120px] hidden sm:table-cell'
+    },
+    { 
+      key: 'operator', 
+      label: 'Operador',
+      className: 'min-w-[150px]'
+    },
+    { 
+      key: 'start_date', 
+      label: 'Data Início', 
+      render: (value: unknown) => value ? formatDate(value as string) : '-',
+      className: 'min-w-[110px] hidden md:table-cell'
+    },
+    { 
+      key: 'end_date', 
+      label: 'Data Fim', 
+      render: (value: unknown) => value ? formatDate(value as string) : '-',
+      className: 'min-w-[110px] hidden lg:table-cell'
+    },
+    { 
+      key: 'status', 
+      label: 'Status', 
+      render: (value: unknown) => getStatusBadge(value as string),
+      className: 'min-w-[100px]'
+    },
+    { 
+      key: 'gas_consumption', 
+      label: 'Consumo Gás', 
+      render: (value: unknown) => value ? `${value}L` : '-',
+      className: 'min-w-[120px] hidden xl:table-cell'
+    }
+  ];
+
+  // Table actions - mobile friendly
+  const tableActions = [
+    {
+      label: "Editar",
+      onClick: (row: Record<string, unknown>) => handleEditOperation(row as unknown as OperationRawData),
+      variant: 'outline' as const,
+      className: 'sm:w-auto w-full mb-2 sm:mb-0'
+    },
+    {
+      label: "Excluir",
+      variant: "ghost" as const,
+      className: "text-red-500 hover:text-red-700 hover:bg-red-50 sm:w-auto w-full",
+      onClick: (row: Record<string, unknown>) => handleDeleteOperation((row as unknown as OperationRawData).id)
+    }
+  ];
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      
-      <div className={cn(
-        "flex-1 flex flex-col",
-        !isMobile && "ml-64"
-      )}>
-        <Navbar 
-          title="Operações" 
-          subtitle="Controle Operacional"
+    <PageLayout
+      title="Operações"
+      subtitle="Controle Operacional"
+      selectedMonth={selectedMonth}
+      onMonthChange={setSelectedMonth}
+      statsCards={statsCards}
+      searchValue={search}
+      onSearchChange={setSearch}
+      searchPlaceholder="Buscar por tipo, local ou operador..."
+      actions={actions}
+      isLoading={isLoading}
+    >
+      <div className="space-y-6">
+        <DataTable
+          data={filteredOperations as unknown as Record<string, unknown>[]}
+          columns={columns}
+          actions={tableActions}
+          emptyMessage="Nenhuma operação encontrada para este período"
+          minWidth="600px"
+          isLoading={isLoading}
+          showMobileCards={true}
         />
-        
-        <main className="flex-1 px-6 py-6">
-          {/* Header with search and actions */}
-          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input 
-                type="text" 
-                placeholder="Buscar operação..." 
-                className="pl-10"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" className="flex items-center gap-2">
-                <Filter className="w-4 h-4" />
-                Filtrar
-              </Button>
-              <Button 
-                className="gap-2" 
-                onClick={() => {
-                  setEditingOperation(null);
-                  setShowDialog(true);
-                }}
-              >
-                <Plus className="w-4 h-4" />
-                Nova Operação
-              </Button>
-            </div>
-          </div>
-
-          {/* Operations Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredOperations.map((operation) => (
-              <div key={operation.id} className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {operation.type}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {operation.vehicles?.model || 'Veículo não especificado'}
-                    </p>
-                  </div>
-                  {getStatusBadge(operation.status)}
-                </div>
-
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <MapPin className="w-4 h-4" />
-                    {operation.location || 'Local não especificado'}
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    <strong>Operador:</strong> {operation.employees?.name || operation.operator || 'Não especificado'}
-                  </div>
-                  {operation.start_date && (
-                    <div className="text-sm text-gray-600">
-                      <strong>Início:</strong> {new Date(operation.start_date).toLocaleDateString('pt-BR')}
-                    </div>
-                  )}
-                  {operation.description && (
-                    <div className="text-sm text-gray-600">
-                      <strong>Descrição:</strong> {operation.description}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex justify-end gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleEditOperation(operation)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDeleteOperation(operation.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {filteredOperations.length === 0 && (
-            <div className="text-center p-8 text-muted-foreground">
-              <p>Nenhuma operação encontrada</p>
-              <p className="text-sm mt-2">Adicione uma nova operação para começar</p>
-            </div>
-          )}
-        </main>
       </div>
 
       <OperationDialog
         open={showDialog}
         onOpenChange={setShowDialog}
-        operation={editingOperation}
         onSave={handleSaveOperation}
-        availableOperators={availableOperators}
-        availableForklifts={availableForklifts}
+        operation={editingOperation ? {
+          ...editingOperation,
+          status: editingOperation.status as OperationStatus
+        } : null}
+        availableOperators={(employees as Employee[]).map(e => ({ id: e.id, name: e.name }))}
+        availableVehicles={vehicles.map(v => ({ id: v.id, model: v.model }))}
       />
-    </div>
+    </PageLayout>
   );
 };
 

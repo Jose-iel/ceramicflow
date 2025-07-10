@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import UserLevelDialog from './UserLevelDialog';
+import { UserLevel } from '@/integrations/supabase/api/user-levels';
 import { 
   useUserLevels, 
   useCreateUserLevel, 
@@ -26,7 +26,7 @@ import {
 
 const UserLevelsTab = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingLevel, setEditingLevel] = useState<any>(null);
+  const [editingLevel, setEditingLevel] = useState<UserLevel | null>(null);
 
   const { data: userLevels = [], isLoading } = useUserLevels();
   const { data: routes = [] } = useRoutes();
@@ -39,7 +39,7 @@ const UserLevelsTab = () => {
     setDialogOpen(true);
   };
 
-  const handleEditLevel = (level: any) => {
+  const handleEditLevel = (level: UserLevel) => {
     setEditingLevel(level);
     setDialogOpen(true);
   };

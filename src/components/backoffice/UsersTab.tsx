@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { useUsersTabData, useCreateUser, useUpdateUser, useDeleteUser } from '@/integrations/supabase/hooks';
+import { CreateUserPayload, UpdateUserPayload } from '@/integrations/supabase/api/backoffice';
 import UserDialog from './UserDialog';
 import { BackofficeUser } from '@/types/backoffice';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -40,13 +41,13 @@ const UsersTab = () => {
     deleteUserMutation.mutate(userId);
   };
 
-  const handleSaveUser = (userData: any) => {
+  const handleSaveUser = (userData: Record<string, unknown>) => {
     if (editingUser) {
-      updateUserMutation.mutate({ userId: editingUser.id, userData }, {
+      updateUserMutation.mutate({ userId: editingUser.id, userData: userData as unknown as UpdateUserPayload }, {
         onSuccess: () => setDialogOpen(false),
       });
     } else {
-      createUserMutation.mutate(userData, {
+      createUserMutation.mutate(userData as unknown as CreateUserPayload, {
         onSuccess: () => setDialogOpen(false),
       });
     }

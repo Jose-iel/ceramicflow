@@ -2,13 +2,17 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
-export function useDashboardOverview() {
+export function useDashboardOverview(selectedMonth?: string) {
   const { profile } = useAuth();
   
   return useQuery({
-    queryKey: ['dashboard-overview', profile?.ceramic_id],
+    queryKey: ['dashboard-overview', profile?.ceramic_id, selectedMonth],
     queryFn: async () => {
       if (!profile?.ceramic_id) return null;
+      
+      // Configurar filtros de data se selectedMonth for fornecido
+      const startDate = selectedMonth ? `${selectedMonth}-01` : null;
+      const endDate = selectedMonth ? `${selectedMonth}-31` : null;
       
       // Buscar dados em paralelo
       const [
@@ -22,11 +26,26 @@ export function useDashboardOverview() {
       ] = await Promise.all([
         supabase.from('vehicles').select('status').eq('ceramic_id', profile.ceramic_id),
         supabase.from('employees').select('id, aso_expiration_date, nr_expiration_date').eq('ceramic_id', profile.ceramic_id),
-        supabase.from('operations').select('status').eq('ceramic_id', profile.ceramic_id).eq('status', 'IN_PROGRESS'),
-        supabase.from('maintenances').select('status').eq('ceramic_id', profile.ceramic_id).eq('status', 'WAITING'),
-        supabase.from('sales').select('total_value').eq('ceramic_id', profile.ceramic_id),
-        supabase.from('wood_consumptions').select('quantity').eq('ceramic_id', profile.ceramic_id),
-        supabase.from('clay_consumptions').select('trucks_quantity').eq('ceramic_id', profile.ceramic_id),
+        // Operações filtradas por data se selectedMonth estiver definido
+        selectedMonth
+          ? supabase.from('operations').select('status').eq('ceramic_id', profile.ceramic_id).eq('status', 'IN_PROGRESS').gte('start_date', startDate).lte('start_date', endDate)
+          : supabase.from('operations').select('status').eq('ceramic_id', profile.ceramic_id).eq('status', 'IN_PROGRESS'),
+        // Manutenções filtradas por data se selectedMonth estiver definido
+        selectedMonth
+          ? supabase.from('maintenances').select('status').eq('ceramic_id', profile.ceramic_id).eq('status', 'WAITING').gte('reported_date', startDate).lte('reported_date', endDate)
+          : supabase.from('maintenances').select('status').eq('ceramic_id', profile.ceramic_id).eq('status', 'WAITING'),
+        // Vendas filtradas por data se selectedMonth estiver definido
+        selectedMonth
+          ? supabase.from('sales').select('total_value').eq('ceramic_id', profile.ceramic_id).gte('sale_date', startDate).lte('sale_date', endDate)
+          : supabase.from('sales').select('total_value').eq('ceramic_id', profile.ceramic_id),
+        // Consumo de lenha filtrado por data se selectedMonth estiver definido
+        selectedMonth
+          ? supabase.from('wood_consumptions').select('quantity').eq('ceramic_id', profile.ceramic_id).gte('date', startDate).lte('date', endDate)
+          : supabase.from('wood_consumptions').select('quantity').eq('ceramic_id', profile.ceramic_id),
+        // Consumo de barro filtrado por data se selectedMonth estiver definido
+        selectedMonth
+          ? supabase.from('clay_consumptions').select('trucks_quantity').eq('ceramic_id', profile.ceramic_id).gte('date', startDate).lte('date', endDate)
+          : supabase.from('clay_consumptions').select('trucks_quantity').eq('ceramic_id', profile.ceramic_id),
       ]);
 
       // Calcular métricas dos veículos
@@ -101,7 +120,7 @@ export function useDashboardOverview() {
       };
     },
     enabled: !!profile?.ceramic_id,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+    staleTime: 30 * 1000, // 30 seconds - dashboard deve ser mais reativo
+    refetchInterval: 2 * 60 * 1000, // Refetch every 2 minutes
   });
 }
