@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "build:debug": "vite build --mode production --minify false",
+    "preview:debug": "vite preview",
     "lint": "eslint .",
     "preview": "vite preview"
   },
