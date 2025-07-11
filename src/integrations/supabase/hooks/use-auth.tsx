@@ -126,7 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    await AuthService.signIn(email, password);
+    await AuthService.signIn({ email, password });
     // O listener onAuthStateChange cuidará de atualizar o estado
   };
 

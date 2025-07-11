@@ -89,7 +89,7 @@ function App() {
                       <ProtectedRoute>
                         <AdminBackoffice />
                       </ProtectedRoute>
-                    } path="/admin-backoffice" />
+                    } path="/admin" />
                     <Route element={<NotFound />} path="*" />
                   </Routes>
                 </div>
