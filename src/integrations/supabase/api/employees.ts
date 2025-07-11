@@ -35,6 +35,32 @@ export class EmployeesService {
     return ProfileCacheService.getCurrentUserCeramicId();
   }
 
+  static async findEmployeeByEmail(email: string): Promise<Employee | null> {
+    if (!email) {return null;}
+
+    try {
+      const ceramicId = await EmployeesService.getCurrentUserCeramicId();
+
+      const { data, error } = await supabase
+        .from('employees')
+        .select('*')
+        .eq('ceramic_id', ceramicId)
+        .ilike('contact', `%${email}%`) // Busca case-insensitive pelo email no campo de contato
+        .maybeSingle(); // Retorna um único objeto ou null, não um array
+
+      if (error) {
+        // Loga o erro mas não lança para não quebrar a aplicação
+        console.error('Erro ao buscar funcionário por email:', error.message);
+        return null;
+      }
+
+      return data ? { ...data, role: data.role as EmployeeRole } : null;
+    } catch (error) {
+      console.error('Erro inesperado ao buscar funcionário:', error);
+      return null;
+    }
+  }
+
   static async getAllEmployees(): Promise<Employee[]> {
     const ceramicId = await EmployeesService.getCurrentUserCeramicId();
 

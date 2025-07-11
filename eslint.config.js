@@ -9,31 +9,75 @@ import unusedImports from "eslint-plugin-unused-imports";
 export default tseslint.config(
   { 
     ignores: [
+      // Arquivos de build e dependências
       "dist/**", 
       "build/**", 
-      "node_modules/**", 
+      "node_modules/**",
+      ".pnp",
+      ".pnp.js",
+      ".next/**",
+      "out/**",
+      "coverage/**",
+      ".vercel/**",
+      ".turbo/**",
+
+      // Arquivos de configuração
       "*.config.js", 
       "*.config.ts",
-      "coverage/**",
-      ".next/**",
+
+      // Arquivos de cache e logs
+      ".eslintcache",
+      "*.tsbuildinfo",
+      "*.log",
+      ".npm",
+      ".yarn",
+      ".pnpm-store",
+      "tmp/**",
+      "temp/**",
+      ".cache",
+      ".parcel-cache",
+
+      // Arquivos de lock
+      "package-lock.json",
+      "yarn.lock",
+      "pnpm-lock.yaml",
+      "bun.lockb",
+
+      // Arquivos gerados e específicos do SO
+      "*.generated.*",
+      "*.auto.*",
+      "**/*.min.js",
+      "**/*.min.css",
+      "*.bundle.js",
+      "*.bundle.css",
+      ".DS_Store",
+      "Thumbs.db",
+
+      // Variáveis de ambiente
+      ".env*",
+
+      // Pastas de IDE
+      ".vscode/**",
+      ".idea/**",
+
+      // Arquivos de teste e documentação
+      "docs/**",
+      ".storybook-out/**",
+      "storybook-static/**",
+      ".nyc_output/**",
+
+      // Específicos do projeto
       "public/**",
       "supabase/**",
       "*.backup.*",
       "*.noradix.*",
       "*.safe.*",
       "*.radix-backup.*",
-      "test-dashboard.js",
-      "test-edge-function.js",
-      "bun.lockb",
-      "**/*.min.js",
-      "**/*.min.css",
-      "**/migrations/**",
-      "**/*.sql",
+      "test-*.js",
       "**/*.d.ts",
       "src/App.noradix.tsx",
       "src/App.radix-backup.tsx", 
       "src/App.safe.tsx",
-      "docs/**",
       "src/components/ui/**"
     ] 
   },

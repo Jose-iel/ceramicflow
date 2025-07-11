@@ -1,18 +1,116 @@
-
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
+import { DollarSign, ShoppingCart, Truck, Users, HardHat, Fuel, Package, Wrench, LucideIcon, RefreshCw } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import PageLayout from '@/components/common/PageLayout';
+import { type StatCardProps } from '@/components/common/StatsCard';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
-import { useAuth } from '@/hooks/useAuth';
+import { useDashboard, type DashboardData } from '@/hooks/useDashboard';
 import { useMonthFilter } from '@/hooks/useMonthFilter';
 
-const Index = () => {
-  const [currentDate, setCurrentDate] = useState<string>('');
-  const { user: _user } = useAuth();
-  const { selectedMonth, setSelectedMonth } = useMonthFilter();
+/**
+ * Generates the statistics cards for the dashboard based on the provided data.
+ * @param data - The dashboard data from the API.
+ * @returns An array of StatCardProps.
+ */
+const generateStatsCards = (data: DashboardData | undefined): StatCardProps[] => {
+  const loadingCard = (title: string, icon: LucideIcon): StatCardProps => ({
+    title,
+    value: '...',
+    icon,
+    isLoading: true,
+  });
 
-  useEffect(() => {
-    // Set current date in Brazilian format
+  if (!data) {
+    return [
+      loadingCard('Receita Total', DollarSign),
+      loadingCard('Vendas Totais', ShoppingCart),
+      loadingCard('Operações Concluídas', Truck),
+      loadingCard('Funcionários', Users),
+      loadingCard('Consumo de Lenha (m³)', Fuel),
+      loadingCard('Terra e Barro', Package),
+      loadingCard('Veículos em Manutenção', Wrench),
+      loadingCard('Férias a Vencer', HardHat),
+    ];
+  }
+
+  const { kpis } = data;
+
+  return [
+    {
+      title: 'Receita Total',
+      value: kpis.sales.totalRevenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+      icon: DollarSign,
+      description: 'Receita no período',
+    },
+    {
+      title: 'Vendas Totais',
+      value: kpis.sales.totalSalesCount.toString(),
+      icon: ShoppingCart,
+      description: 'Vendas no período',
+    },
+    {
+      title: 'Operações Concluídas',
+      value: kpis.operations.completedOperationsCount.toString(),
+      icon: Truck,
+      description: 'Concluídas no período',
+    },
+    {
+      title: 'Funcionários',
+      value: kpis.employees.totalCount.toString(),
+      icon: Users,
+      description: 'Total de funcionários ativos',
+    },
+    {
+      title: 'Consumo de Lenha (m³)',
+      value: kpis.wood.totalWoodConsumed.toLocaleString('pt-BR'),
+      icon: Fuel,
+      description: 'Consumo no período',
+    },
+    {
+      title: 'Terra e Barro',
+      value: `${kpis.terra_e_barro.totalTrucks} Caminhões`,
+      icon: Package,
+      description: 'Entradas no período',
+    },
+    {
+      title: 'Veículos em Manutenção',
+      value: kpis.vehicles.maintenanceCount.toString(),
+      icon: Wrench,
+      description: 'Veículos atualmente em manutenção',
+    },
+    {
+      title: 'Férias a Vencer',
+      value: `${kpis.employees.expiredCount + kpis.employees.expiringSoonCount}`,
+      icon: HardHat,
+      description: `${kpis.employees.expiredCount} vencida(s), ${kpis.employees.expiringSoonCount} a vencer`,
+    },
+  ];
+};
+
+
+const Index = () => {
+  const { selectedMonth, setSelectedMonth } = useMonthFilter();
+  const { data: dashboardData, isLoading, refetch } = useDashboard(selectedMonth);
+  const queryClient = useQueryClient();
+
+  const statsCards = useMemo(() => generateStatsCards(dashboardData), [dashboardData]);
+
+  const handleRefresh = () => {
+    refetch();
+  };
+
+  // Invalida a query do dashboard em qualquer mutação para manter os dados atualizados
+  queryClient.getQueryCache().subscribe((event) => {
+    if (event.type === 'observerResultsUpdated' && event.query.state.status === 'success') {
+      const mutationKeys = ['create', 'update', 'delete'];
+      if (mutationKeys.some(key => event.query.queryKey.includes(key))) {
+        queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
+      }
+    }
+  });
+
+  const subtitle = useMemo(() => {
     const now = new Date();
     const options: Intl.DateTimeFormatOptions = {
       weekday: 'long',
@@ -20,24 +118,29 @@ const Index = () => {
       month: 'long',
       day: 'numeric',
     };
-    setCurrentDate(now.toLocaleDateString('pt-BR', options));
-
-    // First letter uppercase
-    setCurrentDate(prev =>
-      prev.charAt(0).toUpperCase() + prev.slice(1),
-    );
+    const dateStr = now.toLocaleDateString('pt-BR', options);
+    return dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
   }, []);
+
 
   return (
     <PageLayout
       selectedMonth={selectedMonth}
-      showSearch={false} // Dashboard não precisa de busca
-      statsCards={[]} // Dashboard tem seus próprios cards
-      subtitle={currentDate}
+      showSearch={false}
+      statsCards={statsCards}
+      subtitle={subtitle}
       title="Dashboard"
       onMonthChange={setSelectedMonth}
+      actions={[{
+        label: 'Atualizar Dados',
+        onClick: handleRefresh,
+        icon: <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />,
+      }]}
     >
-      <DashboardOverview />
+      <DashboardOverview
+        data={dashboardData}
+        isLoading={isLoading}
+      />
     </PageLayout>
   );
 };

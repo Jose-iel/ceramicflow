@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 
-interface StatsCardProps {
+export interface StatCardProps {
   title: string;
   value: string | number;
   unit?: string;
@@ -9,6 +9,9 @@ interface StatsCardProps {
   iconColor?: string;
   iconBgColor?: string;
   valueFormatter?: (value: string | number) => string;
+  isLoading?: boolean;
+  description?: string;
+  change?: number;
 }
 
 const StatsCard = ({
@@ -20,7 +23,7 @@ const StatsCard = ({
   iconColor = 'text-primary',
   iconBgColor = 'bg-primary/10',
   valueFormatter,
-}: StatsCardProps) => {
+}: StatCardProps) => {
   const formattedValue = valueFormatter ? valueFormatter(value) : value;
 
   return (

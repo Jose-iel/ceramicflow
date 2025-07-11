@@ -1,11 +1,11 @@
- 
-
 import type { User, Session } from '@supabase/supabase-js';
+import {
+  useState, useEffect, useContext, createContext, useMemo,
+} from 'react';
 import type { ReactNode } from 'react';
-import { useState, useEffect, useContext, createContext } from 'react';
 
 import { AuthService } from '../api/auth';
-import { ProfileCacheService, type UserProfile } from '../api/profile-cache';
+import { type UserProfile } from '../api/profile-cache';
 
 interface AuthContextType {
   user: User | null;
@@ -103,103 +103,69 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    // Timeout de segurança para inicialização
-    const initTimeout = setTimeout(() => {
-      if (isMounted && isLoading) {
-        console.warn('Auth initialization timeout, forcing completion');
-        setIsLoading(false);
-        setInitializationComplete(true);
-      }
-    }, 8000); // 8 segundos
-
     initializeAuth();
 
-    const subscription = AuthService.onAuthStateChange((event, session) => {
-      if (!isMounted) {return;}
-
-      // Limpar cache quando o usuário mudar
-      if (event === 'SIGNED_OUT' || (event === 'SIGNED_IN' && user && session?.user?.id !== user.id)) {
-        ProfileCacheService.clearCache();
-        setPermissionsCache({});
-      }
-
-      setSession(session);
-      setUser(session?.user || null);
-
-      if (event === 'SIGNED_OUT') {
-        setProfile(null);
-        setPermissionsCache({});
-        setIsLoading(false);
-        setInitializationComplete(true);
-      } else if (session?.user && event === 'SIGNED_IN' && !initializationComplete) {
-        // Apenas recarregar se não foi inicializado ainda
-        initializeAuth();
+    const { data: authListener } = AuthService.onAuthStateChange((_event, newSession) => {
+      if (isMounted) {
+        setSession(newSession);
+        setUser(newSession?.user || null);
+        if (!newSession) {
+          setProfile(null);
+          setPermissionsCache({});
+        } else {
+          // Recarregar perfil quando a sessão muda
+          initializeAuth();
+        }
       }
     });
 
     return () => {
       isMounted = false;
-      clearTimeout(initTimeout);
-      subscription.data.subscription.unsubscribe();
+      authListener?.subscription.unsubscribe();
     };
-  }, [initializationComplete, user, isLoading]);
+  }, []);
 
   const signIn = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const { user: authUser, session: authSession } = await AuthService.signIn({ email, password });
-      setUser(authUser);
-      setSession(authSession);
-
-      if (authUser) {
-        const userProfile = await AuthService.getCurrentProfile();
-        setProfile(userProfile);
-      }
-    } finally {
-      setIsLoading(false);
-    }
+    await AuthService.signIn(email, password);
+    // O listener onAuthStateChange cuidará de atualizar o estado
   };
 
   const signOut = async () => {
-    setIsLoading(true);
-    try {
-      await AuthService.signOut(); // Já limpa o cache internamente
-      setProfile(null);
-      setPermissionsCache({});
-      setInitializationComplete(false);
-    } finally {
-      setIsLoading(false);
-    }
+    await AuthService.signOut();
+    // O listener onAuthStateChange cuidará de atualizar o estado
   };
 
-  // Função otimizada que usa cache sem fazer requisições adicionais
   const hasRoutePermission = (routePath: string): boolean => {
-    if (!user || !profile) {return false;}
-
-    // Se é admin, sempre permitir
-    if (profile.is_admin) {return true;}
-
-    // Usar cache - sem fallback para requisições
-    return permissionsCache[routePath] || false;
+    if (isLoading || !initializationComplete) {
+      return false; // Ou um estado de carregamento
+    }
+    if (profile?.is_admin) {
+      return true;
+    }
+    const routeKey = routePath.replace('/', '');
+    return permissionsCache[routeKey] ?? false;
   };
+
+  // Memoriza o valor do contexto para evitar re-renderizações desnecessárias
+  const value = useMemo(() => ({
+    user,
+    session,
+    profile,
+    loading: isLoading,
+    isLoading: isLoading || !initializationComplete,
+    signIn,
+    signOut,
+    hasRoutePermission,
+  }), [user, session, profile, isLoading, initializationComplete, permissionsCache]);
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      session,
-      profile,
-      loading: isLoading,
-      isLoading,
-      signIn,
-      signOut,
-      hasRoutePermission,
-    }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');

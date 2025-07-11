@@ -18,33 +18,30 @@ export function useCurrentUser(): CurrentUserInfo {
 
   useEffect(() => {
     const loadUserInfo = async () => {
-      if (authLoading || !user) {
-        if (!authLoading && !user) {
+      if (authLoading || !user?.email) {
+        if (!authLoading) {
           setDisplayName('Usuário');
           setIsLoading(false);
         }
         return;
       }
 
+      setIsLoading(true);
       try {
-        // Try to find the user in employees table by email
-        const employees = await EmployeesService.getAllEmployees();
-        const currentEmployee = employees.find(emp =>
-          emp.contact?.toLowerCase().includes((user.email || '').toLowerCase()) ||
-          (user.email && emp.name?.toLowerCase().includes(user.email.split('@')[0].toLowerCase())),
-        );
+        // Busca o funcionário diretamente pelo email
+        const currentEmployee = await EmployeesService.findEmployeeByEmail(user.email);
 
         if (currentEmployee?.name) {
           setDisplayName(currentEmployee.name);
         } else {
-          // Fallback to email username
-          const emailUsername = user.email?.split('@')[0];
+          // Fallback para o nome de usuário do email se não encontrar funcionário
+          const emailUsername = user.email.split('@')[0];
           setDisplayName(emailUsername || 'Usuário');
         }
       } catch (error) {
         console.error('Error loading user info:', error);
-        // Fallback to email username
-        const emailUsername = user.email?.split('@')[0];
+        // Fallback em caso de erro na busca
+        const emailUsername = user.email.split('@')[0];
         setDisplayName(emailUsername || 'Usuário');
       } finally {
         setIsLoading(false);
@@ -52,7 +49,7 @@ export function useCurrentUser(): CurrentUserInfo {
     };
 
     loadUserInfo();
-  }, [user, authLoading]);
+  }, [user?.email, authLoading]); // Depender apenas do email do usuário e do status de autenticação
 
   const getInitials = (name: string) => {
     if (!name || name === 'Usuário') {return 'U';}

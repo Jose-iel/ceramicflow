@@ -59,12 +59,9 @@ export function useCreateOperationOptimized() {
     },
     onSuccess: () => {
       toast({
-        title: 'Operação criada',
-        description: 'Operação adicionada com sucesso.',
+        title: 'Operação registrada',
+        description: 'A nova operação foi registrada com sucesso.',
       });
-    },
-    onSettled: () => {
-      // Invalidar queries relacionadas
       queryClient.invalidateQueries({ queryKey: ['operations'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
@@ -110,10 +107,8 @@ export function useUpdateOperationOptimized() {
     onSuccess: () => {
       toast({
         title: 'Operação atualizada',
-        description: 'Dados da operação atualizados com sucesso.',
+        description: 'Os dados da operação foram atualizados.',
       });
-    },
-    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['operations'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
@@ -153,11 +148,9 @@ export function useDeleteOperationOptimized() {
     },
     onSuccess: () => {
       toast({
-        title: 'Operação excluída',
-        description: 'Operação removida com sucesso.',
+        title: 'Operação removida',
+        description: 'A operação foi removida do sistema.',
       });
-    },
-    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['operations'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },

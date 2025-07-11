@@ -1,128 +1,124 @@
-
 import {
-  Truck, Users, AlertTriangle, CheckCircle,
-  Clock, TreePine, Settings, Mountain,
-} from 'lucide-react';
+  Card, CardContent, CardHeader, CardTitle,
+} from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { format, parseISO } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { DashboardData } from '@/hooks/useDashboard';
 
-import SalesReportCard from './SalesReportCard';
-import StatusCard from './StatusCard';
+interface DashboardOverviewProps {
+  data: DashboardData | undefined;
+  isLoading: boolean;
+  error?: Error | null;
+}
 
-
-import { useDashboardOverview } from '@/hooks/useDashboard';
-import { useMonthFilter } from '@/hooks/useMonthFilter';
-
-const DashboardOverview = () => {
-  const { selectedMonth } = useMonthFilter();
-  const { data: dashboardData, isLoading } = useDashboardOverview(selectedMonth);
-
-  if (isLoading) {
-    return (
-      <section className="space-y-8">
-        <div className="text-center py-8">Carregando dados do dashboard...</div>
-      </section>
-    );
-  }
+// --- Componente Principal ---
+const DashboardOverview = ({ data, isLoading, error }: DashboardOverviewProps) => {
+  if (isLoading) return <DashboardSkeleton />;
+  if (error) return <div className="text-red-500">Erro ao carregar o dashboard: {error.message}</div>;
+  if (!data) return <div>Nenhum dado disponível para o período selecionado.</div>;
 
   return (
-    <section className="space-y-8">
-      {/* Seção de Vendas - Card de Relatório */}
-      <div className="slide-enter" style={{ animationDelay: '0.1s' }}>
-        <h2 className="text-2xl font-semibold mb-4">Vendas</h2>
-        <SalesReportCard salesData={dashboardData?.sales} />
-      </div>
-
-      {/* Seção de Operações */}
-      <div className="slide-enter" style={{ animationDelay: '0.2s' }}>
-        <h2 className="text-2xl font-semibold mb-4">Operações</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <StatusCard
-            icon={Truck}
-            status="success"
-            title="Operações Ativas"
-            value={dashboardData?.operations?.active || 0}
-          />
-          <StatusCard
-            icon={Settings}
-            status="warning"
-            title="Manutenções Pendentes"
-            value={dashboardData?.maintenances?.pending || 0}
-          />
-          <StatusCard
-            icon={TreePine}
-            status="info"
-            title="Consumo de Lenha (m³)"
-            value={dashboardData?.consumption?.wood || 0}
-          />
-          <StatusCard
-            icon={Mountain}
-            status="info"
-            title="Consumo de Barro (caminhões)"
-            value={dashboardData?.consumption?.clay || 0}
-          />
-        </div>
-      </div>
-
-      <div className="slide-enter" style={{ animationDelay: '0.3s' }}>
-        <h2 className="text-2xl font-semibold mb-4">Status dos Funcionários</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatusCard
-            icon={Users}
-            status="info"
-            title="Total de Funcionários"
-            value={dashboardData?.employees?.total || 0}
-          />
-          <StatusCard
-            icon={CheckCircle}
-            status="success"
-            title="ASO e NR Regulares"
-            value={dashboardData?.employees?.regular || 0}
-          />
-          <StatusCard
-            icon={AlertTriangle}
-            status="warning"
-            title="Próximo do Vencimento"
-            value={dashboardData?.employees?.expiringSoon || 0}
-          />
-          <StatusCard
-            icon={AlertTriangle}
-            status="danger"
-            title="ASO/NR Vencidos"
-            value={dashboardData?.employees?.expired || 0}
-          />
-        </div>
-      </div>
-
-      <div className="slide-enter" style={{ animationDelay: '0.4s' }}>
-        <h2 className="text-2xl font-semibold mb-4">Status da Frota</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatusCard
-            icon={Truck}
-            status="info"
-            title="Total de Veículos"
-            value={dashboardData?.vehicles?.total || 0}
-          />
-          <StatusCard
-            icon={CheckCircle}
-            status="success"
-            title="Em Operação"
-            value={dashboardData?.vehicles?.operational || 0}
-          />
-          <StatusCard
-            icon={Settings}
-            status="warning"
-            title="Em Manutenção"
-            value={dashboardData?.vehicles?.maintenance || 0}
-          />
-          <StatusCard
-            icon={Clock}
-            status="neutral"
-            title="Parados"
-            value={dashboardData?.vehicles?.stopped || 0}
-          />
-        </div>
-      </div>
-    </section>
+    <div className="space-y-6">
+      {/* A seção de KPIs foi movida para o PageLayout através dos statsCards */}
+      <RecentActivitiesSection data={data.recentActivities} />
+    </div>
   );
+};
+
+// --- Seção de Atividades Recentes ---
+const RecentActivitiesSection = ({ data }: { data: DashboardData['recentActivities'] }) => (
+  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <RecentSalesTable sales={data.latestSales} />
+    <RecentOperationsTable operations={data.latestOperations} />
+  </div>
+);
+
+// --- Tabelas de Atividades Recentes ---
+const RecentSalesTable = ({ sales }: { sales: DashboardData['recentActivities']['latestSales'] }) => (
+  <Card>
+    <CardHeader>
+      <CardTitle>Vendas Recentes</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Cliente</TableHead>
+            <TableHead>Data</TableHead>
+            <TableHead className="text-right">Valor</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sales.map(sale => (
+            <TableRow key={sale.id}>
+              <TableCell className="font-medium">{sale.customer_name}</TableCell>
+              <TableCell>{formatDate(sale.sale_date)}</TableCell>
+              <TableCell className="text-right">{formatCurrency(sale.total_value)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </CardContent>
+  </Card>
+);
+
+const RecentOperationsTable = ({ operations }: { operations: DashboardData['recentActivities']['latestOperations'] }) => (
+  <Card>
+    <CardHeader>
+      <CardTitle>Operações Recentes</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Descrição</TableHead>
+            <TableHead>Status</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {operations.map(op => (
+            <TableRow key={op.id}>
+              <TableCell>{op.description}</TableCell>
+              <TableCell><Badge variant={op.status === 'COMPLETED' ? 'default' : 'secondary'}>{op.status}</Badge></TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </CardContent>
+  </Card>
+);
+
+
+// --- Skeleton Loader ---
+const DashboardSkeleton = () => (
+  <div className="space-y-6">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <Skeleton className="h-24" />
+      <Skeleton className="h-24" />
+      <Skeleton className="h-24" />
+      <Skeleton className="h-24" />
+    </div>
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <Skeleton className="h-64" />
+      <Skeleton className="h-64" />
+    </div>
+  </div>
+);
+
+// --- Funções de Formatação ---
+const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+
+const formatDate = (dateString: string) => {
+  try {
+    return format(parseISO(dateString), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+  } catch {
+    return 'Data inválida';
+  }
 };
 
 export default DashboardOverview;

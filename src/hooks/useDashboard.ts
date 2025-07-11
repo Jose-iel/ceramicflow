@@ -1,21 +1,79 @@
 import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/integrations/supabase/hooks/use-auth';
 
-import { useAuth } from '@/hooks/useAuth';
-import { DashboardService, type DashboardOverview } from '@/integrations/supabase/api/dashboard';
+// --- Tipos para Atividades Recentes ---
+interface RecentSale {
+  id: string;
+  sale_date: string;
+  customer_name: string;
+  total_value: number;
+}
 
-export function useDashboardOverview(selectedMonth?: string) {
+interface RecentOperation {
+  id: string;
+  description: string;
+  status: 'COMPLETED' | 'IN_PROGRESS' | 'PENDING';
+}
+
+// A interface deve espelhar a estrutura de resposta da Edge Function
+export interface DashboardData {
+  kpis: {
+    sales: {
+      totalRevenue: number;
+      totalSalesCount: number;
+      brickQuantitySold: number;
+    };
+    operations: {
+      activeOperationsCount: number;
+      completedOperationsCount: number;
+    };
+    wood: {
+      totalWoodConsumed: number;
+      totalWoodPurchased: number;
+    };
+    terra_e_barro: {
+      totalTrucks: number;
+    };
+    employees: {
+      totalCount: number;
+      regularCount: number;
+      expiringSoonCount: number;
+      expiredCount: number;
+    };
+    vehicles: {
+      totalCount: number;
+      operationalCount: number;
+      maintenanceCount: number;
+    };
+  };
+  recentActivities: {
+    latestSales: RecentSale[];
+    latestOperations: RecentOperation[];
+  };
+}
+
+const fetchDashboardData = async (ceramic_id: string, selectedMonth?: string) => {
+  const { data, error } = await supabase.functions.invoke('get-dashboard-overview', {
+    body: { ceramic_id, selectedMonth },
+  });
+
+  if (error) {
+    throw new Error(`Erro ao buscar dados do dashboard: ${error.message}`);
+  }
+
+  return data as DashboardData;
+};
+
+export function useDashboard(selectedMonth?: string) {
   const { profile } = useAuth();
+  const ceramicId = profile?.ceramic_id;
 
-  return useQuery({
-    queryKey: ['dashboard-overview', profile?.ceramic_id, selectedMonth],
-    queryFn: async (): Promise<DashboardOverview | null> => {
-      if (!profile?.ceramic_id || typeof profile.ceramic_id !== 'string') {return null;}
-
-      return DashboardService.getDashboardOverview(profile.ceramic_id, selectedMonth);
-    },
-    enabled: !!profile?.ceramic_id && typeof profile.ceramic_id === 'string',
-    staleTime: 2 * 60 * 1000, // 2 minutos - mais cache, mas ainda responsivo
-    gcTime: 5 * 60 * 1000, // 5 minutos
-    refetchInterval: false, // Removido refetch automático - será invalidado pelas mutações
+  return useQuery<DashboardData, Error>({
+    queryKey: ['dashboard-overview', ceramicId, selectedMonth],
+    queryFn: () => fetchDashboardData(ceramicId!, selectedMonth),
+    enabled: !!ceramicId, // A query só será executada se o ceramicId estiver disponível
+    staleTime: 1000 * 60 * 5, // 5 minutos
+    gcTime: 1000 * 60 * 10, // 10 minutos
   });
 }

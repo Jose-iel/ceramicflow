@@ -16,6 +16,13 @@ export function useEmployeesOptimized() {
   });
 }
 
+// Função para invalidar queries relacionadas
+function invalidateRelatedQueries(queryClient: any, queryKeys: string[]) {
+  queryKeys.forEach((key) => {
+    queryClient.invalidateQueries({ queryKey: [key] });
+  });
+}
+
 // Hook otimizado para criar funcionário
 export function useCreateEmployeeOptimized() {
   const queryClient = useQueryClient();
@@ -60,11 +67,7 @@ export function useCreateEmployeeOptimized() {
         title: 'Funcionário criado',
         description: 'Funcionário adicionado com sucesso.',
       });
-    },
-    onSettled: () => {
-      // Invalidar queries relacionadas
-      queryClient.invalidateQueries({ queryKey: ['employees'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
+      invalidateRelatedQueries(queryClient, ['employees', 'dashboard-overview']);
     },
   });
 }
@@ -110,10 +113,7 @@ export function useUpdateEmployeeOptimized() {
         title: 'Funcionário atualizado',
         description: 'Dados do funcionário atualizados com sucesso.',
       });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['employees'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
+      invalidateRelatedQueries(queryClient, ['employees', 'dashboard-overview']);
     },
   });
 }
@@ -154,10 +154,7 @@ export function useDeleteEmployeeOptimized() {
         title: 'Funcionário excluído',
         description: 'Funcionário removido com sucesso.',
       });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['employees'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
+      invalidateRelatedQueries(queryClient, ['employees', 'dashboard-overview']);
     },
   });
 }
