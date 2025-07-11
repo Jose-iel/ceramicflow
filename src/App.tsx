@@ -1,61 +1,103 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "@/integrations/supabase/hooks/use-auth";
+import { MonthFilterProvider } from "@/contexts/MonthFilterContext";
+import { queryClient } from "@/lib/queryClient";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 
-// Páginas básicas sem Radix UI
-function HomePage() {
-  return (
-    <div style={{ padding: '40px', fontFamily: 'Arial' }}>
-      <h1>🏠 CeramicFlow - Home</h1>
-      <p>Bem-vindo ao sistema de gestão ceramistas!</p>
-      <nav style={{ marginTop: '20px' }}>
-        <a href="/login" style={{ marginRight: '20px', color: 'blue' }}>Login</a>
-        <a href="/about" style={{ color: 'blue' }}>Sobre</a>
-      </nav>
-    </div>
-  );
-}
+// Import components directly (no lazy loading)
+import Index from "./pages/Index";
+import Vehicles from "./pages/Vehicles";
+import Employees from "./pages/Employees";
+import Operations from "./pages/Operations";
+import Maintenance from "./pages/Maintenance";
+import Wood from "./pages/Wood";
+import RawMaterial from "./pages/RawMaterial";
+import Reports from "./pages/Reports";
+import Sales from "./pages/Sales";
+import LandingPage from "./pages/LandingPage";
+import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
+import AdminBackoffice from "./pages/AdminBackoffice";
 
-function LoginPage() {
-  return (
-    <div style={{ padding: '40px', fontFamily: 'Arial' }}>
-      <h1>🔐 Login</h1>
-      <form style={{ marginTop: '20px' }}>
-        <div style={{ marginBottom: '10px' }}>
-          <label>Email:</label>
-          <input type="email" style={{ marginLeft: '10px', padding: '8px' }} />
-        </div>
-        <div style={{ marginBottom: '10px' }}>
-          <label>Senha:</label>
-          <input type="password" style={{ marginLeft: '10px', padding: '8px' }} />
-        </div>
-        <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none' }}>
-          Entrar
-        </button>
-      </form>
-      <p style={{ marginTop: '20px' }}>
-        <a href="/" style={{ color: 'blue' }}>← Voltar para Home</a>
-      </p>
-    </div>
-  );
-}
-
-function NotFoundPage() {
-  return (
-    <div style={{ padding: '40px', fontFamily: 'Arial', textAlign: 'center' }}>
-      <h1>404 - Página não encontrada</h1>
-      <p><a href="/" style={{ color: 'blue' }}>← Voltar para Home</a></p>
-    </div>
-  );
-}
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <MonthFilterProvider>
+            <TooltipProvider>
+              <BrowserRouter>
+                <div className="min-h-screen bg-background font-sans antialiased">
+                  <Routes>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/dashboard" element={
+                      <ProtectedRoute>
+                        <Index />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/vehicles" element={
+                      <ProtectedRoute>
+                        <Vehicles />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/employees" element={
+                      <ProtectedRoute>
+                        <Employees />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/operations" element={
+                      <ProtectedRoute>
+                        <Operations />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/maintenance" element={
+                      <ProtectedRoute>
+                        <Maintenance />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/wood" element={
+                      <ProtectedRoute>
+                        <Wood />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/raw-material" element={
+                      <ProtectedRoute>
+                        <RawMaterial />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/reports" element={
+                      <ProtectedRoute>
+                        <Reports />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/sales" element={
+                      <ProtectedRoute>
+                        <Sales />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/admin-backoffice" element={
+                      <ProtectedRoute>
+                        <AdminBackoffice />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </div>
+                <Toaster />
+                <Sonner />
+              </BrowserRouter>
+            </TooltipProvider>
+          </MonthFilterProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
