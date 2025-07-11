@@ -87,6 +87,11 @@
     "vite": "^5.4.1"
   },
   "overrides": {
-    "@radix-ui/react-use-layout-effect": "1.1.0"
+    "@radix-ui/react-use-layout-effect": "1.1.0",
+    "@radix-ui/react-id": "1.1.0", 
+    "@radix-ui/react-presence": "1.1.1",
+    "cmdk": {
+      "@radix-ui/react-use-layout-effect": "1.1.0"
+    }
   }
 }
