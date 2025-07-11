@@ -13,6 +13,8 @@ export function useUsersTabData() {
   return useQuery({
     queryKey: ['usersTabData'],
     queryFn: BackofficeService.getUsersTabData,
+    staleTime: 60 * 60 * 1000, // 1 hora
+    gcTime: 90 * 60 * 1000, // 1.5 horas
   });
 }
 
@@ -72,6 +74,8 @@ export function useCeramicsData() {
   return useQuery({
     queryKey: ['ceramics'],
     queryFn: BackofficeService.getCeramicsData,
+    staleTime: 60 * 60 * 1000, // 1 hora
+    gcTime: 90 * 60 * 1000, // 1.5 horas
   });
 }
 

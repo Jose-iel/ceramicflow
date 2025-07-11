@@ -62,6 +62,7 @@ export function useCreateEmployeeOptimized() {
     onSettled: () => {
       // Invalidar queries relacionadas
       queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
   });
 }
@@ -110,6 +111,7 @@ export function useUpdateEmployeeOptimized() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
   });
 }
@@ -153,6 +155,7 @@ export function useDeleteEmployeeOptimized() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
   });
 }

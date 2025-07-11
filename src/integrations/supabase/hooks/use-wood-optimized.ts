@@ -97,6 +97,7 @@ export function useCreateWoodConsumptionOptimized() {
     onSuccess: () => {
       toast({ title: "Consumo de lenha registrado com sucesso!" });
       queryClient.invalidateQueries({ queryKey: ['wood-consumptions'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
     onError: (error: Error) => {
       toast({ 
@@ -119,6 +120,7 @@ export function useUpdateWoodConsumptionOptimized() {
     onSuccess: () => {
       toast({ title: "Consumo de lenha atualizado com sucesso!" });
       queryClient.invalidateQueries({ queryKey: ['wood-consumptions'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
     onError: (error: Error) => {
       toast({ 
@@ -140,6 +142,7 @@ export function useDeleteWoodConsumptionOptimized() {
     onSuccess: () => {
       toast({ title: "Consumo de lenha excluído com sucesso!" });
       queryClient.invalidateQueries({ queryKey: ['wood-consumptions'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
     onError: (error: Error) => {
       toast({ 

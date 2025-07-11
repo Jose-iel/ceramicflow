@@ -7,6 +7,8 @@ export function useUserLevels() {
   return useQuery({
     queryKey: ['userLevels'],
     queryFn: UserLevelsService.getAllUserLevels,
+    staleTime: 60 * 60 * 1000, // 1 hora
+    gcTime: 90 * 60 * 1000, // 1.5 horas
   });
 }
 
@@ -14,6 +16,8 @@ export function useRoutes() {
   return useQuery({
     queryKey: ['routes'],
     queryFn: UserLevelsService.getAllRoutes,
+    staleTime: 24 * 60 * 60 * 1000, // 24 horas
+    gcTime: 25 * 60 * 60 * 1000, // 25 horas
   });
 }
 
@@ -22,6 +26,8 @@ export function useUserLevelPermissions(levelId: string) {
     queryKey: ['userLevelPermissions', levelId],
     queryFn: () => UserLevelsService.getUserLevelPermissions(levelId),
     enabled: !!levelId,
+    staleTime: 15 * 60 * 1000, // 15 minutos
+    gcTime: 20 * 60 * 1000, // 20 minutos
   });
 }
 

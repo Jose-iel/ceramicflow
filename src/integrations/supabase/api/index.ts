@@ -9,6 +9,7 @@ export * from './vehicles';
 export * from './operations';
 export * from './maintenances';
 export * from './clay-consumptions';
+export * from './dashboard';
 
 // Re-export client for direct access when needed
 export { supabase } from '../client';

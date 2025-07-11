@@ -8,8 +8,8 @@ export function useSales() {
   return useQuery({
     queryKey: ['sales'],
     queryFn: SalesService.getAllSales,
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime: 10 * 60 * 1000, // 10 minutos
+    staleTime: 15 * 60 * 1000, // 15 minutos
+    gcTime: 20 * 60 * 1000, // 20 minutos
   });
 }
 
@@ -17,8 +17,8 @@ export function useSalesStats() {
   return useQuery({
     queryKey: ['salesStats'],
     queryFn: SalesService.getSalesStats,
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime: 10 * 60 * 1000, // 10 minutos
+    staleTime: 15 * 60 * 1000, // 15 minutos
+    gcTime: 20 * 60 * 1000, // 20 minutos
   });
 }
 
@@ -32,6 +32,7 @@ export function useCreateSale() {
       toast({ title: "Venda registrada", description: "Operação realizada com sucesso." });
       queryClient.invalidateQueries({ queryKey: ['sales'] });
       queryClient.invalidateQueries({ queryKey: ['salesStats'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
     onError: (error: Error) => {
       toast({ title: "Erro ao registrar venda", description: error.message, variant: "destructive" });
@@ -50,6 +51,7 @@ export function useUpdateSale() {
       toast({ title: "Venda atualizada", description: "Operação realizada com sucesso." });
       queryClient.invalidateQueries({ queryKey: ['sales'] });
       queryClient.invalidateQueries({ queryKey: ['salesStats'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
     onError: (error: Error) => {
       toast({ title: "Erro ao atualizar venda", description: error.message, variant: "destructive" });
@@ -67,6 +69,7 @@ export function useDeleteSale() {
       toast({ title: "Venda excluída com sucesso" });
       queryClient.invalidateQueries({ queryKey: ['sales'] });
       queryClient.invalidateQueries({ queryKey: ['salesStats'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
     onError: (error: Error) => {
       toast({ title: "Erro ao excluir venda", description: error.message, variant: "destructive" });

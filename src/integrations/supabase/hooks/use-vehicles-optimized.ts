@@ -91,6 +91,7 @@ export function useCreateVehicleOptimized() {
       // Invalidar queries relacionadas
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
       queryClient.invalidateQueries({ queryKey: ['trucks'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
   });
 }
@@ -156,6 +157,7 @@ export function useUpdateVehicleOptimized() {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
       queryClient.invalidateQueries({ queryKey: ['trucks'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
   });
 }
@@ -212,6 +214,7 @@ export function useDeleteVehicleOptimized() {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] });
       queryClient.invalidateQueries({ queryKey: ['trucks'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
   });
 }

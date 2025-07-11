@@ -3,14 +3,13 @@ project_id = "xvzrvzhmppkjydvefcnt"
 
 [api]
 enabled = true
-extra_headers = []
 
-[database]
+[db]
 major_version = 15
 
 [functions.create-user]
 verify_jwt = true
 
 [auth]
-# ... keep existing code
+# Auth settings can be added here if needed
 
