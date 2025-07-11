@@ -72,8 +72,9 @@ export function useDashboard(selectedMonth?: string) {
   return useQuery<DashboardData, Error>({
     queryKey: ['dashboard-overview', ceramicId, selectedMonth],
     queryFn: () => fetchDashboardData(ceramicId!, selectedMonth),
-    enabled: !!ceramicId, // A query só será executada se o ceramicId estiver disponível
-    staleTime: 1000 * 60 * 5, // 5 minutos
-    gcTime: 1000 * 60 * 10, // 10 minutos
+    enabled: !!ceramicId,
+    // Força a busca de dados sempre que o componente do dashboard é montado,
+    // garantindo que os dados estejam sempre atualizados ao navegar para a tela.
+    refetchOnMount: 'always',
   });
 }

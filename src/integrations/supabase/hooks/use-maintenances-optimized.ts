@@ -1,10 +1,10 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { MaintenancesService } from '../api';
 import type { CreateMaintenancePayload, UpdateMaintenancePayload, Maintenance } from '../api';
 
-import { useToast } from '@/hooks/use-toast';
 import { useOptimizedQuery } from '@/hooks/useOptimizedQuery';
+import { useEntityMutation } from '@/hooks/useEntityMutation';
 
 // Hook otimizado para listar manutenções
 export function useMaintenancesOptimized() {
@@ -19,18 +19,14 @@ export function useMaintenancesOptimized() {
 // Hook otimizado para criar manutenção
 export function useCreateMaintenanceOptimized() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
+  return useEntityMutation({
     mutationFn: (payload: CreateMaintenancePayload) => MaintenancesService.createMaintenance(payload),
+    queryKeyToInvalidate: ['maintenances'],
+    successMessage: 'Manutenção adicionada com sucesso.',
+    errorMessage: 'Erro ao criar manutenção',
     onMutate: async (newMaintenance) => {
-      // Cancelar queries em andamento
       await queryClient.cancelQueries({ queryKey: ['maintenances'] });
-
-      // Snapshot dos dados atuais
       const previousMaintenances = queryClient.getQueryData(['maintenances']);
-
-      // Atualização otimista da lista de manutenções
       if (previousMaintenances) {
         const optimisticMaintenance = {
           id: `temp-${Date.now()}`,
@@ -43,30 +39,12 @@ export function useCreateMaintenanceOptimized() {
         };
         queryClient.setQueryData(['maintenances'], [optimisticMaintenance, ...(previousMaintenances as Maintenance[])]);
       }
-
       return { previousMaintenances };
     },
-    onError: (err, newMaintenance, context) => {
-      // Reverter mudanças otimistas em caso de erro
+    onError: (err, newMaintenance, context?: { previousMaintenances: unknown }) => {
       if (context?.previousMaintenances) {
         queryClient.setQueryData(['maintenances'], context.previousMaintenances);
       }
-      toast({
-        title: 'Erro ao criar manutenção',
-        description: err.message,
-        variant: 'destructive',
-      });
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Manutenção criada',
-        description: 'Manutenção adicionada com sucesso.',
-      });
-    },
-    onSettled: () => {
-      // Invalidar queries relacionadas
-      queryClient.invalidateQueries({ queryKey: ['maintenances'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
   });
 }
@@ -74,19 +52,17 @@ export function useCreateMaintenanceOptimized() {
 // Hook otimizado para atualizar manutenção
 export function useUpdateMaintenanceOptimized() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
+  return useEntityMutation({
     mutationFn: ({ maintenanceId, payload }: { maintenanceId: string; payload: UpdateMaintenancePayload }) =>
       MaintenancesService.updateMaintenance(maintenanceId, payload),
+    queryKeyToInvalidate: ['maintenances'],
+    successMessage: 'Dados da manutenção atualizados com sucesso.',
+    errorMessage: 'Erro ao atualizar manutenção',
     onMutate: async ({ maintenanceId, payload }) => {
       await queryClient.cancelQueries({ queryKey: ['maintenances'] });
-
       const previousMaintenances = queryClient.getQueryData(['maintenances']);
-
-      // Atualização otimista
       if (previousMaintenances) {
-        queryClient.setQueryData(['maintenances'], (old: Maintenance[]) =>
+        queryClient.setQueryData(['maintenances'], (old: Maintenance[] = []) =>
           old?.map((maintenance: Maintenance) =>
             maintenance.id === maintenanceId
               ? { ...maintenance, ...payload, updated_at: new Date().toISOString() }
@@ -94,28 +70,12 @@ export function useUpdateMaintenanceOptimized() {
           ),
         );
       }
-
       return { previousMaintenances };
     },
-    onError: (err, { maintenanceId: _maintenanceId }, context) => {
+    onError: (err, { maintenanceId: _maintenanceId }, context?: { previousMaintenances: unknown }) => {
       if (context?.previousMaintenances) {
         queryClient.setQueryData(['maintenances'], context.previousMaintenances);
       }
-      toast({
-        title: 'Erro ao atualizar manutenção',
-        description: err.message,
-        variant: 'destructive',
-      });
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Manutenção atualizada',
-        description: 'Dados da manutenção atualizados com sucesso.',
-      });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['maintenances'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
   });
 }
@@ -123,43 +83,25 @@ export function useUpdateMaintenanceOptimized() {
 // Hook otimizado para deletar manutenção
 export function useDeleteMaintenanceOptimized() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
+  return useEntityMutation({
     mutationFn: (maintenanceId: string) => MaintenancesService.deleteMaintenance(maintenanceId),
+    queryKeyToInvalidate: ['maintenances'],
+    successMessage: 'Manutenção removida com sucesso.',
+    errorMessage: 'Erro ao excluir manutenção',
     onMutate: async (maintenanceId) => {
       await queryClient.cancelQueries({ queryKey: ['maintenances'] });
-
       const previousMaintenances = queryClient.getQueryData(['maintenances']);
-
-      // Atualização otimista - remover da lista
       if (previousMaintenances) {
-        queryClient.setQueryData(['maintenances'], (old: Maintenance[]) =>
+        queryClient.setQueryData(['maintenances'], (old: Maintenance[] = []) =>
           old?.filter((maintenance: Maintenance) => maintenance.id !== maintenanceId),
         );
       }
-
       return { previousMaintenances };
     },
-    onError: (err, maintenanceId, context) => {
+    onError: (err, maintenanceId, context?: { previousMaintenances: unknown }) => {
       if (context?.previousMaintenances) {
         queryClient.setQueryData(['maintenances'], context.previousMaintenances);
       }
-      toast({
-        title: 'Erro ao excluir manutenção',
-        description: err.message,
-        variant: 'destructive',
-      });
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Manutenção excluída',
-        description: 'Manutenção removida com sucesso.',
-      });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['maintenances'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
   });
 }

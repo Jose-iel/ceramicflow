@@ -1,10 +1,10 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { VehiclesService } from '../api';
 import type { CreateVehiclePayload, UpdateVehiclePayload, Vehicle } from '../api';
 
-import { useToast } from '@/hooks/use-toast';
 import { useOptimizedQuery } from '@/hooks/useOptimizedQuery';
+import { useEntityMutation } from '@/hooks/useEntityMutation';
 
 type TruckData = Pick<Vehicle, 'id' | 'model' | 'type'>;
 
@@ -31,20 +31,18 @@ export function useTrucksOptimized() {
 // Hook otimizado para criar veículo
 export function useCreateVehicleOptimized() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
+  return useEntityMutation({
     mutationFn: (payload: CreateVehiclePayload) => VehiclesService.createVehicle(payload),
+    queryKeyToInvalidate: ['vehicles', 'trucks'],
+    successMessage: 'Veículo adicionado com sucesso.',
+    errorMessage: 'Erro ao criar veículo',
     onMutate: async (newVehicle) => {
-      // Cancelar queries em andamento
       await queryClient.cancelQueries({ queryKey: ['vehicles'] });
       await queryClient.cancelQueries({ queryKey: ['trucks'] });
 
-      // Snapshot dos dados atuais
       const previousVehicles = queryClient.getQueryData(['vehicles']);
       const previousTrucks = queryClient.getQueryData(['trucks']);
 
-      // Atualização otimista da lista de veículos
       if (previousVehicles) {
         const optimisticVehicle = {
           id: `temp-${Date.now()}`,
@@ -57,7 +55,6 @@ export function useCreateVehicleOptimized() {
         queryClient.setQueryData(['vehicles'], [optimisticVehicle, ...(previousVehicles as Vehicle[])]);
       }
 
-      // Se for um caminhão, atualizar também a lista de trucks
       if (newVehicle.type === 'Caminhão' && previousTrucks) {
         const optimisticTruck = {
           id: `temp-${Date.now()}`,
@@ -69,31 +66,13 @@ export function useCreateVehicleOptimized() {
 
       return { previousVehicles, previousTrucks };
     },
-    onError: (err, newVehicle, context) => {
-      // Reverter mudanças otimistas em caso de erro
+    onError: (err, newVehicle, context?: { previousVehicles: unknown; previousTrucks: unknown }) => {
       if (context?.previousVehicles) {
         queryClient.setQueryData(['vehicles'], context.previousVehicles);
       }
       if (context?.previousTrucks) {
         queryClient.setQueryData(['trucks'], context.previousTrucks);
       }
-      toast({
-        title: 'Erro ao criar veículo',
-        description: err.message,
-        variant: 'destructive',
-      });
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Veículo criado',
-        description: 'Veículo adicionado com sucesso.',
-      });
-    },
-    onSettled: () => {
-      // Invalidar queries relacionadas
-      queryClient.invalidateQueries({ queryKey: ['vehicles'] });
-      queryClient.invalidateQueries({ queryKey: ['trucks'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
   });
 }
@@ -101,11 +80,12 @@ export function useCreateVehicleOptimized() {
 // Hook otimizado para atualizar veículo
 export function useUpdateVehicleOptimized() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
+  return useEntityMutation({
     mutationFn: ({ vehicleId, payload }: { vehicleId: string; payload: UpdateVehiclePayload }) =>
       VehiclesService.updateVehicle(vehicleId, payload),
+    queryKeyToInvalidate: ['vehicles', 'trucks'],
+    successMessage: 'Dados do veículo atualizados com sucesso.',
+    errorMessage: 'Erro ao atualizar veículo',
     onMutate: async ({ vehicleId, payload }) => {
       await queryClient.cancelQueries({ queryKey: ['vehicles'] });
       await queryClient.cancelQueries({ queryKey: ['trucks'] });
@@ -113,9 +93,8 @@ export function useUpdateVehicleOptimized() {
       const previousVehicles = queryClient.getQueryData(['vehicles']);
       const previousTrucks = queryClient.getQueryData(['trucks']);
 
-      // Atualização otimista na lista de veículos
       if (previousVehicles) {
-        queryClient.setQueryData(['vehicles'], (old: Vehicle[]) =>
+        queryClient.setQueryData(['vehicles'], (old: Vehicle[] = []) =>
           old?.map((vehicle: Vehicle) =>
             vehicle.id === vehicleId
               ? { ...vehicle, ...payload, updated_at: new Date().toISOString() }
@@ -124,9 +103,8 @@ export function useUpdateVehicleOptimized() {
         );
       }
 
-      // Atualização otimista na lista de trucks se aplicável
       if (previousTrucks && payload.type === 'Caminhão') {
-        queryClient.setQueryData(['trucks'], (old: TruckData[]) =>
+        queryClient.setQueryData(['trucks'], (old: TruckData[] = []) =>
           old?.map((truck: TruckData) =>
             truck.id === vehicleId
               ? { ...truck, model: payload.model || truck.model, type: payload.type || truck.type }
@@ -137,29 +115,13 @@ export function useUpdateVehicleOptimized() {
 
       return { previousVehicles, previousTrucks };
     },
-    onError: (err, { vehicleId: _vehicleId }, context) => {
+    onError: (err, { vehicleId: _vehicleId }, context?: { previousVehicles: unknown; previousTrucks: unknown }) => {
       if (context?.previousVehicles) {
         queryClient.setQueryData(['vehicles'], context.previousVehicles);
       }
       if (context?.previousTrucks) {
         queryClient.setQueryData(['trucks'], context.previousTrucks);
       }
-      toast({
-        title: 'Erro ao atualizar veículo',
-        description: err.message,
-        variant: 'destructive',
-      });
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Veículo atualizado',
-        description: 'Dados do veículo atualizados com sucesso.',
-      });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['vehicles'] });
-      queryClient.invalidateQueries({ queryKey: ['trucks'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
   });
 }
@@ -167,10 +129,11 @@ export function useUpdateVehicleOptimized() {
 // Hook otimizado para deletar veículo
 export function useDeleteVehicleOptimized() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
+  return useEntityMutation({
     mutationFn: (vehicleId: string) => VehiclesService.deleteVehicle(vehicleId),
+    queryKeyToInvalidate: ['vehicles', 'trucks'],
+    successMessage: 'Veículo removido com sucesso.',
+    errorMessage: 'Erro ao excluir veículo',
     onMutate: async (vehicleId) => {
       await queryClient.cancelQueries({ queryKey: ['vehicles'] });
       await queryClient.cancelQueries({ queryKey: ['trucks'] });
@@ -178,45 +141,27 @@ export function useDeleteVehicleOptimized() {
       const previousVehicles = queryClient.getQueryData(['vehicles']);
       const previousTrucks = queryClient.getQueryData(['trucks']);
 
-      // Atualização otimista - remover da lista de veículos
       if (previousVehicles) {
-        queryClient.setQueryData(['vehicles'], (old: Vehicle[]) =>
+        queryClient.setQueryData(['vehicles'], (old: Vehicle[] = []) =>
           old?.filter((vehicle: Vehicle) => vehicle.id !== vehicleId),
         );
       }
 
-      // Atualização otimista - remover da lista de trucks se aplicável
       if (previousTrucks) {
-        queryClient.setQueryData(['trucks'], (old: TruckData[]) =>
+        queryClient.setQueryData(['trucks'], (old: TruckData[] = []) =>
           old?.filter((truck: TruckData) => truck.id !== vehicleId),
         );
       }
 
       return { previousVehicles, previousTrucks };
     },
-    onError: (err, vehicleId, context) => {
+    onError: (err, vehicleId, context?: { previousVehicles: unknown; previousTrucks: unknown }) => {
       if (context?.previousVehicles) {
         queryClient.setQueryData(['vehicles'], context.previousVehicles);
       }
       if (context?.previousTrucks) {
         queryClient.setQueryData(['trucks'], context.previousTrucks);
       }
-      toast({
-        title: 'Erro ao excluir veículo',
-        description: err.message,
-        variant: 'destructive',
-      });
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Veículo excluído',
-        description: 'Veículo removido com sucesso.',
-      });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['vehicles'] });
-      queryClient.invalidateQueries({ queryKey: ['trucks'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
   });
 }

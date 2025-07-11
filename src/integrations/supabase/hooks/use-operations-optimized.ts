@@ -1,10 +1,10 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { OperationsService } from '../api';
 import type { CreateOperationPayload, UpdateOperationPayload, Operation } from '../api';
 
-import { useToast } from '@/hooks/use-toast';
 import { useOptimizedQuery } from '@/hooks/useOptimizedQuery';
+import { useEntityMutation } from '@/hooks/useEntityMutation';
 
 // Hook otimizado para listar operações
 export function useOperationsOptimized() {
@@ -19,18 +19,14 @@ export function useOperationsOptimized() {
 // Hook otimizado para criar operação
 export function useCreateOperationOptimized() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
+  return useEntityMutation({
     mutationFn: (payload: CreateOperationPayload) => OperationsService.createOperation(payload),
+    queryKeyToInvalidate: ['operations'],
+    successMessage: 'Operação registrada com sucesso.',
+    errorMessage: 'Erro ao criar operação',
     onMutate: async (newOperation) => {
-      // Cancelar queries em andamento
       await queryClient.cancelQueries({ queryKey: ['operations'] });
-
-      // Snapshot dos dados atuais
       const previousOperations = queryClient.getQueryData(['operations']);
-
-      // Atualização otimista da lista de operações
       if (previousOperations) {
         const optimisticOperation = {
           id: `temp-${Date.now()}`,
@@ -43,27 +39,12 @@ export function useCreateOperationOptimized() {
         };
         queryClient.setQueryData(['operations'], [optimisticOperation, ...(previousOperations as Operation[])]);
       }
-
       return { previousOperations };
     },
-    onError: (err, newOperation, context) => {
-      // Reverter mudanças otimistas em caso de erro
+    onError: (err, newOperation, context?: { previousOperations: unknown }) => {
       if (context?.previousOperations) {
         queryClient.setQueryData(['operations'], context.previousOperations);
       }
-      toast({
-        title: 'Erro ao criar operação',
-        description: err.message,
-        variant: 'destructive',
-      });
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Operação registrada',
-        description: 'A nova operação foi registrada com sucesso.',
-      });
-      queryClient.invalidateQueries({ queryKey: ['operations'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
   });
 }
@@ -71,19 +52,17 @@ export function useCreateOperationOptimized() {
 // Hook otimizado para atualizar operação
 export function useUpdateOperationOptimized() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
+  return useEntityMutation({
     mutationFn: ({ operationId, payload }: { operationId: string; payload: UpdateOperationPayload }) =>
       OperationsService.updateOperation(operationId, payload),
+    queryKeyToInvalidate: ['operations'],
+    successMessage: 'Operação atualizada com sucesso.',
+    errorMessage: 'Erro ao atualizar operação',
     onMutate: async ({ operationId, payload }) => {
       await queryClient.cancelQueries({ queryKey: ['operations'] });
-
       const previousOperations = queryClient.getQueryData(['operations']);
-
-      // Atualização otimista
       if (previousOperations) {
-        queryClient.setQueryData(['operations'], (old: Operation[]) =>
+        queryClient.setQueryData(['operations'], (old: Operation[] = []) =>
           old?.map((operation: Operation) =>
             operation.id === operationId
               ? { ...operation, ...payload, updated_at: new Date().toISOString() }
@@ -91,26 +70,12 @@ export function useUpdateOperationOptimized() {
           ),
         );
       }
-
       return { previousOperations };
     },
-    onError: (err, { operationId: _operationId }, context) => {
+    onError: (err, { operationId: _operationId }, context?: { previousOperations: unknown }) => {
       if (context?.previousOperations) {
         queryClient.setQueryData(['operations'], context.previousOperations);
       }
-      toast({
-        title: 'Erro ao atualizar operação',
-        description: err.message,
-        variant: 'destructive',
-      });
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Operação atualizada',
-        description: 'Os dados da operação foram atualizados.',
-      });
-      queryClient.invalidateQueries({ queryKey: ['operations'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
   });
 }
@@ -118,41 +83,25 @@ export function useUpdateOperationOptimized() {
 // Hook otimizado para deletar operação
 export function useDeleteOperationOptimized() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
+  return useEntityMutation({
     mutationFn: (operationId: string) => OperationsService.deleteOperation(operationId),
+    queryKeyToInvalidate: ['operations'],
+    successMessage: 'Operação removida com sucesso.',
+    errorMessage: 'Erro ao excluir operação',
     onMutate: async (operationId) => {
       await queryClient.cancelQueries({ queryKey: ['operations'] });
-
       const previousOperations = queryClient.getQueryData(['operations']);
-
-      // Atualização otimista - remover da lista
       if (previousOperations) {
-        queryClient.setQueryData(['operations'], (old: Operation[]) =>
+        queryClient.setQueryData(['operations'], (old: Operation[] = []) =>
           old?.filter((operation: Operation) => operation.id !== operationId),
         );
       }
-
       return { previousOperations };
     },
-    onError: (err, operationId, context) => {
+    onError: (err, operationId, context?: { previousOperations: unknown }) => {
       if (context?.previousOperations) {
         queryClient.setQueryData(['operations'], context.previousOperations);
       }
-      toast({
-        title: 'Erro ao excluir operação',
-        description: err.message,
-        variant: 'destructive',
-      });
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Operação removida',
-        description: 'A operação foi removida do sistema.',
-      });
-      queryClient.invalidateQueries({ queryKey: ['operations'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
     },
   });
 }

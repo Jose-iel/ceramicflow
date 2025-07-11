@@ -1,12 +1,10 @@
-
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { SalesService } from '../api/sales';
 import type { CreateSalePayload, UpdateSalePayload, Sale } from '../api/sales';
 
-import { useToast } from '@/hooks/use-toast';
 import { useOptimizedQuery } from '@/hooks/useOptimizedQuery';
-import { invalidateRelatedQueries } from '@/lib/queryClient';
+import { useEntityMutation } from '@/hooks/useEntityMutation';
 
 // Hook otimizado para listar vendas
 export function useSalesOptimized() {
@@ -34,20 +32,15 @@ export function useSalesStatsOptimized(selectedMonth?: string, enabled = true) {
 // Hook otimizado para criar venda
 export function useCreateSaleOptimized() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
-  return useMutation({
+  return useEntityMutation({
     mutationFn: (payload: CreateSalePayload) => SalesService.createSale(payload),
+    queryKeyToInvalidate: ['sales', 'salesStats'],
+    successMessage: 'Venda registrada com sucesso.',
+    errorMessage: 'Erro ao registrar venda',
     onMutate: async (newSale) => {
-      // Cancelar queries em andamento
       await queryClient.cancelQueries({ queryKey: ['sales'] });
-      await queryClient.cancelQueries({ queryKey: ['salesStats'] });
-
-      // Snapshot dos dados atuais
       const previousSales = queryClient.getQueryData(['sales']);
-      const previousStats = queryClient.getQueryData(['salesStats']);
-
-      // Atualização otimista da lista de vendas
       if (previousSales) {
         const optimisticSale = {
           id: `temp-${Date.now()}`,
@@ -55,41 +48,14 @@ export function useCreateSaleOptimized() {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };
-
         queryClient.setQueryData(['sales'], (old: Sale[] = []) => [optimisticSale, ...old]);
       }
-
-      return { previousSales, previousStats };
+      return { previousSales };
     },
-    onError: (error: Error, newSale, context) => {
-      // Reverter em caso de erro
+    onError: (error, newSale, context?: { previousSales: unknown }) => {
       if (context?.previousSales) {
         queryClient.setQueryData(['sales'], context.previousSales);
       }
-      if (context?.previousStats) {
-        queryClient.setQueryData(['salesStats'], context.previousStats);
-      }
-      
-      console.error('Erro detalhado ao criar venda:', {
-        error,
-        message: error.message,
-        newSale,
-        stack: error.stack
-      });
-      
-      toast({
-        title: 'Erro ao registrar venda',
-        description: error.message || 'Falha na comunicação com o servidor',
-        variant: 'destructive',
-      });
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Venda registrada',
-        description: 'Operação realizada com sucesso.',
-      });
-      // Invalidar apenas quando necessário
-      invalidateRelatedQueries(queryClient, ['sales', 'salesStats', 'dashboard-overview']);
     },
   });
 }
@@ -97,17 +63,16 @@ export function useCreateSaleOptimized() {
 // Hook otimizado para atualizar venda
 export function useUpdateSaleOptimized() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
-  return useMutation({
+  return useEntityMutation({
     mutationFn: ({ saleId, payload }: { saleId: string; payload: UpdateSalePayload }) =>
       SalesService.updateSale(saleId, payload),
+    queryKeyToInvalidate: ['sales', 'salesStats'],
+    successMessage: 'Venda atualizada com sucesso.',
+    errorMessage: 'Erro ao atualizar venda',
     onMutate: async ({ saleId, payload }) => {
       await queryClient.cancelQueries({ queryKey: ['sales'] });
-
       const previousSales = queryClient.getQueryData(['sales']);
-
-      // Atualização otimista
       queryClient.setQueryData(['sales'], (old: Sale[] = []) =>
         old?.map((sale: Sale) =>
           sale.id === saleId
@@ -115,25 +80,12 @@ export function useUpdateSaleOptimized() {
             : sale,
         ),
       );
-
       return { previousSales };
     },
-    onError: (error: Error, variables, context) => {
+    onError: (error, variables, context?: { previousSales: unknown }) => {
       if (context?.previousSales) {
         queryClient.setQueryData(['sales'], context.previousSales);
       }
-      toast({
-        title: 'Erro ao atualizar venda',
-        description: error.message,
-        variant: 'destructive',
-      });
-    },
-    onSuccess: () => {
-      toast({
-        title: 'Venda atualizada',
-        description: 'Operação realizada com sucesso.',
-      });
-      invalidateRelatedQueries(queryClient, ['sales', 'salesStats', 'dashboard-overview']);
     },
   });
 }
@@ -141,35 +93,24 @@ export function useUpdateSaleOptimized() {
 // Hook otimizado para excluir venda
 export function useDeleteSaleOptimized() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
-  return useMutation({
+  return useEntityMutation({
     mutationFn: (saleId: string) => SalesService.deleteSale(saleId),
+    queryKeyToInvalidate: ['sales', 'salesStats'],
+    successMessage: 'Venda excluída com sucesso.',
+    errorMessage: 'Erro ao excluir venda',
     onMutate: async (saleId) => {
       await queryClient.cancelQueries({ queryKey: ['sales'] });
-
       const previousSales = queryClient.getQueryData(['sales']);
-
-      // Atualização otimista - remover da lista
       queryClient.setQueryData(['sales'], (old: Sale[] = []) =>
         old?.filter((sale: Sale) => sale.id !== saleId),
       );
-
       return { previousSales };
     },
-    onError: (error: Error, saleId, context) => {
+    onError: (error, saleId, context?: { previousSales: unknown }) => {
       if (context?.previousSales) {
         queryClient.setQueryData(['sales'], context.previousSales);
       }
-      toast({
-        title: 'Erro ao excluir venda',
-        description: error.message,
-        variant: 'destructive',
-      });
-    },
-    onSuccess: () => {
-      toast({ title: 'Venda excluída com sucesso' });
-      invalidateRelatedQueries(queryClient, ['sales', 'salesStats', 'dashboard-overview']);
     },
   });
 }

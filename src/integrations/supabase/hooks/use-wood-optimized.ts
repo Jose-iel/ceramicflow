@@ -1,9 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 import { WoodService } from '../api/wood';
 import type { CreateWoodPurchasePayload, UpdateWoodPurchasePayload, CreateWoodConsumptionPayload, UpdateWoodConsumptionPayload } from '../api/wood';
-
-import { useToast } from '@/hooks/use-toast';
+import { useEntityMutation } from '@/hooks/useEntityMutation';
 
 // Hook para listar compras de lenha
 export function useWoodPurchasesOptimized() {
@@ -27,131 +26,60 @@ export function useWoodConsumptionsOptimized() {
 
 // Hook para criar compra de lenha
 export function useCreateWoodPurchaseOptimized() {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: (payload: CreateWoodPurchasePayload) => WoodService.createWoodPurchase(payload),
-    onSuccess: () => {
-      toast({ title: 'Compra de lenha criada com sucesso!' });
-      queryClient.invalidateQueries({ queryKey: ['wood-purchases'] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: 'Erro ao criar compra',
-        description: error.message,
-        variant: 'destructive',
-      });
-    },
+  return useEntityMutation<void, Error, CreateWoodPurchasePayload>({
+    mutationFn: (payload) => WoodService.createWoodPurchase(payload),
+    queryKeyToInvalidate: ['wood-purchases'],
+    successMessage: 'Compra de lenha criada com sucesso!',
+    errorMessage: 'Erro ao criar compra',
   });
 }
 
 // Hook para atualizar compra de lenha
 export function useUpdateWoodPurchaseOptimized() {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: ({ purchaseId, payload }: { purchaseId: string; payload: UpdateWoodPurchasePayload }) =>
-      WoodService.updateWoodPurchase(purchaseId, payload),
-    onSuccess: () => {
-      toast({ title: 'Compra de lenha atualizada com sucesso!' });
-      queryClient.invalidateQueries({ queryKey: ['wood-purchases'] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: 'Erro ao atualizar compra',
-        description: error.message,
-        variant: 'destructive',
-      });
-    },
+  return useEntityMutation<void, Error, { purchaseId: string; payload: UpdateWoodPurchasePayload }>({
+    mutationFn: ({ purchaseId, payload }) => WoodService.updateWoodPurchase(purchaseId, payload),
+    queryKeyToInvalidate: ['wood-purchases'],
+    successMessage: 'Compra de lenha atualizada com sucesso!',
+    errorMessage: 'Erro ao atualizar compra',
   });
 }
 
 // Hook para excluir compra de lenha
 export function useDeleteWoodPurchaseOptimized() {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: (purchaseId: string) => WoodService.deleteWoodPurchase(purchaseId),
-    onSuccess: () => {
-      toast({ title: 'Compra de lenha excluída com sucesso!' });
-      queryClient.invalidateQueries({ queryKey: ['wood-purchases'] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: 'Erro ao excluir compra',
-        description: error.message,
-        variant: 'destructive',
-      });
-    },
+  return useEntityMutation<void, Error, string>({
+    mutationFn: (purchaseId) => WoodService.deleteWoodPurchase(purchaseId),
+    queryKeyToInvalidate: ['wood-purchases'],
+    successMessage: 'Compra de lenha excluída com sucesso!',
+    errorMessage: 'Erro ao excluir compra',
   });
 }
 
 // Hook para criar consumo de lenha
 export function useCreateWoodConsumptionOptimized() {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: (payload: CreateWoodConsumptionPayload) => WoodService.createWoodConsumption(payload),
-    onSuccess: () => {
-      toast({ title: 'Consumo de lenha registrado com sucesso!' });
-      queryClient.invalidateQueries({ queryKey: ['wood-consumptions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: 'Erro ao registrar consumo',
-        description: error.message,
-        variant: 'destructive',
-      });
-    },
+  return useEntityMutation<void, Error, CreateWoodConsumptionPayload>({
+    mutationFn: (payload) => WoodService.createWoodConsumption(payload),
+    queryKeyToInvalidate: ['wood-consumptions'],
+    successMessage: 'Consumo de lenha registrado com sucesso!',
+    errorMessage: 'Erro ao registrar consumo',
   });
 }
 
 // Hook para atualizar consumo de lenha
 export function useUpdateWoodConsumptionOptimized() {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: ({ consumptionId, payload }: { consumptionId: string; payload: UpdateWoodConsumptionPayload }) =>
-      WoodService.updateWoodConsumption(consumptionId, payload),
-    onSuccess: () => {
-      toast({ title: 'Consumo de lenha atualizado com sucesso!' });
-      queryClient.invalidateQueries({ queryKey: ['wood-consumptions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: 'Erro ao atualizar consumo',
-        description: error.message,
-        variant: 'destructive',
-      });
-    },
+  return useEntityMutation<void, Error, { consumptionId: string; payload: UpdateWoodConsumptionPayload }>({
+    mutationFn: ({ consumptionId, payload }) => WoodService.updateWoodConsumption(consumptionId, payload),
+    queryKeyToInvalidate: ['wood-consumptions'],
+    successMessage: 'Consumo de lenha atualizado com sucesso!',
+    errorMessage: 'Erro ao atualizar consumo',
   });
 }
 
 // Hook para excluir consumo de lenha
 export function useDeleteWoodConsumptionOptimized() {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: (consumptionId: string) => WoodService.deleteWoodConsumption(consumptionId),
-    onSuccess: () => {
-      toast({ title: 'Consumo de lenha excluído com sucesso!' });
-      queryClient.invalidateQueries({ queryKey: ['wood-consumptions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: 'Erro ao excluir consumo',
-        description: error.message,
-        variant: 'destructive',
-      });
-    },
+  return useEntityMutation<void, Error, string>({
+    mutationFn: (consumptionId) => WoodService.deleteWoodConsumption(consumptionId),
+    queryKeyToInvalidate: ['wood-consumptions'],
+    successMessage: 'Consumo de lenha excluído com sucesso!',
+    errorMessage: 'Erro ao excluir consumo',
   });
 }
