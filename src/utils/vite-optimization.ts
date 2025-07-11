@@ -23,17 +23,8 @@ export function bundleOptimizationPlugin(): Plugin {
       return null;
     },
     transform(code, id) {
-      // Remover console.logs em produção de forma mais agressiva
-      if (process.env.NODE_ENV === 'production') {
-        code = code.replace(/console\.(log|info|debug|warn|error)\([^)]*\);?/g, '');
-      }
-      
-      // Otimizar imports do date-fns
-      if (id.includes('date-fns') && !id.includes('/dist/')) {
-        code = code.replace(/import\s+\{[^}]+\}\s+from\s+['"]date-fns['"];?/g, '');
-      }
-      
-      return code;
+      // Não fazer transformações que possam quebrar desenvolvimento
+      return null;
     }
   };
 }
@@ -48,13 +39,21 @@ export const optimizeDepsConfig = {
   include: [
     'react',
     'react-dom',
-    '@tanstack/react-query',
-    'react-router-dom',
+    'react/jsx-runtime',
+    'react/jsx-dev-runtime',
+    '@radix-ui/react-use-layout-effect',
+    // Forçar pré-bundling de pacotes Radix UI críticos
+    '@radix-ui/react-dialog',
+    '@radix-ui/react-dropdown-menu',
+    '@radix-ui/react-toast',
+    '@radix-ui/react-select',
+    '@radix-ui/react-tabs',
   ],
-  exclude: [
-    'lucide-react', // Forçar tree-shaking
-    'date-fns',     // Forçar tree-shaking
-  ],
+  exclude: [],
+  // Configurações mínimas para ESBuild
+  esbuildOptions: {
+    target: 'es2020',
+  },
 };
 
 // Configuração manual de chunks mais granular

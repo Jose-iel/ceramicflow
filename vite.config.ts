@@ -17,63 +17,60 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Garantir que React e React-DOM usem a mesma versão
+      // CRITICAL: Force single React/React-DOM versions
       "react": path.resolve(__dirname, "./node_modules/react"),
       "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
-      // Fix para Radix UI useLayoutEffect conflicts
+      // CRITICAL: Force single Radix UI hook version to prevent useLayoutEffect errors
       "@radix-ui/react-use-layout-effect": path.resolve(__dirname, "./node_modules/@radix-ui/react-use-layout-effect"),
     },
+    // Enforce resolution order for React packages
+    dedupe: ["react", "react-dom", "@radix-ui/react-use-layout-effect"],
   },
   build: {
     target: 'es2020',
-    sourcemap: false,
+    sourcemap: mode === 'development',
     rollupOptions: {
       external: [],
       output: {
         manualChunks: createManualChunks,
-        // Nomes de arquivos mais limpos
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
-    // Meta muito agressiva para o tamanho dos chunks
     chunkSizeWarningLimit: 200,
-    // Minificação menos agressiva para evitar erros
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn', 'console.error'],
-        passes: 2,
-        unsafe: false,
-        unsafe_comps: false,
-        unsafe_math: false,
-        unsafe_methods: false,
-        conditionals: true,
-        dead_code: true,
-        evaluate: true,
-        if_return: true,
-        join_vars: true,
-        loops: true,
-        reduce_vars: true,
-        unused: true,
+    // Minificação apenas em produção
+    minify: mode === 'production' ? 'terser' : false,
+    ...(mode === 'production' && {
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+          pure_funcs: ['console.log', 'console.info'],
+          passes: 1,
+          unsafe: false,
+          // Configurações mais conservadoras
+          conditionals: true,
+          dead_code: true,
+          evaluate: true,
+          if_return: true,
+          join_vars: true,
+          loops: true,
+          reduce_vars: true,
+          unused: true,
+        },
+        mangle: {
+          safari10: true,
+        },
+        format: {
+          comments: false,
+        },
       },
-      mangle: {
-        safari10: true,
-      },
-      format: {
-        comments: false,
-      },
-    },
-    // CSS otimização
+    }),
     cssCodeSplit: true,
-    cssMinify: true,
-    // Assets inline para arquivos muito pequenos
+    cssMinify: mode === 'production',
     assetsInlineLimit: 2048,
-    // Reportar tamanho do bundle
-    reportCompressedSize: true,
+    reportCompressedSize: mode === 'production',
   },
   // Otimizar dependências
   optimizeDeps: optimizeDepsConfig,
@@ -85,7 +82,6 @@ export default defineConfig(({ mode }) => ({
   
   // Definir variáveis de ambiente
   define: {
-    'process.env.NODE_ENV': JSON.stringify(mode),
     // Fix para React 18 na Vercel
     global: 'globalThis',
   },
@@ -94,5 +90,6 @@ export default defineConfig(({ mode }) => ({
   esbuild: {
     // Compatibilidade com navegadores mais antigos
     target: 'es2020',
+    // Deixar JSX nas configurações padrão
   },
 }));
