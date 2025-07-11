@@ -1,7 +1,8 @@
 import React from 'react';
+
+import { EmptyState } from '@/components/common/ErrorStates';
 import { Button } from '@/components/ui/button';
 import { DataTableSkeleton } from '@/components/ui/skeleton-variants';
-import { EmptyState } from '@/components/common/ErrorStates';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TableColumn<T = Record<string, unknown>> {
@@ -33,15 +34,15 @@ interface DataTableProps<T = Record<string, unknown>> {
   showMobileCards?: boolean;
 }
 
-const DataTable = <T extends Record<string, unknown> & { id?: string }>({ 
-  data, 
-  columns, 
-  actions = [], 
-  emptyMessage = "Nenhum item encontrado",
+const DataTable = <T extends Record<string, unknown> & { id?: string }>({
+  data,
+  columns,
+  actions = [],
+  emptyMessage = 'Nenhum item encontrado',
   emptyAction,
-  minWidth = "600px",
+  minWidth = '600px',
   isLoading = false,
-  showMobileCards = false
+  showMobileCards = false,
 }: DataTableProps<T>) => {
   const isMobile = useIsMobile();
 
@@ -51,10 +52,10 @@ const DataTable = <T extends Record<string, unknown> & { id?: string }>({
 
   if (data.length === 0) {
     return (
-      <EmptyState 
-        title={emptyMessage}
-        description="Tente ajustar os filtros ou adicionar novos dados."
+      <EmptyState
         action={emptyAction}
+        description="Tente ajustar os filtros ou adicionar novos dados."
+        title={emptyMessage}
       />
     );
   }
@@ -71,8 +72,8 @@ const DataTable = <T extends Record<string, unknown> & { id?: string }>({
                   {column.label}:
                 </span>
                 <div className="text-sm text-right max-w-[60%]">
-                  {column.render 
-                    ? column.render(row[column.key], row) 
+                  {column.render
+                    ? column.render(row[column.key], row)
                     : (row[column.key] as React.ReactNode) || '-'
                   }
                 </div>
@@ -84,13 +85,13 @@ const DataTable = <T extends Record<string, unknown> & { id?: string }>({
                   if (action.condition && !action.condition(row)) {
                     return null;
                   }
-                  
+
                   return (
-                    <Button 
+                    <Button
                       key={actionIndex}
-                      variant={action.variant || 'ghost'}
-                      size="sm"
                       className={`flex-1 text-xs ${action.className || ''}`}
+                      size="sm"
+                      variant={action.variant || 'ghost'}
                       onClick={() => action.onClick(row)}
                     >
                       {action.label}
@@ -113,7 +114,7 @@ const DataTable = <T extends Record<string, unknown> & { id?: string }>({
           <thead className="bg-muted/50">
             <tr>
               {columns.map((column) => (
-                <th 
+                <th
                   key={column.key}
                   className={`p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider ${column.className || ''}`}
                 >
@@ -131,12 +132,12 @@ const DataTable = <T extends Record<string, unknown> & { id?: string }>({
             {data.map((row, index) => (
               <tr key={row.id || `row-${index}`} className="hover:bg-muted/50 transition-colors">
                 {columns.map((column) => (
-                  <td 
+                  <td
                     key={column.key}
                     className={`p-2 md:p-4 text-xs md:text-sm whitespace-nowrap ${column.className || ''}`}
                   >
-                    {column.render 
-                      ? column.render(row[column.key], row) 
+                    {column.render
+                      ? column.render(row[column.key], row)
                       : (row[column.key] as React.ReactNode) || '-'
                     }
                   </td>
@@ -148,13 +149,13 @@ const DataTable = <T extends Record<string, unknown> & { id?: string }>({
                         if (action.condition && !action.condition(row)) {
                           return null;
                         }
-                        
+
                         return (
-                          <Button 
+                          <Button
                             key={actionIndex}
-                            variant={action.variant || 'ghost'}
-                            size="sm"
                             className={`text-xs ${action.className || ''}`}
+                            size="sm"
+                            variant={action.variant || 'ghost'}
                             onClick={() => action.onClick(row)}
                           >
                             {action.label}

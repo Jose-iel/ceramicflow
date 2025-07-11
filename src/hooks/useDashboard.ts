@@ -1,15 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import { DashboardService, type DashboardOverview } from '@/integrations/supabase/api/dashboard';
+
 import { useAuth } from '@/hooks/useAuth';
+import { DashboardService, type DashboardOverview } from '@/integrations/supabase/api/dashboard';
 
 export function useDashboardOverview(selectedMonth?: string) {
   const { profile } = useAuth();
-  
+
   return useQuery({
     queryKey: ['dashboard-overview', profile?.ceramic_id, selectedMonth],
     queryFn: async (): Promise<DashboardOverview | null> => {
-      if (!profile?.ceramic_id || typeof profile.ceramic_id !== 'string') return null;
-      
+      if (!profile?.ceramic_id || typeof profile.ceramic_id !== 'string') {return null;}
+
       return DashboardService.getDashboardOverview(profile.ceramic_id, selectedMonth);
     },
     enabled: !!profile?.ceramic_id && typeof profile.ceramic_id === 'string',

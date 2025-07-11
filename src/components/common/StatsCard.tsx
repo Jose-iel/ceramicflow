@@ -1,4 +1,4 @@
-import { LucideIcon } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 interface StatsCardProps {
   title: string;
@@ -11,18 +11,18 @@ interface StatsCardProps {
   valueFormatter?: (value: string | number) => string;
 }
 
-const StatsCard = ({ 
-  title, 
-  value, 
-  unit, 
-  subtitle, 
-  icon: Icon, 
-  iconColor = "text-primary", 
-  iconBgColor = "bg-primary/10",
-  valueFormatter
+const StatsCard = ({
+  title,
+  value,
+  unit,
+  subtitle,
+  icon: Icon,
+  iconColor = 'text-primary',
+  iconBgColor = 'bg-primary/10',
+  valueFormatter,
 }: StatsCardProps) => {
   const formattedValue = valueFormatter ? valueFormatter(value) : value;
-  
+
   return (
     <div className="bg-card border rounded-lg p-3 md:p-4 shadow">
       <h3 className="text-xs md:text-sm font-medium text-muted-foreground mb-2">{title}</h3>

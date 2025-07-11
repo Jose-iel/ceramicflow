@@ -11,7 +11,7 @@ export const optimizedImports = {
     startOfMonth: () => import('date-fns/startOfMonth'),
     endOfMonth: () => import('date-fns/endOfMonth'),
   },
-  
+
   // Lucide icons - only import used icons
   lucideIcons: {
     Plus: () => import('lucide-react/dist/esm/icons/plus'),
@@ -39,7 +39,7 @@ export const chunkingStrategy = {
     '@supabase/supabase-js',
     'react-router-dom',
   ],
-  
+
   // Feature chunks
   features: [
     'dashboard',
@@ -53,7 +53,7 @@ export const chunkingStrategy = {
     'admin',
     'auth',
   ],
-  
+
   // UI chunks
   ui: [
     '@radix-ui',

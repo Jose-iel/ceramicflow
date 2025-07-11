@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { EmployeesService } from '../api';
 import type { CreateEmployeePayload, UpdateEmployeePayload, Employee } from '../api';
+
 import { useToast } from '@/hooks/use-toast';
 import { useOptimizedQuery } from '@/hooks/useOptimizedQuery';
 
@@ -48,15 +50,15 @@ export function useCreateEmployeeOptimized() {
         queryClient.setQueryData(['employees'], context.previousEmployees);
       }
       toast({
-        title: "Erro ao criar funcionário",
+        title: 'Erro ao criar funcionário',
         description: err.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSuccess: () => {
       toast({
-        title: "Funcionário criado",
-        description: "Funcionário adicionado com sucesso.",
+        title: 'Funcionário criado',
+        description: 'Funcionário adicionado com sucesso.',
       });
     },
     onSettled: () => {
@@ -86,27 +88,27 @@ export function useUpdateEmployeeOptimized() {
           old?.map((employee: Employee) =>
             employee.id === employeeId
               ? { ...employee, ...payload, updated_at: new Date().toISOString() }
-              : employee
-          )
+              : employee,
+          ),
         );
       }
 
       return { previousEmployees };
     },
-    onError: (err, { employeeId }, context) => {
+    onError: (err, { employeeId: _employeeId }, context) => {
       if (context?.previousEmployees) {
         queryClient.setQueryData(['employees'], context.previousEmployees);
       }
       toast({
-        title: "Erro ao atualizar funcionário",
+        title: 'Erro ao atualizar funcionário',
         description: err.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSuccess: () => {
       toast({
-        title: "Funcionário atualizado",
-        description: "Dados do funcionário atualizados com sucesso.",
+        title: 'Funcionário atualizado',
+        description: 'Dados do funcionário atualizados com sucesso.',
       });
     },
     onSettled: () => {
@@ -131,7 +133,7 @@ export function useDeleteEmployeeOptimized() {
       // Atualização otimista - remover da lista
       if (previousEmployees) {
         queryClient.setQueryData(['employees'], (old: Employee[]) =>
-          old?.filter((employee: Employee) => employee.id !== employeeId)
+          old?.filter((employee: Employee) => employee.id !== employeeId),
         );
       }
 
@@ -142,15 +144,15 @@ export function useDeleteEmployeeOptimized() {
         queryClient.setQueryData(['employees'], context.previousEmployees);
       }
       toast({
-        title: "Erro ao excluir funcionário",
+        title: 'Erro ao excluir funcionário',
         description: err.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSuccess: () => {
       toast({
-        title: "Funcionário excluído",
-        description: "Funcionário removido com sucesso.",
+        title: 'Funcionário excluído',
+        description: 'Funcionário removido com sucesso.',
       });
     },
     onSettled: () => {

@@ -1,5 +1,7 @@
 import { supabase } from '../client';
 
+import { ProfileCacheService } from './profile-cache';
+
 export interface Sale {
   id: string;
   ceramic_id: string;
@@ -37,23 +39,7 @@ export interface SalesStats {
 
 export class SalesService {
   static async getCurrentUserCeramicId(): Promise<string> {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session?.user?.id) {
-      throw new Error('Usuário não autenticado');
-    }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('ceramic_id')
-      .eq('id', session.user.id)
-      .single();
-
-    if (!profile?.ceramic_id) {
-      throw new Error('Usuário não tem cerâmica associada');
-    }
-
-    return profile.ceramic_id;
+    return ProfileCacheService.getCurrentUserCeramicId();
   }
 
   static async getAllSales(): Promise<Sale[]> {
@@ -78,17 +64,25 @@ export class SalesService {
   }
 
   static async createSale(payload: CreateSalePayload): Promise<void> {
-    const ceramicId = await SalesService.getCurrentUserCeramicId();
+    try {
+      const ceramicId = await SalesService.getCurrentUserCeramicId();
 
-    const { error } = await supabase
-      .from('sales')
-      .insert({
+      const insertData = {
         ceramic_id: ceramicId,
         ...payload,
-      });
+      };
 
-    if (error) {
-      throw new Error(error.message);
+      const { error } = await supabase
+        .from('sales')
+        .insert(insertData);
+
+      if (error) {
+        console.error('Erro do Supabase ao criar venda:', error);
+        throw new Error(error.message);
+      }
+    } catch (error) {
+      console.error('Erro completo ao criar venda:', error);
+      throw error;
     }
   }
 

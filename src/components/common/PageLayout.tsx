@@ -1,13 +1,16 @@
-import React, { ReactNode } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
+import React from 'react';
+
+import MonthFilter from '@/components/common/MonthFilter';
+import SearchAndActions from '@/components/common/SearchAndActions';
+import StatsCard from '@/components/common/StatsCard';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
-import MonthFilter from '@/components/common/MonthFilter';
-import StatsCard from '@/components/common/StatsCard';
-import SearchAndActions from '@/components/common/SearchAndActions';
 import { PageHeaderSkeleton, StatsGridSkeleton } from '@/components/ui/skeleton-variants';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { LucideIcon } from 'lucide-react';
+
 
 interface StatsCardConfig {
   title: string;
@@ -53,12 +56,12 @@ const PageLayout = ({
   statsCards = [],
   searchValue = '',
   onSearchChange,
-  searchPlaceholder = "Buscar...",
+  searchPlaceholder = 'Buscar...',
   actions = [],
   children,
   isLoading = false,
   showMonthFilter = true,
-  showSearch = true
+  showSearch = true,
 }: PageLayoutProps) => {
   const isMobile = useIsMobile();
 
@@ -66,8 +69,8 @@ const PageLayout = ({
     return (
       <div className="flex min-h-screen bg-background">
         <Sidebar />
-        <div className={cn("flex-1 flex flex-col", !isMobile && "ml-64")}>
-          <Navbar title={title} subtitle={subtitle} />
+        <div className={cn('flex-1 flex flex-col', !isMobile && 'ml-64')}>
+          <Navbar subtitle={subtitle} title={title} />
           <main className="flex-1 px-3 md:px-6 py-4 md:py-6 space-y-6">
             <PageHeaderSkeleton />
             <StatsGridSkeleton count={statsCards.length || 4} />
@@ -81,21 +84,21 @@ const PageLayout = ({
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
-      
+
       <div className={cn(
-        "flex-1 flex flex-col min-w-0",
-        !isMobile && "ml-64"
+        'flex-1 flex flex-col min-w-0',
+        !isMobile && 'ml-64',
       )}>
-        <Navbar title={title} subtitle={subtitle} />
-        
+        <Navbar subtitle={subtitle} title={title} />
+
         <main className="flex-1 px-3 md:px-6 py-4 md:py-6 overflow-x-hidden space-y-6">
           {showMonthFilter && (
-            <MonthFilter 
+            <MonthFilter
               selectedMonth={selectedMonth}
               onMonthChange={onMonthChange}
             />
           )}
-          
+
           {/* Stats Cards */}
           {statsCards.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -108,13 +111,13 @@ const PageLayout = ({
           {/* Search and Actions */}
           {showSearch && (searchValue !== undefined && onSearchChange) && (
             <SearchAndActions
+              actions={actions}
+              searchPlaceholder={searchPlaceholder}
               searchValue={searchValue}
               onSearchChange={onSearchChange}
-              searchPlaceholder={searchPlaceholder}
-              actions={actions}
             />
           )}
-          
+
           {/* Page Content */}
           <div className="space-y-6">
             {children}

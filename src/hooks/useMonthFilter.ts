@@ -1,4 +1,5 @@
 import { useMemo, useContext } from 'react';
+
 import { MonthFilterContext } from '@/contexts/MonthFilterContext';
 
 export interface UseMonthFilterResult {
@@ -10,7 +11,7 @@ export interface UseMonthFilterResult {
 
 export function useMonthFilter(): UseMonthFilterResult {
   const context = useContext(MonthFilterContext);
-  
+
   if (context === undefined) {
     throw new Error('useMonthFilter must be used within a MonthFilterProvider');
   }
@@ -31,6 +32,6 @@ export function useMonthFilter(): UseMonthFilterResult {
     selectedMonth,
     setSelectedMonth,
     getCurrentMonth,
-    filterDataByMonth
+    filterDataByMonth,
   };
 }

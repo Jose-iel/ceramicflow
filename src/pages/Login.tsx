@@ -1,11 +1,12 @@
 
+import { Eye, EyeOff, Mountain } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, Mountain } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -14,7 +15,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -34,21 +35,21 @@ const Login = () => {
 
     try {
       await signIn(email, password);
-      
+
       toast({
-        title: "Login realizado com sucesso!",
-        description: "Bem-vindo ao CeramicFlow.",
+        title: 'Login realizado com sucesso!',
+        description: 'Bem-vindo ao CeramicFlow.',
       });
 
       const from = location.state?.from?.pathname || '/dashboard';
       navigate(from, { replace: true });
-      
+
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Verifique suas credenciais e tente novamente.";
+      const errorMessage = error instanceof Error ? error.message : 'Verifique suas credenciais e tente novamente.';
       toast({
-        title: "Erro no login",
+        title: 'Erro no login',
         description: errorMessage,
-        variant: "destructive",
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
@@ -69,35 +70,35 @@ const Login = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
+                required
                 id="email"
-                type="email"
                 placeholder="seu@email.com"
+                type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="password">Senha</Label>
               <div className="relative">
                 <Input
+                  required
                   id="password"
-                  type={showPassword ? "text" : "password"}
                   placeholder="Sua senha"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
                 />
                 <Button
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  size="sm"
                   type="button"
                   variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -109,12 +110,12 @@ const Login = () => {
               </div>
             </div>
 
-            <Button 
-              type="submit" 
-              className="w-full" 
+            <Button
+              className="w-full"
               disabled={isLoading}
+              type="submit"
             >
-              {isLoading ? "Entrando..." : "Entrar"}
+              {isLoading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
         </CardContent>

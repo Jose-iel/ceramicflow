@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { ClayConsumptionsService } from '../api';
 import type { CreateClayConsumptionPayload, UpdateClayConsumptionPayload, ClayConsumption } from '../api';
+
 import { useToast } from '@/hooks/use-toast';
 import { useOptimizedQuery } from '@/hooks/useOptimizedQuery';
 
@@ -49,15 +51,15 @@ export function useCreateClayConsumptionOptimized() {
         queryClient.setQueryData(['clay-consumptions'], context.previousClayConsumptions);
       }
       toast({
-        title: "Erro ao criar consumo de barro",
+        title: 'Erro ao criar consumo de barro',
         description: err.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSuccess: () => {
       toast({
-        title: "Consumo de barro criado",
-        description: "Consumo de barro adicionado com sucesso.",
+        title: 'Consumo de barro criado',
+        description: 'Consumo de barro adicionado com sucesso.',
       });
     },
     onSettled: () => {
@@ -87,27 +89,27 @@ export function useUpdateClayConsumptionOptimized() {
           old?.map((clayConsumption: ClayConsumption) =>
             clayConsumption.id === clayConsumptionId
               ? { ...clayConsumption, ...payload, updated_at: new Date().toISOString() }
-              : clayConsumption
-          )
+              : clayConsumption,
+          ),
         );
       }
 
       return { previousClayConsumptions };
     },
-    onError: (err, { clayConsumptionId }, context) => {
+    onError: (err, { clayConsumptionId: _clayConsumptionId }, context) => {
       if (context?.previousClayConsumptions) {
         queryClient.setQueryData(['clay-consumptions'], context.previousClayConsumptions);
       }
       toast({
-        title: "Erro ao atualizar consumo de barro",
+        title: 'Erro ao atualizar consumo de barro',
         description: err.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSuccess: () => {
       toast({
-        title: "Consumo de barro atualizado",
-        description: "Dados do consumo de barro atualizados com sucesso.",
+        title: 'Consumo de barro atualizado',
+        description: 'Dados do consumo de barro atualizados com sucesso.',
       });
     },
     onSettled: () => {
@@ -132,7 +134,7 @@ export function useDeleteClayConsumptionOptimized() {
       // Atualização otimista - remover da lista
       if (previousClayConsumptions) {
         queryClient.setQueryData(['clay-consumptions'], (old: ClayConsumption[]) =>
-          old?.filter((clayConsumption: ClayConsumption) => clayConsumption.id !== clayConsumptionId)
+          old?.filter((clayConsumption: ClayConsumption) => clayConsumption.id !== clayConsumptionId),
         );
       }
 
@@ -143,15 +145,15 @@ export function useDeleteClayConsumptionOptimized() {
         queryClient.setQueryData(['clay-consumptions'], context.previousClayConsumptions);
       }
       toast({
-        title: "Erro ao excluir consumo de barro",
+        title: 'Erro ao excluir consumo de barro',
         description: err.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSuccess: () => {
       toast({
-        title: "Consumo de barro excluído",
-        description: "Consumo de barro removido com sucesso.",
+        title: 'Consumo de barro excluído',
+        description: 'Consumo de barro removido com sucesso.',
       });
     },
     onSettled: () => {

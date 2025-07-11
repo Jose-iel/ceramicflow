@@ -39,7 +39,10 @@ interface DashboardOverviewResponse {
     clay: number;
   };
   sales: {
-    total: number;
+    totalSales: number;
+    totalRevenue: number;
+    totalQuantity: number;
+    averagePrice: number;
   };
 }
 
@@ -117,17 +120,17 @@ Deno.serve(async (req) => {
             .eq('ceramic_id', ceramic_id)
             .eq('status', 'WAITING'),
 
-      // Vendas (filtradas por data se selectedMonth estiver definido)
+      // Vendas (filtradas por data se selectedMonth estiver definido) - buscar mais campos
       selectedMonth
         ? supabase
             .from('sales')
-            .select('total_value')
+            .select('total_value, total_quantity, price_per_thousand')
             .eq('ceramic_id', ceramic_id)
             .gte('sale_date', startDate!)
             .lte('sale_date', endDate!)
         : supabase
             .from('sales')
-            .select('total_value')
+            .select('total_value, total_quantity, price_per_thousand')
             .eq('ceramic_id', ceramic_id),
 
       // Consumo de lenha (filtrado por data se selectedMonth estiver definido)
@@ -201,11 +204,19 @@ Deno.serve(async (req) => {
       }
     });
 
+    // Processar dados de vendas
+    const sales = salesResult.data || [];
+    const totalSales = sales.length;
+    const totalRevenue = sales.reduce((sum, sale) => sum + (sale.total_value || 0), 0);
+    const totalQuantity = sales.reduce((sum, sale) => sum + (sale.total_quantity || 0), 0);
+    const averagePrice = sales.length > 0 
+      ? sales.reduce((sum, sale) => sum + (sale.price_per_thousand || 0), 0) / sales.length 
+      : 0;
+
     // Processar outras métricas
     const activeOperations = operationsResult.data?.length || 0;
     const pendingMaintenances = maintenancesResult.data?.length || 0;
 
-    const totalSales = salesResult.data?.reduce((sum, sale) => sum + (sale.total_value || 0), 0) || 0;
     const woodConsumption = woodConsumptionResult.data?.reduce((sum, wood) => sum + (wood.quantity || 0), 0) || 0;
     const clayConsumption = clayConsumptionResult.data?.reduce((sum, clay) => sum + (clay.trucks_quantity || 0), 0) || 0;
 
@@ -233,7 +244,10 @@ Deno.serve(async (req) => {
         clay: clayConsumption,
       },
       sales: {
-        total: totalSales,
+        totalSales,
+        totalRevenue,
+        totalQuantity,
+        averagePrice,
       }
     };
 

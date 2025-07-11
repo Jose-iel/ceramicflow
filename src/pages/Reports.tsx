@@ -1,12 +1,13 @@
 
-import React, { useState } from 'react';
-import PageLayout from '@/components/common/PageLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar } from '@/components/ui/calendar';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Button } from '@/components/ui/button';
 import { ChevronDown, Download, FileBarChart, Filter } from 'lucide-react';
+import React, { useState } from 'react';
+
+import PageLayout from '@/components/common/PageLayout';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useMonthFilter } from '@/hooks/useMonthFilter';
 
 const ReportsPage: React.FC = () => {
@@ -16,30 +17,32 @@ const ReportsPage: React.FC = () => {
 
   const actions = [
     {
-      label: "Filtros",
-      mobileLabel: "Filtros",
+      label: 'Filtros',
+      mobileLabel: 'Filtros',
       onClick: () => setIsFiltersOpen(!isFiltersOpen),
-      variant: "outline" as const,
-      icon: <Filter className="w-4 h-4" />
+      variant: 'outline' as const,
+      icon: <Filter className="w-4 h-4" />,
     },
     {
-      label: "Exportar",
-      mobileLabel: "Exportar", 
-      onClick: () => {},
-      variant: "outline" as const,
-      icon: <Download className="w-4 h-4" />
-    }
+      label: 'Exportar',
+      mobileLabel: 'Exportar',
+      onClick: () => {
+        // TODO: Implementar funcionalidade do botão
+      },
+      variant: 'outline' as const,
+      icon: <Download className="w-4 h-4" />,
+    },
   ];
 
   return (
     <PageLayout
-      title="Relatórios"
-      subtitle="Visualização e exportação de dados"
-      selectedMonth={selectedMonth}
-      onMonthChange={setSelectedMonth}
-      statsCards={[]} // Reports não precisa de stats cards
-      showSearch={false} // Reports não precisa de busca
       actions={actions}
+      selectedMonth={selectedMonth}
+      showSearch={false} // Reports não precisa de busca
+      statsCards={[]} // Reports não precisa de stats cards
+      subtitle="Visualização e exportação de dados"
+      title="Relatórios"
+      onMonthChange={setSelectedMonth}
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-1">
@@ -51,18 +54,18 @@ const ReportsPage: React.FC = () => {
               <div>
                 <h3 className="text-sm font-medium mb-2">Período</h3>
                 <Calendar
+                  className="rounded-md border"
                   mode="single"
                   selected={date}
                   onSelect={setDate}
-                  className="rounded-md border"
                 />
               </div>
-              
-              <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen} className="space-y-2">
+
+              <Collapsible className="space-y-2" open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-medium">Tipos de Relatório</h3>
                   <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="w-9 p-0">
+                    <Button className="w-9 p-0" size="sm" variant="ghost">
                       <ChevronDown className="h-4 w-4" />
                       <span className="sr-only">Toggle</span>
                     </Button>
@@ -71,25 +74,25 @@ const ReportsPage: React.FC = () => {
                 <CollapsibleContent className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <Checkbox id="operations" />
-                    <label htmlFor="operations" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="operations">
                       Operações
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox id="maintenance" />
-                    <label htmlFor="maintenance" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="maintenance">
                       Manutenções
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox id="vehicles" />
-                    <label htmlFor="vehicles" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="vehicles">
                       Veículos
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox id="employees" />
-                    <label htmlFor="employees" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="employees">
                       Funcionários
                     </label>
                   </div>
@@ -98,7 +101,7 @@ const ReportsPage: React.FC = () => {
             </CardContent>
           </Card>
         </div>
-        
+
         <div className="md:col-span-2">
           <Card className="h-full">
             <CardHeader>
@@ -118,7 +121,7 @@ const ReportsPage: React.FC = () => {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="hover:bg-muted/50 cursor-pointer transition-colors">
                   <CardContent className="p-4 flex gap-4 items-center">
                     <div className="p-2 bg-primary/10 text-primary rounded-md">
@@ -130,7 +133,7 @@ const ReportsPage: React.FC = () => {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="hover:bg-muted/50 cursor-pointer transition-colors">
                   <CardContent className="p-4 flex gap-4 items-center">
                     <div className="p-2 bg-primary/10 text-primary rounded-md">
@@ -142,7 +145,7 @@ const ReportsPage: React.FC = () => {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="hover:bg-muted/50 cursor-pointer transition-colors">
                   <CardContent className="p-4 flex gap-4 items-center">
                     <div className="p-2 bg-primary/10 text-primary rounded-md">
@@ -155,7 +158,7 @@ const ReportsPage: React.FC = () => {
                   </CardContent>
                 </Card>
               </div>
-              
+
               <div className="mt-8 text-center text-muted-foreground">
                 <p>Selecione um relatório para visualizar ou exportar</p>
               </div>

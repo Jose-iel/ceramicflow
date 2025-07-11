@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Skeleton para Cards de Stats
@@ -50,7 +51,7 @@ export function PageHeaderSkeleton() {
           <Skeleton className="h-10 w-24" />
         </div>
       </div>
-      
+
       {/* Month Filter Skeleton */}
       <div className="flex flex-col sm:flex-row gap-4">
         <Skeleton className="h-10 w-48" />
@@ -72,12 +73,12 @@ export function StatsGridSkeleton({ count = 4 }: { count?: number }) {
 }
 
 // Skeleton para tabela completa
-export function DataTableSkeleton({ 
-  rows = 5, 
+export function DataTableSkeleton({
+  rows = 5,
   columns = 5,
-  showHeader = true 
-}: { 
-  rows?: number; 
+  showHeader = true,
+}: {
+  rows?: number;
   columns?: number;
   showHeader?: boolean;
 }) {
@@ -122,7 +123,7 @@ export function FormSkeleton() {
           </div>
         ))}
       </div>
-      
+
       <div className="flex justify-end gap-2">
         <Skeleton className="h-10 w-20" />
         <Skeleton className="h-10 w-24" />

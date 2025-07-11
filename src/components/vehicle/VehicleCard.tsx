@@ -1,8 +1,11 @@
 
-import React from 'react';
-import { Vehicle, VehicleStatus } from '@/types';
-import { Badge } from '@/components/ui/badge';
 import { Clock, Settings, Calendar } from 'lucide-react';
+import React from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import type { Vehicle } from '@/types';
+import { VehicleStatus } from '@/types';
+
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -24,7 +27,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onClick }) => {
   };
 
   return (
-    <div 
+    <div
       className="glass-card glass-card-hover rounded-xl p-4 cursor-pointer transition-all duration-300 transform hover:translate-y-[-2px]"
       onClick={onClick}
     >
@@ -36,14 +39,14 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onClick }) => {
           {vehicle.status}
         </Badge>
       </div>
-      
+
       <div className="space-y-2">
         <div className="flex items-center text-sm">
           <Settings className="w-4 h-4 mr-2 text-muted-foreground" />
           <span className="text-muted-foreground mr-2">Tipo:</span>
           <span>{vehicle.type}</span>
         </div>
-        
+
         <div className="flex items-center text-sm">
           <Clock className="w-4 h-4 mr-2 text-muted-foreground" />
           <span className="text-muted-foreground mr-2">Horímetro:</span>
@@ -51,7 +54,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onClick }) => {
             {vehicle.hourMeter}
           </span>
         </div>
-        
+
         <div className="flex items-center text-sm">
           <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
           <span className="text-muted-foreground mr-2">Última manutenção:</span>

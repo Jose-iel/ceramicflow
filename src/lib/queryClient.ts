@@ -6,7 +6,7 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       // Cache muito agressivo - 30 minutos
-      staleTime: 30 * 60 * 1000, 
+      staleTime: 30 * 60 * 1000,
       // Manter dados em cache por 1 hora
       gcTime: 60 * 60 * 1000,
       // Desabilitar refetch automático para máxima velocidade
@@ -35,7 +35,7 @@ export const invalidateRelatedQueries = (queryClient: QueryClient, keys: string[
 export const updateCacheOptimistically = <T>(
   queryClient: QueryClient,
   queryKey: string[],
-  updateFn: (oldData: T) => T
+  updateFn: (oldData: T) => T,
 ) => {
   queryClient.setQueryData(queryKey, updateFn);
 };

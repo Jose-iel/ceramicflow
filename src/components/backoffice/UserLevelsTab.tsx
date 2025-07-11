@@ -1,17 +1,8 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Edit, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+
 import UserLevelDialog from './UserLevelDialog';
-import { UserLevel } from '@/integrations/supabase/api/user-levels';
-import { 
-  useUserLevels, 
-  useCreateUserLevel, 
-  useUpdateUserLevel, 
-  useDeleteUserLevel,
-  useRoutes
-} from '@/integrations/supabase/hooks';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,14 +13,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import type { UserLevel } from '@/integrations/supabase/api/user-levels';
+import {
+  useUserLevels,
+  useCreateUserLevel,
+  useUpdateUserLevel,
+  useDeleteUserLevel,
+  useRoutes,
+} from '@/integrations/supabase/hooks';
 
 const UserLevelsTab = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLevel, setEditingLevel] = useState<UserLevel | null>(null);
 
   const { data: userLevels = [], isLoading } = useUserLevels();
-  const { data: routes = [] } = useRoutes();
+  const { data: _routes = [] } = useRoutes();
   const createUserLevelMutation = useCreateUserLevel();
   const updateUserLevelMutation = useUpdateUserLevel();
   const deleteUserLevelMutation = useDeleteUserLevel();
@@ -60,7 +62,7 @@ const UserLevelsTab = () => {
     }
   };
 
-  if (isLoading) return <div className="text-center p-8">Carregando...</div>;
+  if (isLoading) {return <div className="text-center p-8">Carregando...</div>;}
 
   return (
     <Card>
@@ -101,8 +103,8 @@ const UserLevelsTab = () => {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button
-                        variant="ghost"
                         size="icon"
+                        variant="ghost"
                         onClick={() => handleEditLevel(level)}
                       >
                         <Edit className="h-4 w-4" />
@@ -110,9 +112,9 @@ const UserLevelsTab = () => {
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
-                            variant="ghost"
-                            size="icon"
                             className="text-red-500 hover:text-red-600"
+                            size="icon"
+                            variant="ghost"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -141,8 +143,8 @@ const UserLevelsTab = () => {
         </div>
         <UserLevelDialog
           open={dialogOpen}
-          onOpenChange={setDialogOpen}
           userLevel={editingLevel}
+          onOpenChange={setDialogOpen}
           onSave={handleSaveLevel}
         />
       </CardContent>

@@ -2,7 +2,7 @@
 // Estes tipos serão migrados para usar os tipos da API otimizada
 
 // Tipo para dados do banco (snake_case)
-export type SaleDbData = {
+export interface SaleDbData {
   id?: string;
   sale_date: string;
   customer_name: string;
@@ -12,10 +12,10 @@ export type SaleDbData = {
   total_value: number;
   notes?: string;
   recorded_by: string;
-};
+}
 
 // Tipo para dados brutos do Supabase
-export type SaleRawData = {
+export interface SaleRawData {
   id: string;
   ceramic_id: string;
   sale_date: string;
@@ -28,4 +28,4 @@ export type SaleRawData = {
   recorded_by: string;
   created_at: string;
   updated_at: string;
-};
+}

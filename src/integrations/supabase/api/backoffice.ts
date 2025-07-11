@@ -1,4 +1,5 @@
 import { supabase } from '../client';
+
 import type { BackofficeUser, Ceramic } from '@/types/backoffice';
 
 export interface CreateUserPayload {
@@ -29,8 +30,8 @@ export type UpdateCeramicPayload = CreateCeramicPayload;
 
 export interface UsersTabData {
   users: BackofficeUser[];
-  ceramics: Array<{id: string, name: string}>;
-  userLevels: Array<{id: string, name: string}>;
+  ceramics: {id: string, name: string}[];
+  userLevels: {id: string, name: string}[];
 }
 
 export class BackofficeService {
@@ -39,11 +40,11 @@ export class BackofficeService {
     const { data, error } = await supabase.functions.invoke('backoffice-bff', {
       body: { resource: 'users-tab', action: 'getData' },
     });
-    
+
     if (error) {
       throw new Error(error.message);
     }
-    
+
     return data;
   }
 
@@ -51,7 +52,7 @@ export class BackofficeService {
     const { error } = await supabase.functions.invoke('backoffice-bff', {
       body: { resource: 'users-tab', action: 'create', payload: userData },
     });
-    
+
     if (error) {
       throw new Error(error.message);
     }
@@ -61,7 +62,7 @@ export class BackofficeService {
     const { error } = await supabase.functions.invoke('backoffice-bff', {
       body: { resource: 'users-tab', action: 'update', payload: { userId, userData } },
     });
-    
+
     if (error) {
       throw new Error(error.message);
     }
@@ -71,7 +72,7 @@ export class BackofficeService {
     const { error } = await supabase.functions.invoke('backoffice-bff', {
       body: { resource: 'users-tab', action: 'delete', payload: { userId } },
     });
-    
+
     if (error) {
       throw new Error(error.message);
     }
@@ -82,11 +83,11 @@ export class BackofficeService {
     const { data, error } = await supabase.functions.invoke('backoffice-bff', {
       body: { resource: 'ceramics-tab', action: 'getData' },
     });
-    
+
     if (error) {
       throw new Error(error.message);
     }
-    
+
     return data.ceramics || [];
   }
 
@@ -94,7 +95,7 @@ export class BackofficeService {
     const { error } = await supabase.functions.invoke('backoffice-bff', {
       body: { resource: 'ceramics-tab', action: 'create', payload: { ceramicData } },
     });
-    
+
     if (error) {
       throw new Error(error.message);
     }
@@ -104,7 +105,7 @@ export class BackofficeService {
     const { error } = await supabase.functions.invoke('backoffice-bff', {
       body: { resource: 'ceramics-tab', action: 'update', payload: { ceramicId, ceramicData } },
     });
-    
+
     if (error) {
       throw new Error(error.message);
     }
@@ -114,7 +115,7 @@ export class BackofficeService {
     const { error } = await supabase.functions.invoke('backoffice-bff', {
       body: { resource: 'ceramics-tab', action: 'delete', payload: { ceramicId } },
     });
-    
+
     if (error) {
       throw new Error(error.message);
     }

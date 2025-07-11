@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
+
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -7,40 +8,38 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { EmployeeRole } from '@/types';
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { EmployeeRole } from '@/types';
 
 // Tipo para dados do banco (snake_case)
-type EmployeeDbData = {
+interface EmployeeDbData {
   id?: string;
   name: string;
   role: EmployeeRole;
   cpf?: string;
   contact?: string;
   shift?: string;
-  registration_date?: string;
-  aso_expiration_date?: string;
-  nr_expiration_date?: string;
-};
+  admission_date?: string;
+  vacation_due_date?: string;
+}
 
 // Tipo para dados brutos do Supabase
-type EmployeeRawData = {
+interface EmployeeRawData {
   id?: string;
   name: string;
   role: string;
   cpf?: string;
   contact?: string;
   shift?: string;
-  registration_date?: string;
-  aso_expiration_date?: string;
-  nr_expiration_date?: string;
+  admission_date?: string;
+  vacation_due_date?: string;
   ceramic_id?: string;
   created_at?: string;
   updated_at?: string;
-};
+}
 
 interface EmployeeDialogProps {
   open: boolean;
@@ -51,43 +50,39 @@ interface EmployeeDialogProps {
 
 const EmployeeDialog = ({ open, onOpenChange, onSave, employee }: EmployeeDialogProps) => {
   const { toast } = useToast();
-  
+
   const [formData, setFormData] = useState({
     name: '',
-    role: EmployeeRole.OPERATOR,
+    role: EmployeeRole.AJUDANTE,
     cpf: '',
     contact: '',
     shift: '',
-    registrationDate: '',
-    asoExpirationDate: '',
-    nrExpirationDate: '',
+    admissionDate: '',
+    vacationDueDate: '',
   });
 
   useEffect(() => {
     if (employee) {
       setFormData({
         name: employee.name || '',
-        role: (employee.role as EmployeeRole) || EmployeeRole.OPERATOR,
+        role: (employee.role as EmployeeRole) || EmployeeRole.AJUDANTE,
         cpf: employee.cpf || '',
         contact: employee.contact || '',
         shift: employee.shift || '',
-        registrationDate: employee.registration_date ? 
-          new Date(employee.registration_date).toISOString().split('T')[0] : '',
-        asoExpirationDate: employee.aso_expiration_date ? 
-          new Date(employee.aso_expiration_date).toISOString().split('T')[0] : '',
-        nrExpirationDate: employee.nr_expiration_date ? 
-          new Date(employee.nr_expiration_date).toISOString().split('T')[0] : '',
+        admissionDate: employee.admission_date ?
+          new Date(employee.admission_date).toISOString().split('T')[0] : '',
+        vacationDueDate: employee.vacation_due_date ?
+          new Date(employee.vacation_due_date).toISOString().split('T')[0] : '',
       });
     } else {
       setFormData({
         name: '',
-        role: EmployeeRole.OPERATOR,
+        role: EmployeeRole.AJUDANTE,
         cpf: '',
         contact: '',
         shift: '',
-        registrationDate: '',
-        asoExpirationDate: '',
-        nrExpirationDate: '',
+        admissionDate: '',
+        vacationDueDate: '',
       });
     }
   }, [employee, open]);
@@ -98,16 +93,16 @@ const EmployeeDialog = ({ open, onOpenChange, onSave, employee }: EmployeeDialog
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.role) {
       toast({
-        title: "Erro ao salvar",
-        description: "Preencha todos os campos obrigatórios",
-        variant: "destructive"
+        title: 'Erro ao salvar',
+        description: 'Preencha todos os campos obrigatórios',
+        variant: 'destructive',
       });
       return;
     }
-    
+
     // Converte os dados para o formato esperado pelo banco (snake_case)
     const employeeData = {
       name: formData.name,
@@ -115,11 +110,10 @@ const EmployeeDialog = ({ open, onOpenChange, onSave, employee }: EmployeeDialog
       cpf: formData.cpf,
       contact: formData.contact,
       shift: formData.shift,
-      registration_date: formData.registrationDate || null,
-      aso_expiration_date: formData.asoExpirationDate || null,
-      nr_expiration_date: formData.nrExpirationDate || null,
+      admission_date: formData.admissionDate || null,
+      vacation_due_date: formData.vacationDueDate || null,
     };
-    
+
     onSave(employeeData);
   };
 
@@ -132,34 +126,34 @@ const EmployeeDialog = ({ open, onOpenChange, onSave, employee }: EmployeeDialog
             Preencha as informações do funcionário abaixo.
           </DialogDescription>
         </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+
+        <form className="space-y-6 pt-4" onSubmit={handleSubmit}>
           {/* Informações Básicas */}
           <div className="space-y-4">
             <h3 className="text-sm font-medium text-gray-900 border-b pb-2">
               Informações Básicas
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Nome *</Label>
-                <Input 
-                  id="name" 
-                  value={formData.name} 
-                  onChange={(e) => handleChange('name', e.target.value)}
-                  placeholder="Nome completo"
+                <Input
                   required
+                  id="name"
+                  placeholder="Nome completo"
+                  value={formData.name}
+                  onChange={(e) => handleChange('name', e.target.value)}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="role">Cargo *</Label>
-                <select 
-                  id="role"
+                <select
+                  required
                   className="w-full p-2 rounded-md border border-input bg-background text-sm"
+                  id="role"
                   value={formData.role}
                   onChange={(e) => handleChange('role', e.target.value as EmployeeRole)}
-                  required
                 >
                   {Object.values(EmployeeRole).map(role => (
                     <option key={role} value={role}>{role}</option>
@@ -167,93 +161,83 @@ const EmployeeDialog = ({ open, onOpenChange, onSave, employee }: EmployeeDialog
                 </select>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="cpf">CPF</Label>
-                <Input 
-                  id="cpf" 
-                  value={formData.cpf} 
-                  onChange={(e) => handleChange('cpf', e.target.value)}
+                <Input
+                  id="cpf"
                   placeholder="000.000.000-00"
+                  value={formData.cpf}
+                  onChange={(e) => handleChange('cpf', e.target.value)}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="contact">Contato</Label>
-                <Input 
-                  id="contact" 
-                  value={formData.contact} 
-                  onChange={(e) => handleChange('contact', e.target.value)}
+                <Input
+                  id="contact"
                   placeholder="Telefone ou email"
+                  value={formData.contact}
+                  onChange={(e) => handleChange('contact', e.target.value)}
                 />
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="shift">Turno</Label>
-                <Input 
-                  id="shift" 
-                  value={formData.shift} 
-                  onChange={(e) => handleChange('shift', e.target.value)}
+                <Input
+                  id="shift"
                   placeholder="Ex: Manhã, Tarde, Noite"
+                  value={formData.shift}
+                  onChange={(e) => handleChange('shift', e.target.value)}
                 />
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="registrationDate">Data de Registro</Label>
-                <Input 
-                  id="registrationDate" 
+                <Label htmlFor="admissionDate">Data de Admissão</Label>
+                <Input
+                  id="admissionDate"
                   type="date"
-                  value={formData.registrationDate} 
-                  onChange={(e) => handleChange('registrationDate', e.target.value)}
+                  value={formData.admissionDate}
+                  onChange={(e) => handleChange('admissionDate', e.target.value)}
                 />
               </div>
             </div>
           </div>
-          
+
           {/* Certificações */}
           <div className="space-y-4">
             <h3 className="text-sm font-medium text-gray-900 border-b pb-2">
               Certificações e Exames
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="asoExpirationDate">Vencimento ASO</Label>
-                <Input 
-                  id="asoExpirationDate" 
+                <Label htmlFor="vacationDueDate">Próximas Férias</Label>
+                <Input
+                  id="vacationDueDate"
                   type="date"
-                  value={formData.asoExpirationDate} 
-                  onChange={(e) => handleChange('asoExpirationDate', e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="nrExpirationDate">Vencimento NR</Label>
-                <Input 
-                  id="nrExpirationDate" 
-                  type="date"
-                  value={formData.nrExpirationDate} 
-                  onChange={(e) => handleChange('nrExpirationDate', e.target.value)}
+                  value={formData.vacationDueDate}
+                  onChange={(e) => handleChange('vacationDueDate', e.target.value)}
                 />
               </div>
             </div>
           </div>
-          
+
           <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-6">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
+            <Button
               className="w-full sm:w-auto"
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
             >
               Cancelar
             </Button>
-            <Button 
-              type="submit"
+            <Button
               className="w-full sm:w-auto"
+              type="submit"
             >
               {employee ? 'Atualizar' : 'Criar'} Funcionário
             </Button>

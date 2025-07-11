@@ -1,5 +1,7 @@
 import { supabase } from '../client';
 
+import { ProfileCacheService } from './profile-cache';
+
 export interface Operation {
   id: string;
   ceramic_id: string;
@@ -18,6 +20,7 @@ export interface Operation {
   start_time?: string;
   end_time?: string;
   gas_consumption?: number;
+  fuel_consumption?: number;
   created_at: string;
   updated_at: string;
 }
@@ -38,29 +41,14 @@ export interface CreateOperationPayload {
   start_time?: string;
   end_time?: string;
   gas_consumption?: number;
+  fuel_consumption?: number;
 }
 
 export type UpdateOperationPayload = Partial<CreateOperationPayload>;
 
 export class OperationsService {
   static async getCurrentUserCeramicId(): Promise<string> {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session?.user?.id) {
-      throw new Error('Usuário não autenticado');
-    }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('ceramic_id')
-      .eq('id', session.user.id)
-      .single();
-
-    if (!profile?.ceramic_id) {
-      throw new Error('Usuário não possui cerâmica associada');
-    }
-
-    return profile.ceramic_id;
+    return ProfileCacheService.getCurrentUserCeramicId();
   }
 
   static async getAllOperations(): Promise<Operation[]> {
@@ -68,7 +56,11 @@ export class OperationsService {
 
     const { data, error } = await supabase
       .from('operations')
-      .select('*')
+      .select(`
+        *,
+        vehicles:vehicle_id(model, type),
+        employees:employee_id(name)
+      `)
       .eq('ceramic_id', ceramicId)
       .order('created_at', { ascending: false });
 

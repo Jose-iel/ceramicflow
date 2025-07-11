@@ -1,6 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { VehiclesService } from '../api';
 import type { CreateVehiclePayload, UpdateVehiclePayload, Vehicle } from '../api';
+
 import { useToast } from '@/hooks/use-toast';
 import { useOptimizedQuery } from '@/hooks/useOptimizedQuery';
 
@@ -76,15 +78,15 @@ export function useCreateVehicleOptimized() {
         queryClient.setQueryData(['trucks'], context.previousTrucks);
       }
       toast({
-        title: "Erro ao criar veículo",
+        title: 'Erro ao criar veículo',
         description: err.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSuccess: () => {
       toast({
-        title: "Veículo criado",
-        description: "Veículo adicionado com sucesso.",
+        title: 'Veículo criado',
+        description: 'Veículo adicionado com sucesso.',
       });
     },
     onSettled: () => {
@@ -117,8 +119,8 @@ export function useUpdateVehicleOptimized() {
           old?.map((vehicle: Vehicle) =>
             vehicle.id === vehicleId
               ? { ...vehicle, ...payload, updated_at: new Date().toISOString() }
-              : vehicle
-          )
+              : vehicle,
+          ),
         );
       }
 
@@ -128,14 +130,14 @@ export function useUpdateVehicleOptimized() {
           old?.map((truck: TruckData) =>
             truck.id === vehicleId
               ? { ...truck, model: payload.model || truck.model, type: payload.type || truck.type }
-              : truck
-          )
+              : truck,
+          ),
         );
       }
 
       return { previousVehicles, previousTrucks };
     },
-    onError: (err, { vehicleId }, context) => {
+    onError: (err, { vehicleId: _vehicleId }, context) => {
       if (context?.previousVehicles) {
         queryClient.setQueryData(['vehicles'], context.previousVehicles);
       }
@@ -143,15 +145,15 @@ export function useUpdateVehicleOptimized() {
         queryClient.setQueryData(['trucks'], context.previousTrucks);
       }
       toast({
-        title: "Erro ao atualizar veículo",
+        title: 'Erro ao atualizar veículo',
         description: err.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSuccess: () => {
       toast({
-        title: "Veículo atualizado",
-        description: "Dados do veículo atualizados com sucesso.",
+        title: 'Veículo atualizado',
+        description: 'Dados do veículo atualizados com sucesso.',
       });
     },
     onSettled: () => {
@@ -179,14 +181,14 @@ export function useDeleteVehicleOptimized() {
       // Atualização otimista - remover da lista de veículos
       if (previousVehicles) {
         queryClient.setQueryData(['vehicles'], (old: Vehicle[]) =>
-          old?.filter((vehicle: Vehicle) => vehicle.id !== vehicleId)
+          old?.filter((vehicle: Vehicle) => vehicle.id !== vehicleId),
         );
       }
 
       // Atualização otimista - remover da lista de trucks se aplicável
       if (previousTrucks) {
         queryClient.setQueryData(['trucks'], (old: TruckData[]) =>
-          old?.filter((truck: TruckData) => truck.id !== vehicleId)
+          old?.filter((truck: TruckData) => truck.id !== vehicleId),
         );
       }
 
@@ -200,15 +202,15 @@ export function useDeleteVehicleOptimized() {
         queryClient.setQueryData(['trucks'], context.previousTrucks);
       }
       toast({
-        title: "Erro ao excluir veículo",
+        title: 'Erro ao excluir veículo',
         description: err.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSuccess: () => {
       toast({
-        title: "Veículo excluído",
-        description: "Veículo removido com sucesso.",
+        title: 'Veículo excluído',
+        description: 'Veículo removido com sucesso.',
       });
     },
     onSettled: () => {

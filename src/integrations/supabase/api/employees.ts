@@ -1,5 +1,8 @@
 import { supabase } from '../client';
-import { EmployeeRole } from '@/types';
+
+import { ProfileCacheService } from './profile-cache';
+
+import type { EmployeeRole } from '@/types';
 
 export interface Employee {
   id: string;
@@ -9,9 +12,8 @@ export interface Employee {
   cpf?: string;
   contact?: string;
   shift?: string;
-  registration_date?: string;
-  aso_expiration_date?: string;
-  nr_expiration_date?: string;
+  admission_date?: string;
+  vacation_due_date?: string;
   created_at: string;
   updated_at: string;
 }
@@ -22,32 +24,15 @@ export interface CreateEmployeePayload {
   cpf?: string;
   contact?: string;
   shift?: string;
-  registration_date?: string;
-  aso_expiration_date?: string;
-  nr_expiration_date?: string;
+  admission_date?: string;
+  vacation_due_date?: string;
 }
 
 export type UpdateEmployeePayload = Partial<CreateEmployeePayload>;
 
 export class EmployeesService {
   static async getCurrentUserCeramicId(): Promise<string> {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session?.user?.id) {
-      throw new Error('Usuário não autenticado');
-    }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('ceramic_id')
-      .eq('id', session.user.id)
-      .single();
-
-    if (!profile?.ceramic_id) {
-      throw new Error('Usuário não possui cerâmica associada');
-    }
-
-    return profile.ceramic_id;
+    return ProfileCacheService.getCurrentUserCeramicId();
   }
 
   static async getAllEmployees(): Promise<Employee[]> {
@@ -65,7 +50,7 @@ export class EmployeesService {
 
     return (data || []).map(employee => ({
       ...employee,
-      role: employee.role as EmployeeRole
+      role: employee.role as EmployeeRole,
     }));
   }
 
@@ -89,7 +74,7 @@ export class EmployeesService {
 
     return {
       ...data,
-      role: data.role as EmployeeRole
+      role: data.role as EmployeeRole,
     };
   }
 
@@ -110,7 +95,7 @@ export class EmployeesService {
 
     return {
       ...data,
-      role: data.role as EmployeeRole
+      role: data.role as EmployeeRole,
     };
   }
 

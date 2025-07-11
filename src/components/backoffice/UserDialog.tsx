@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BackofficeUser } from '@/types/backoffice';
+import { Switch } from '@/components/ui/switch';
+import type { BackofficeUser } from '@/types/backoffice';
 
 interface UserDialogProps {
   open: boolean;
@@ -66,67 +67,67 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, onOpenChange, user, onSav
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+            <Label className="text-sm font-medium" htmlFor="email">Email</Label>
             <Input
+              required
+              className="text-sm bg-gray-100 disabled:cursor-not-allowed"
+              disabled={!!user}
               id="email"
               type="email"
               value={user ? user.email || '' : formData.email}
-              disabled={!!user}
               onChange={!user ? (e) => setFormData({ ...formData, email: e.target.value }) : undefined}
-              required
-              className="text-sm bg-gray-100 disabled:cursor-not-allowed"
             />
           </div>
-          
+
           {!user && (
             <div className="space-y-2">
               <Label htmlFor="password">Senha</Label>
               <Input
+                required
+                className="text-sm"
                 id="password"
                 type="password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                required
-                className="text-sm"
               />
             </div>
           )}
-          
+
           <div className="space-y-2">
-            <Label htmlFor="full_name" className="text-sm font-medium">Nome Completo</Label>
+            <Label className="text-sm font-medium" htmlFor="full_name">Nome Completo</Label>
             <Input
+              className="text-sm"
               id="full_name"
               value={formData.full_name}
               onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-              className="text-sm"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="user_level" className="text-sm font-medium">Nível de Acesso</Label>
+            <Label className="text-sm font-medium" htmlFor="user_level">Nível de Acesso</Label>
             <Select value={formData.user_level_id} onValueChange={(value) => setFormData({ ...formData, user_level_id: value })}>
               <SelectTrigger className="text-sm"><SelectValue placeholder="Selecione um nível" /></SelectTrigger>
               <SelectContent>
                 {userLevels && userLevels.length > 0 ? (
                   userLevels.map(level => <SelectItem key={level.id} value={level.id}>{level.name}</SelectItem>)
                 ) : (
-                  <SelectItem value="" disabled>Nenhum nível encontrado</SelectItem>
+                  <SelectItem disabled value="">Nenhum nível encontrado</SelectItem>
                 )}
               </SelectContent>
             </Select>
           </div>
-          
+
           <div className="space-y-2">
-            <Label htmlFor="ceramic" className="text-sm font-medium">Cerâmica</Label>
+            <Label className="text-sm font-medium" htmlFor="ceramic">Cerâmica</Label>
             <Select value={formData.ceramic_id} onValueChange={(value) => setFormData({ ...formData, ceramic_id: value })}>
               <SelectTrigger className="text-sm"><SelectValue placeholder="Selecione uma cerâmica" /></SelectTrigger>
               <SelectContent>
                 {ceramics && ceramics.length > 0 ? (
                   ceramics.map(ceramic => <SelectItem key={ceramic.id} value={ceramic.id}>{ceramic.name}</SelectItem>)
                 ) : (
-                  <SelectItem value="" disabled>Nenhuma cerâmica encontrada</SelectItem>
+                  <SelectItem disabled value="">Nenhuma cerâmica encontrada</SelectItem>
                 )}
               </SelectContent>
             </Select>
@@ -134,18 +135,18 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, onOpenChange, user, onSav
 
           <div className="flex items-center space-x-2 py-2">
             <Switch
-              id="is_admin"
               checked={formData.is_admin}
+              id="is_admin"
               onCheckedChange={(checked) => setFormData({ ...formData, is_admin: checked })}
             />
-            <Label htmlFor="is_admin" className="text-sm font-medium">Administrador Global</Label>
+            <Label className="text-sm font-medium" htmlFor="is_admin">Administrador Global</Label>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto" type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto" type="submit">
               {user ? 'Salvar Alterações' : 'Criar Usuário'}
             </Button>
           </div>

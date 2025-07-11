@@ -1,16 +1,15 @@
-import { useState, useMemo, Suspense, lazy } from 'react';
 import { Plus, Calendar, User, Wrench, AlertTriangle } from 'lucide-react';
-import PageLayout from '@/components/common/PageLayout';
+import { useState, useMemo, Suspense, lazy } from 'react';
+
 import DataTable from '@/components/common/DataTable';
+import PageLayout from '@/components/common/PageLayout';
+import { Badge } from '@/components/ui/badge';
+import { useMaintenances, useCreateMaintenance, useUpdateMaintenance, useDeleteMaintenance, useVehicles, useEmployees } from '@/hooks';
+import { useMonthFilter } from '@/hooks/useMonthFilter';
+import type { CreateMaintenancePayload, Maintenance } from '@/integrations/supabase/api';
+import type { Employee } from '@/integrations/supabase/api/employees';
 // Lazy load do dialog
 const MaintenanceDialog = lazy(() => import('@/components/maintenance/MaintenanceDialog'));
-import { Badge } from '@/components/ui/badge';
-import { useMaintenances, useCreateMaintenance, useUpdateMaintenance, useDeleteMaintenance } from '@/hooks';
-import { CreateMaintenancePayload, Maintenance } from '@/integrations/supabase/api';
-import { useVehicles } from '@/hooks';
-import { useEmployees } from '@/hooks';
-import type { Employee } from '@/integrations/supabase/api/employees';
-import { useMonthFilter } from '@/hooks/useMonthFilter';
 
 const MaintenancePage = () => {
   const [search, setSearch] = useState('');
@@ -31,10 +30,10 @@ const MaintenancePage = () => {
     // First filter by month using the reported_date field
     const monthFiltered = filterDataByMonth(maintenances.map(maintenance => ({ ...maintenance, date: maintenance.reported_date })));
     // Then filter by search
-    return monthFiltered.filter(maintenance => 
+    return monthFiltered.filter(maintenance =>
       maintenance.issue?.toLowerCase().includes(search.toLowerCase()) ||
       maintenance.vehicles?.model?.toLowerCase().includes(search.toLowerCase()) ||
-      maintenance.reported_by?.toLowerCase().includes(search.toLowerCase())
+      maintenance.reported_by?.toLowerCase().includes(search.toLowerCase()),
     );
   }, [maintenances, search, filterDataByMonth]);
 
@@ -42,7 +41,7 @@ const MaintenancePage = () => {
     if (editingMaintenance) {
       updateMaintenance.mutate({
         maintenanceId: editingMaintenance.id!,
-        payload: maintenanceData as CreateMaintenancePayload
+        payload: maintenanceData as CreateMaintenancePayload,
       });
     } else {
       createMaintenance.mutate(maintenanceData as CreateMaintenancePayload);
@@ -57,7 +56,8 @@ const MaintenancePage = () => {
   };
 
   const handleDeleteMaintenance = (id: string) => {
-    if (confirm("Tem certeza que deseja excluir esta manutenção?")) {
+    // TODO: Implementar dialog de confirmação personalizado
+    {
       deleteMaintenance.mutate(id);
     }
   };
@@ -68,16 +68,16 @@ const MaintenancePage = () => {
       'IN_PROGRESS': { label: 'Em Andamento', variant: 'default' as const },
       'COMPLETED': { label: 'Concluída', variant: 'secondary' as const },
     };
-    
+
     const config = statusMap[status as keyof typeof statusMap] || { label: status, variant: 'outline' as const };
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return '-';
+    if (!dateString) {return '-';}
     try {
       return new Date(dateString).toLocaleDateString('pt-BR');
-    } catch (e) {
+    } catch {
       return dateString;
     }
   };
@@ -91,49 +91,49 @@ const MaintenancePage = () => {
   // Stats cards configuration
   const statsCards = [
     {
-      title: "Total de Manutenções",
+      title: 'Total de Manutenções',
       value: totalMaintenances,
-      subtitle: "no período",
+      subtitle: 'no período',
       icon: Wrench,
-      iconColor: "text-blue-600",
-      iconBgColor: "bg-blue-100"
+      iconColor: 'text-blue-600',
+      iconBgColor: 'bg-blue-100',
     },
     {
-      title: "Pendentes",
+      title: 'Pendentes',
       value: pendingMaintenances,
-      subtitle: "aguardando execução",
+      subtitle: 'aguardando execução',
       icon: AlertTriangle,
-      iconColor: "text-red-600",
-      iconBgColor: "bg-red-100"
+      iconColor: 'text-red-600',
+      iconBgColor: 'bg-red-100',
     },
     {
-      title: "Em Andamento",
+      title: 'Em Andamento',
       value: inProgressMaintenances,
-      subtitle: "sendo executadas",
+      subtitle: 'sendo executadas',
       icon: User,
-      iconColor: "text-orange-600",
-      iconBgColor: "bg-orange-100"
+      iconColor: 'text-orange-600',
+      iconBgColor: 'bg-orange-100',
     },
     {
-      title: "Concluídas",
+      title: 'Concluídas',
       value: completedMaintenances,
-      subtitle: "finalizadas",
+      subtitle: 'finalizadas',
       icon: Calendar,
-      iconColor: "text-green-600",
-      iconBgColor: "bg-green-100"
-    }
+      iconColor: 'text-green-600',
+      iconBgColor: 'bg-green-100',
+    },
   ];
 
   // Actions configuration
   const actions = [
     {
-      label: "Nova Manutenção",
+      label: 'Nova Manutenção',
       onClick: () => {
         setEditingMaintenance(null);
         setShowDialog(true);
       },
-      icon: <Plus className="w-4 h-4" />
-    }
+      icon: <Plus className="w-4 h-4" />,
+    },
   ];
 
   // Table columns
@@ -143,41 +143,41 @@ const MaintenancePage = () => {
     { key: 'reported_by', label: 'Reportado por' },
     { key: 'reported_date', label: 'Data Relatório', render: (value: unknown) => formatDate(value as string) },
     { key: 'status', label: 'Status', render: (value: unknown) => getStatusBadge(value as string) },
-    { key: 'completed_date', label: 'Data Conclusão', render: (value: unknown) => formatDate(value as string) }
+    { key: 'completed_date', label: 'Data Conclusão', render: (value: unknown) => formatDate(value as string) },
   ];
 
   // Table actions
   const tableActions = [
     {
-      label: "Editar",
-      onClick: (row: Record<string, unknown>) => handleEditMaintenance(row as unknown as Maintenance)
+      label: 'Editar',
+      onClick: (row: Record<string, unknown>) => handleEditMaintenance(row as unknown as Maintenance),
     },
     {
-      label: "Excluir",
-      variant: "ghost" as const,
-      className: "text-red-500 hover:text-red-700 hover:bg-red-50",
-      onClick: (row: Record<string, unknown>) => handleDeleteMaintenance((row as unknown as Maintenance).id!)
-    }
+      label: 'Excluir',
+      variant: 'ghost' as const,
+      className: 'text-red-500 hover:text-red-700 hover:bg-red-50',
+      onClick: (row: Record<string, unknown>) => handleDeleteMaintenance((row as unknown as Maintenance).id!),
+    },
   ];
 
   return (
     <PageLayout
-      title="Manutenções"
-      subtitle="Controle de Manutenções de Veículos"
-      selectedMonth={selectedMonth}
-      onMonthChange={setSelectedMonth}
-      statsCards={statsCards}
-      searchValue={search}
-      onSearchChange={setSearch}
-      searchPlaceholder="Buscar por problema, veículo ou responsável..."
       actions={actions}
       isLoading={isLoading}
+      searchPlaceholder="Buscar por problema, veículo ou responsável..."
+      searchValue={search}
+      selectedMonth={selectedMonth}
+      statsCards={statsCards}
+      subtitle="Controle de Manutenções de Veículos"
+      title="Manutenções"
+      onMonthChange={setSelectedMonth}
+      onSearchChange={setSearch}
     >
       <div className="space-y-6">
         <DataTable
-          data={filteredMaintenances as unknown as Record<string, unknown>[]}
-          columns={columns}
           actions={tableActions}
+          columns={columns}
+          data={filteredMaintenances as unknown as Record<string, unknown>[]}
           emptyMessage="Nenhuma manutenção encontrada para este período"
           minWidth="800px"
         />
@@ -185,12 +185,12 @@ const MaintenancePage = () => {
 
       <Suspense fallback={<div />}>
         <MaintenanceDialog
+          availableOperators={(employees as Employee[]).map(e => ({ id: e.id, name: e.name }))}
+          availableVehicles={vehicles.map(v => ({ id: v.id, model: v.model }))}
+          maintenance={editingMaintenance}
           open={showDialog}
           onOpenChange={setShowDialog}
           onSave={handleSaveMaintenance}
-          maintenance={editingMaintenance}
-          availableVehicles={vehicles.map(v => ({ id: v.id, model: v.model }))}
-          availableOperators={(employees as Employee[]).map(e => ({ id: e.id, name: e.name }))}
         />
       </Suspense>
     </PageLayout>

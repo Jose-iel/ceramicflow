@@ -1,18 +1,18 @@
 // Vehicle Types (previously Forklift)
 export enum VehicleType {
-  GAS = "Gás",
-  ELECTRIC = "Elétrica", 
-  RETRACTABLE = "Retrátil",
-  TRUCK = "Caminhão",
-  TRACTOR = "Trator",
-  LOADER = "Pá Carregadeira",
-  EXCAVATOR = "Retro Escavadeira"
+  CAR = 'Carro',
+  TRUCK = 'Caminhão',
+  LOADER = 'Pá Carregadeira',
+  BACKHOE = 'Retro Escavadeira',
+  EXCAVATOR = 'Escavadeira Hidraulica',
+  TRACTOR = 'Trator',
+  FORKLIFT = 'Empilhadeira'
 }
 
 export enum VehicleStatus {
-  OPERATIONAL = "Em Operação",
-  STOPPED = "Parada",
-  MAINTENANCE = "Aguardando Manutenção"
+  OPERATIONAL = 'Em Operação',
+  STOPPED = 'Parada',
+  MAINTENANCE = 'Aguardando Manutenção'
 }
 
 export interface Vehicle {
@@ -28,19 +28,19 @@ export interface Vehicle {
 
 // Employee Types (previously User/Operator)
 export enum EmployeeRole {
-  FORNEIRO = "Forneiro",
-  MOTORISTA = "Motorista", 
-  OPERADOR_MAQUINAS = "Operador de Máquinas",
-  OPERATOR = "Operador", // For backwards compatibility
-  ADMINISTRATIVO = "Administrativo",
-  SUPERVISOR = "Supervisor",
-  ADMIN = "Administrador"
+  FORNEIRO = 'Forneiro',
+  LANCEADOR = 'Lanceador',
+  MOTORISTA = 'Motorista',
+  OPERADOR_MAQUINAS = 'Operador de Máquinas',
+  SUPERVISOR = 'Supervisor',
+  GERENTE = 'Gerente',
+  AJUDANTE = 'Ajudante'
 }
 
 export enum CertificateStatus {
-  REGULAR = "Regular",
-  WARNING = "Próximo do Vencimento",
-  EXPIRED = "Vencido"
+  REGULAR = 'Regular',
+  WARNING = 'Próximo do Vencimento',
+  EXPIRED = 'Vencido'
 }
 
 export interface Employee {
@@ -50,18 +50,15 @@ export interface Employee {
   cpf: string;
   contact: string;
   shift: string;
-  registrationDate: string;
-  asoExpirationDate: string;
-  nrExpirationDate: string;
-  asoStatus: CertificateStatus;
-  nrStatus: CertificateStatus;
+  admission_date: string;
+  vacation_due_date: string;
 }
 
 // Operation Status enum
 export enum OperationStatus {
-  IN_PROGRESS = "Em Andamento",
-  COMPLETED = "Concluída",
-  PAUSED = "Pausada"
+  IN_PROGRESS = 'Em Andamento',
+  COMPLETED = 'Concluída',
+  PAUSED = 'Pausada'
 }
 
 // Operation Types - Updated to match the code usage
@@ -88,9 +85,9 @@ export interface Operation {
 
 // Maintenance Types
 export enum MaintenanceStatus {
-  WAITING = "WAITING",
-  IN_PROGRESS = "IN_PROGRESS", 
-  COMPLETED = "COMPLETED"
+  WAITING = 'WAITING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED'
 }
 
 export interface Maintenance {
@@ -163,10 +160,10 @@ export interface StatusCardProps {
   title: string;
   value: number;
   icon: React.ElementType;
-  status?: "success" | "warning" | "danger" | "info" | "neutral";
+  status?: 'success' | 'warning' | 'danger' | 'info' | 'neutral';
   change?: {
     value: number;
-    trend: "up" | "down" | "neutral";
+    trend: 'up' | 'down' | 'neutral';
   };
 }
 

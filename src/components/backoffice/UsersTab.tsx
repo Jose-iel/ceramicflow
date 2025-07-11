@@ -1,15 +1,17 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2 } from 'lucide-react';
-import { useUsersTabData, useCreateUser, useUpdateUser, useDeleteUser } from '@/integrations/supabase/hooks';
-import { CreateUserPayload, UpdateUserPayload } from '@/integrations/supabase/api/backoffice';
+import { useState } from 'react';
+
 import UserDialog from './UserDialog';
-import { BackofficeUser } from '@/types/backoffice';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import type { CreateUserPayload, UpdateUserPayload } from '@/integrations/supabase/api/backoffice';
+import { useUsersTabData, useCreateUser, useUpdateUser, useDeleteUser } from '@/integrations/supabase/hooks';
+import type { BackofficeUser } from '@/types/backoffice';
 
 
 const UsersTab = () => {
@@ -17,15 +19,15 @@ const UsersTab = () => {
   const [editingUser, setEditingUser] = useState<BackofficeUser | null>(null);
   const [selectedCeramic, setSelectedCeramic] = useState('');
 
-  const { data, isLoading, isError } = useUsersTabData();
+  const { data, isLoading } = useUsersTabData();
   const createUserMutation = useCreateUser();
   const updateUserMutation = useUpdateUser();
   const deleteUserMutation = useDeleteUser();
-  
+
   const users = data?.users || [];
   const ceramics = data?.ceramics || [];
   const userLevels = data?.userLevels || [];
-  
+
   const handleCreateUser = () => {
     setEditingUser(null);
     setDialogOpen(true);
@@ -37,7 +39,7 @@ const UsersTab = () => {
   };
 
   const handleDeleteUser = (userId: string) => {
-    if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
+    // TODO: Implementar dialog de confirmação personalizado
     deleteUserMutation.mutate(userId);
   };
 
@@ -58,15 +60,15 @@ const UsersTab = () => {
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  const filteredUsers = users.filter((user: BackofficeUser) => 
-    !selectedCeramic || user.ceramic_id === selectedCeramic
+  const filteredUsers = users.filter((user: BackofficeUser) =>
+    !selectedCeramic || user.ceramic_id === selectedCeramic,
   );
 
   return (
@@ -79,19 +81,19 @@ const UsersTab = () => {
               Gerencie todos os usuários do sistema
             </CardDescription>
           </div>
-          <Button 
-            onClick={handleCreateUser} 
+          <Button
             className="flex items-center gap-2 w-full sm:w-auto"
             size="sm"
+            onClick={handleCreateUser}
           >
             <Plus className="h-4 w-4" />
             <span className="sm:inline">Novo Usuário</span>
           </Button>
         </div>
         <div className="pt-4 space-y-2">
-          <Label htmlFor="ceramic-filter" className="text-sm font-medium">Filtrar por Cerâmica</Label>
+          <Label className="text-sm font-medium" htmlFor="ceramic-filter">Filtrar por Cerâmica</Label>
           <Select value={selectedCeramic} onValueChange={(value) => setSelectedCeramic(value === 'all' ? '' : value)}>
-            <SelectTrigger id="ceramic-filter" className="w-full sm:w-[280px]">
+            <SelectTrigger className="w-full sm:w-[280px]" id="ceramic-filter">
               <SelectValue placeholder="Todas as cerâmicas" />
             </SelectTrigger>
             <SelectContent>
@@ -116,31 +118,31 @@ const UsersTab = () => {
                   </div>
                   <div className="flex gap-1">
                     <Button
-                      variant="ghost"
                       size="sm"
+                      variant="ghost"
                       onClick={() => handleEditUser(user)}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
-                      variant="ghost"
                       size="sm"
+                      variant="ghost"
                       onClick={() => handleDeleteUser(user.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-                
+
                 <div className="flex flex-wrap gap-2 text-xs">
-                   <Badge variant={user.is_admin ? 'destructive' : 'outline'}>
+                  <Badge variant={user.is_admin ? 'destructive' : 'outline'}>
                     {user.is_admin ? 'Admin Global' : user.user_levels?.name || 'N/A'}
                   </Badge>
                   {user.ceramics && (
                     <Badge variant="secondary">{user.ceramics.name}</Badge>
                   )}
                 </div>
-                
+
                 <div className="text-xs text-muted-foreground">
                   <p>Criado em: {new Date(user.created_at).toLocaleDateString('pt-BR')}</p>
                 </div>
@@ -168,7 +170,7 @@ const UsersTab = () => {
                   <TableCell className="font-medium">{user.full_name || '-'}</TableCell>
                   <TableCell className="max-w-[200px] truncate">{user.email}</TableCell>
                   <TableCell>
-                    <Badge variant={user.is_admin ? 'destructive' : 'outline'} className="text-xs">
+                    <Badge className="text-xs" variant={user.is_admin ? 'destructive' : 'outline'}>
                       {user.is_admin ? 'Admin Global' : user.user_levels?.name || 'N/A'}
                     </Badge>
                   </TableCell>
@@ -179,15 +181,15 @@ const UsersTab = () => {
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <Button
-                        variant="ghost"
                         size="sm"
+                        variant="ghost"
                         onClick={() => handleEditUser(user)}
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="ghost"
                         size="sm"
+                        variant="ghost"
                         onClick={() => handleDeleteUser(user.id)}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -197,7 +199,7 @@ const UsersTab = () => {
                 </TableRow>
               )) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
+                  <TableCell className="h-24 text-center" colSpan={6}>
                     Nenhum usuário encontrado para a cerâmica selecionada.
                   </TableCell>
                 </TableRow>
@@ -207,12 +209,12 @@ const UsersTab = () => {
         </div>
 
         <UserDialog
-          open={dialogOpen}
-          onOpenChange={setDialogOpen}
-          user={editingUser}
-          onSave={handleSaveUser}
           ceramics={ceramics}
+          open={dialogOpen}
+          user={editingUser}
           userLevels={userLevels}
+          onOpenChange={setDialogOpen}
+          onSave={handleSaveUser}
         />
       </CardContent>
     </Card>

@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { OperationsService } from '../api';
 import type { CreateOperationPayload, UpdateOperationPayload, Operation } from '../api';
+
 import { useToast } from '@/hooks/use-toast';
 import { useOptimizedQuery } from '@/hooks/useOptimizedQuery';
 
@@ -50,15 +52,15 @@ export function useCreateOperationOptimized() {
         queryClient.setQueryData(['operations'], context.previousOperations);
       }
       toast({
-        title: "Erro ao criar operação",
+        title: 'Erro ao criar operação',
         description: err.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSuccess: () => {
       toast({
-        title: "Operação criada",
-        description: "Operação adicionada com sucesso.",
+        title: 'Operação criada',
+        description: 'Operação adicionada com sucesso.',
       });
     },
     onSettled: () => {
@@ -88,27 +90,27 @@ export function useUpdateOperationOptimized() {
           old?.map((operation: Operation) =>
             operation.id === operationId
               ? { ...operation, ...payload, updated_at: new Date().toISOString() }
-              : operation
-          )
+              : operation,
+          ),
         );
       }
 
       return { previousOperations };
     },
-    onError: (err, { operationId }, context) => {
+    onError: (err, { operationId: _operationId }, context) => {
       if (context?.previousOperations) {
         queryClient.setQueryData(['operations'], context.previousOperations);
       }
       toast({
-        title: "Erro ao atualizar operação",
+        title: 'Erro ao atualizar operação',
         description: err.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSuccess: () => {
       toast({
-        title: "Operação atualizada",
-        description: "Dados da operação atualizados com sucesso.",
+        title: 'Operação atualizada',
+        description: 'Dados da operação atualizados com sucesso.',
       });
     },
     onSettled: () => {
@@ -133,7 +135,7 @@ export function useDeleteOperationOptimized() {
       // Atualização otimista - remover da lista
       if (previousOperations) {
         queryClient.setQueryData(['operations'], (old: Operation[]) =>
-          old?.filter((operation: Operation) => operation.id !== operationId)
+          old?.filter((operation: Operation) => operation.id !== operationId),
         );
       }
 
@@ -144,15 +146,15 @@ export function useDeleteOperationOptimized() {
         queryClient.setQueryData(['operations'], context.previousOperations);
       }
       toast({
-        title: "Erro ao excluir operação",
+        title: 'Erro ao excluir operação',
         description: err.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSuccess: () => {
       toast({
-        title: "Operação excluída",
-        description: "Operação removida com sucesso.",
+        title: 'Operação excluída',
+        description: 'Operação removida com sucesso.',
       });
     },
     onSettled: () => {

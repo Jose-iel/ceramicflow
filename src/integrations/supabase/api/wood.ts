@@ -1,5 +1,7 @@
 import { supabase } from '../client';
 
+import { ProfileCacheService } from './profile-cache';
+
 export interface WoodPurchase {
   id: string;
   ceramic_id: string;
@@ -49,23 +51,7 @@ export type UpdateWoodConsumptionPayload = Partial<CreateWoodConsumptionPayload>
 
 export class WoodService {
   static async getCurrentUserCeramicId(): Promise<string> {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session?.user?.id) {
-      throw new Error('Usuário não autenticado');
-    }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('ceramic_id')
-      .eq('id', session.user.id)
-      .single();
-
-    if (!profile?.ceramic_id) {
-      throw new Error('Usuário não tem cerâmica associada');
-    }
-
-    return profile.ceramic_id;
+    return ProfileCacheService.getCurrentUserCeramicId();
   }
 
   // Wood Purchases

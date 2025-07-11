@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // Páginas básicas sem Radix UI
 function HomePage() {
@@ -21,13 +21,13 @@ function LoginPage() {
       <form style={{ marginTop: '20px' }}>
         <div style={{ marginBottom: '10px' }}>
           <label>Email:</label>
-          <input type="email" style={{ marginLeft: '10px', padding: '8px' }} />
+          <input style={{ marginLeft: '10px', padding: '8px' }} type="email" />
         </div>
         <div style={{ marginBottom: '10px' }}>
           <label>Senha:</label>
-          <input type="password" style={{ marginLeft: '10px', padding: '8px' }} />
+          <input style={{ marginLeft: '10px', padding: '8px' }} type="password" />
         </div>
-        <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none' }}>
+        <button style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none' }} type="submit">
           Entrar
         </button>
       </form>
@@ -51,9 +51,9 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="*" element={<NotFoundPage />} />
+        <Route element={<HomePage />} path="/" />
+        <Route element={<LoginPage />} path="/login" />
+        <Route element={<NotFoundPage />} path="*" />
       </Routes>
     </BrowserRouter>
   );

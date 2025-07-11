@@ -1,5 +1,8 @@
-import { supabase } from '../client';
 import type { User, Session } from '@supabase/supabase-js';
+
+import { supabase } from '../client';
+
+import { ProfileCacheService } from './profile-cache';
 
 export interface LoginCredentials {
   email: string;
@@ -26,6 +29,9 @@ export class AuthService {
   }
 
   static async signOut(): Promise<void> {
+    // Limpar cache ao fazer logout
+    ProfileCacheService.clearCache();
+
     const { error } = await supabase.auth.signOut();
     if (error) {
       throw new Error(error.message);
@@ -33,13 +39,34 @@ export class AuthService {
   }
 
   static async getSession(): Promise<Session | null> {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    
-    if (error) {
-      throw new Error(error.message);
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+
+      if (error) {
+        console.warn('Session error:', error.message);
+        // Limpar cache se há erro de sessão
+        ProfileCacheService.clearCache();
+        return null;
+      }
+
+      // Verificar se a sessão não está expirada
+      if (session && session.expires_at) {
+        const expiresAt = new Date(session.expires_at * 1000);
+        const now = new Date();
+
+        if (expiresAt <= now) {
+          console.warn('Session expired, clearing cache');
+          ProfileCacheService.clearCache();
+          return null;
+        }
+      }
+
+      return session;
+    } catch (error) {
+      console.error('Error getting session:', error);
+      ProfileCacheService.clearCache();
+      return null;
     }
-    
-    return session;
   }
 
   static async hasRoutePermission(userId: string, routePath: string): Promise<boolean> {
@@ -60,18 +87,12 @@ export class AuthService {
   }
 
   static async getCurrentProfile() {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', (await this.getSession())?.user?.id)
-      .single();
-    
-    return data;
+    return ProfileCacheService.getCurrentProfile();
   }
 }
 
 // Legacy exports for backward compatibility
-export const signIn = AuthService.signIn;
-export const signOut = AuthService.signOut;
-export const getSession = AuthService.getSession;
-export const hasRoutePermission = AuthService.hasRoutePermission;
+export const { signIn } = AuthService;
+export const { signOut } = AuthService;
+export const { getSession } = AuthService;
+export const { hasRoutePermission } = AuthService;

@@ -24,7 +24,10 @@ export interface DashboardOverview {
     clay: number;
   };
   sales: {
-    total: number;
+    totalSales: number;
+    totalRevenue: number;
+    totalQuantity: number;
+    averagePrice: number;
   };
 }
 

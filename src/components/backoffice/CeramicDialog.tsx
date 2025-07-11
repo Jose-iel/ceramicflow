@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { Ceramic } from '@/types/backoffice';
+import type { Ceramic } from '@/types/backoffice';
 
 interface CeramicDialogProps {
   open: boolean;
@@ -59,71 +60,71 @@ const CeramicDialog: React.FC<CeramicDialogProps> = ({ open, onOpenChange, ceram
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-medium">Nome da Cerâmica</Label>
+            <Label className="text-sm font-medium" htmlFor="name">Nome da Cerâmica</Label>
             <Input
+              required
+              className="text-sm"
               id="name"
+              placeholder="Ex: Cerâmica São José"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Ex: Cerâmica São José"
-              required
-              className="text-sm"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="address" className="text-sm font-medium">Endereço</Label>
+            <Label className="text-sm font-medium" htmlFor="address">Endereço</Label>
             <Textarea
-              id="address"
-              value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              placeholder="Endereço completo da cerâmica"
               required
               className="text-sm min-h-[60px] resize-none"
+              id="address"
+              placeholder="Endereço completo da cerâmica"
               rows={3}
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone" className="text-sm font-medium">Telefone</Label>
+            <Label className="text-sm font-medium" htmlFor="phone">Telefone</Label>
             <Input
-              id="phone"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              placeholder="(11) 1234-5678"
               required
               className="text-sm"
+              id="phone"
+              placeholder="(11) 1234-5678"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+            <Label className="text-sm font-medium" htmlFor="email">Email</Label>
             <Input
+              required
+              className="text-sm"
               id="email"
+              placeholder="contato@ceramica.com"
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              placeholder="contato@ceramica.com"
-              required
-              className="text-sm"
             />
           </div>
 
           <div className="flex items-center space-x-2 py-2">
             <Switch
-              id="isActive"
               checked={formData.is_active}
+              id="isActive"
               onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
             />
-            <Label htmlFor="isActive" className="text-sm font-medium">Cerâmica Ativa</Label>
+            <Label className="text-sm font-medium" htmlFor="isActive">Cerâmica Ativa</Label>
           </div>
 
           <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto" type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit" className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto" type="submit">
               {ceramic ? 'Salvar Alterações' : 'Criar Cerâmica'}
             </Button>
           </div>

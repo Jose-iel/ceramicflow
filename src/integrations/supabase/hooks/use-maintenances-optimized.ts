@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { MaintenancesService } from '../api';
 import type { CreateMaintenancePayload, UpdateMaintenancePayload, Maintenance } from '../api';
+
 import { useToast } from '@/hooks/use-toast';
 import { useOptimizedQuery } from '@/hooks/useOptimizedQuery';
 
@@ -50,15 +52,15 @@ export function useCreateMaintenanceOptimized() {
         queryClient.setQueryData(['maintenances'], context.previousMaintenances);
       }
       toast({
-        title: "Erro ao criar manutenção",
+        title: 'Erro ao criar manutenção',
         description: err.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSuccess: () => {
       toast({
-        title: "Manutenção criada",
-        description: "Manutenção adicionada com sucesso.",
+        title: 'Manutenção criada',
+        description: 'Manutenção adicionada com sucesso.',
       });
     },
     onSettled: () => {
@@ -88,27 +90,27 @@ export function useUpdateMaintenanceOptimized() {
           old?.map((maintenance: Maintenance) =>
             maintenance.id === maintenanceId
               ? { ...maintenance, ...payload, updated_at: new Date().toISOString() }
-              : maintenance
-          )
+              : maintenance,
+          ),
         );
       }
 
       return { previousMaintenances };
     },
-    onError: (err, { maintenanceId }, context) => {
+    onError: (err, { maintenanceId: _maintenanceId }, context) => {
       if (context?.previousMaintenances) {
         queryClient.setQueryData(['maintenances'], context.previousMaintenances);
       }
       toast({
-        title: "Erro ao atualizar manutenção",
+        title: 'Erro ao atualizar manutenção',
         description: err.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSuccess: () => {
       toast({
-        title: "Manutenção atualizada",
-        description: "Dados da manutenção atualizados com sucesso.",
+        title: 'Manutenção atualizada',
+        description: 'Dados da manutenção atualizados com sucesso.',
       });
     },
     onSettled: () => {
@@ -133,7 +135,7 @@ export function useDeleteMaintenanceOptimized() {
       // Atualização otimista - remover da lista
       if (previousMaintenances) {
         queryClient.setQueryData(['maintenances'], (old: Maintenance[]) =>
-          old?.filter((maintenance: Maintenance) => maintenance.id !== maintenanceId)
+          old?.filter((maintenance: Maintenance) => maintenance.id !== maintenanceId),
         );
       }
 
@@ -144,15 +146,15 @@ export function useDeleteMaintenanceOptimized() {
         queryClient.setQueryData(['maintenances'], context.previousMaintenances);
       }
       toast({
-        title: "Erro ao excluir manutenção",
+        title: 'Erro ao excluir manutenção',
         description: err.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSuccess: () => {
       toast({
-        title: "Manutenção excluída",
-        description: "Manutenção removida com sucesso.",
+        title: 'Manutenção excluída',
+        description: 'Manutenção removida com sucesso.',
       });
     },
     onSettled: () => {

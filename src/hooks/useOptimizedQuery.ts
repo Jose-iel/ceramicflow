@@ -1,11 +1,12 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+import type { UseQueryOptions } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 // Hook personalizado para consultas otimizadas
 export function useOptimizedQuery<TData, TError = Error>(
   options: UseQueryOptions<TData, TError> & {
     queryKey: (string | number | boolean)[];
     queryFn: () => Promise<TData>;
-  }
+  },
 ) {
   return useQuery({
     ...options,
@@ -25,7 +26,7 @@ export function useRealTimeQuery<TData, TError = Error>(
   options: UseQueryOptions<TData, TError> & {
     queryKey: (string | number | boolean)[];
     queryFn: () => Promise<TData>;
-  }
+  },
 ) {
   return useQuery({
     ...options,

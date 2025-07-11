@@ -1,21 +1,25 @@
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Users } from 'lucide-react';
-import { Ceramic } from '@/types/backoffice';
-import { CreateCeramicPayload } from '@/integrations/supabase/api/backoffice';
+import { useState } from 'react';
+
 import CeramicDialog from './CeramicDialog';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import type { CreateCeramicPayload } from '@/integrations/supabase/api/backoffice';
 import { useCeramicsData, useCreateCeramic, useUpdateCeramic, useDeleteCeramic } from '@/integrations/supabase/hooks';
+import type { Ceramic } from '@/types/backoffice';
+
+
 
 
 const CeramicsTab = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCeramic, setEditingCeramic] = useState<Ceramic | null>(null);
 
-  const { data: ceramics = [], isLoading, isError } = useCeramicsData();
+  const { data: ceramics = [], isLoading } = useCeramicsData();
   const createCeramicMutation = useCreateCeramic();
   const updateCeramicMutation = useUpdateCeramic();
   const deleteCeramicMutation = useDeleteCeramic();
@@ -32,7 +36,7 @@ const CeramicsTab = () => {
   };
 
   const handleDeleteCeramic = (ceramicId: string) => {
-    if (!confirm('Tem certeza que deseja excluir esta cerâmica?')) return;
+    // TODO: Implementar dialog de confirmação personalizado
     deleteCeramicMutation.mutate(ceramicId);
   };
 
@@ -53,7 +57,7 @@ const CeramicsTab = () => {
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
           </div>
         </CardContent>
       </Card>
@@ -70,10 +74,10 @@ const CeramicsTab = () => {
               Cadastre e gerencie as cerâmicas do sistema
             </CardDescription>
           </div>
-          <Button 
-            onClick={handleCreateCeramic} 
+          <Button
             className="flex items-center gap-2 w-full sm:w-auto"
             size="sm"
+            onClick={handleCreateCeramic}
           >
             <Plus className="h-4 w-4" />
             Nova Cerâmica
@@ -93,29 +97,29 @@ const CeramicsTab = () => {
                   </div>
                   <div className="flex gap-1 ml-2">
                     <Button
-                      variant="ghost"
                       size="sm"
+                      variant="ghost"
                       onClick={() => handleEditCeramic(ceramic)}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
-                      variant="ghost"
                       size="sm"
+                      variant="ghost"
                       onClick={() => handleDeleteCeramic(ceramic.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2 text-xs text-muted-foreground">
                   <p className="truncate">{ceramic.address}</p>
                   <p>{ceramic.phone}</p>
                 </div>
-                
+
                 <div className="flex justify-between items-center">
-                  <Badge variant={ceramic.is_active ? 'default' : 'secondary'} className="text-xs">
+                  <Badge className="text-xs" variant={ceramic.is_active ? 'default' : 'secondary'}>
                     {ceramic.is_active ? 'Ativa' : 'Inativa'}
                   </Badge>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -153,7 +157,7 @@ const CeramicsTab = () => {
                   <TableCell className="hidden md:table-cell">{ceramic.phone}</TableCell>
                   <TableCell className="max-w-[150px] truncate">{ceramic.email}</TableCell>
                   <TableCell>
-                    <Badge variant={ceramic.is_active ? 'default' : 'secondary'} className="text-xs">
+                    <Badge className="text-xs" variant={ceramic.is_active ? 'default' : 'secondary'}>
                       {ceramic.is_active ? 'Ativa' : 'Inativa'}
                     </Badge>
                   </TableCell>
@@ -167,15 +171,15 @@ const CeramicsTab = () => {
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <Button
-                        variant="ghost"
                         size="sm"
+                        variant="ghost"
                         onClick={() => handleEditCeramic(ceramic)}
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="ghost"
                         size="sm"
+                        variant="ghost"
                         onClick={() => handleDeleteCeramic(ceramic.id)}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -189,9 +193,9 @@ const CeramicsTab = () => {
         </div>
 
         <CeramicDialog
+          ceramic={editingCeramic}
           open={dialogOpen}
           onOpenChange={setDialogOpen}
-          ceramic={editingCeramic}
           onSave={handleSaveCeramic}
         />
       </CardContent>

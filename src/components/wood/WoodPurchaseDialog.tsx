@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
+
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -7,10 +8,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import type { WoodPurchase, CreateWoodPurchasePayload } from '@/integrations/supabase/api/wood';
 
@@ -23,7 +24,7 @@ interface WoodPurchaseDialogProps {
 
 const WoodPurchaseDialog = ({ open, onOpenChange, onSave, purchase }: WoodPurchaseDialogProps) => {
   const { toast } = useToast();
-  
+
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     supplier: '',
@@ -31,7 +32,7 @@ const WoodPurchaseDialog = ({ open, onOpenChange, onSave, purchase }: WoodPurcha
     unit_price: '',
     total_value: '',
     invoice_number: '',
-    notes: ''
+    notes: '',
   });
 
   useEffect(() => {
@@ -43,7 +44,7 @@ const WoodPurchaseDialog = ({ open, onOpenChange, onSave, purchase }: WoodPurcha
         unit_price: purchase.unit_price ? purchase.unit_price.toString() : '',
         total_value: purchase.total_value ? purchase.total_value.toString() : '',
         invoice_number: purchase.invoice_number || '',
-        notes: purchase.notes || ''
+        notes: purchase.notes || '',
       });
     } else {
       setFormData({
@@ -53,7 +54,7 @@ const WoodPurchaseDialog = ({ open, onOpenChange, onSave, purchase }: WoodPurcha
         unit_price: '',
         total_value: '',
         invoice_number: '',
-        notes: ''
+        notes: '',
       });
     }
   }, [purchase, open]);
@@ -61,30 +62,30 @@ const WoodPurchaseDialog = ({ open, onOpenChange, onSave, purchase }: WoodPurcha
   const handleChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => {
       const newData = { ...prev, [field]: value };
-      
+
       // Auto calculate total when quantity or unit_price changes
       if (field === 'quantity' || field === 'unit_price') {
         const quantity = field === 'quantity' ? parseFloat(value) || 0 : parseFloat(newData.quantity) || 0;
         const unitPrice = field === 'unit_price' ? parseFloat(value) || 0 : parseFloat(newData.unit_price) || 0;
         newData.total_value = (quantity * unitPrice).toString();
       }
-      
+
       return newData;
     });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.supplier || !formData.quantity || !formData.unit_price) {
       toast({
-        title: "Erro ao salvar",
-        description: "Preencha todos os campos obrigatórios (Fornecedor, Quantidade e Preço Unitário)",
-        variant: "destructive"
+        title: 'Erro ao salvar',
+        description: 'Preencha todos os campos obrigatórios (Fornecedor, Quantidade e Preço Unitário)',
+        variant: 'destructive',
       });
       return;
     }
-    
+
     // Convert strings to numbers for submission
     const submissionData: CreateWoodPurchasePayload = {
       date: formData.date,
@@ -93,9 +94,9 @@ const WoodPurchaseDialog = ({ open, onOpenChange, onSave, purchase }: WoodPurcha
       unit_price: parseFloat(formData.unit_price) || 0,
       total_value: parseFloat(formData.total_value) || 0,
       invoice_number: formData.invoice_number,
-      notes: formData.notes
+      notes: formData.notes,
     };
-    
+
     onSave(submissionData);
   };
 
@@ -108,108 +109,108 @@ const WoodPurchaseDialog = ({ open, onOpenChange, onSave, purchase }: WoodPurcha
             Preencha as informações da compra de lenha.
           </DialogDescription>
         </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+
+        <form className="space-y-4 pt-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <Label htmlFor="date">Data</Label>
-            <Input 
-              id="date" 
-              type="date"
-              value={formData.date} 
-              onChange={(e) => handleChange('date', e.target.value)}
+            <Input
               required
+              id="date"
+              type="date"
+              value={formData.date}
+              onChange={(e) => handleChange('date', e.target.value)}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="supplier">Fornecedor *</Label>
-            <Input 
-              id="supplier" 
-              value={formData.supplier} 
-              onChange={(e) => handleChange('supplier', e.target.value)}
-              placeholder="Nome do fornecedor"
+            <Input
               required
+              id="supplier"
+              placeholder="Nome do fornecedor"
+              value={formData.supplier}
+              onChange={(e) => handleChange('supplier', e.target.value)}
             />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="quantity">Quantidade (m³) *</Label>
-              <Input 
-                id="quantity" 
-                type="number"
-                step="0.1"
-                min="0"
-                value={formData.quantity} 
-                onChange={(e) => handleChange('quantity', e.target.value)}
-                placeholder="0.0"
+              <Input
                 required
+                id="quantity"
+                min="0"
+                placeholder="0.0"
+                step="0.1"
+                type="number"
+                value={formData.quantity}
+                onChange={(e) => handleChange('quantity', e.target.value)}
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="unit_price">Preço por m³ (R$) *</Label>
-              <Input 
-                id="unit_price" 
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.unit_price} 
-                onChange={(e) => handleChange('unit_price', e.target.value)}
-                placeholder="0.00"
+              <Input
                 required
+                id="unit_price"
+                min="0"
+                placeholder="0.00"
+                step="0.01"
+                type="number"
+                value={formData.unit_price}
+                onChange={(e) => handleChange('unit_price', e.target.value)}
               />
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="total_value">Valor Total (R$)</Label>
-            <Input 
-              id="total_value" 
-              type="number"
-              step="0.01"
-              min="0"
-              value={formData.total_value} 
-              onChange={(e) => handleChange('total_value', e.target.value)}
+            <Input
               disabled
               className="bg-gray-100"
+              id="total_value"
+              min="0"
               placeholder="0.00"
+              step="0.01"
+              type="number"
+              value={formData.total_value}
+              onChange={(e) => handleChange('total_value', e.target.value)}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="invoice_number">Número da Nota Fiscal</Label>
-            <Input 
-              id="invoice_number" 
-              value={formData.invoice_number} 
-              onChange={(e) => handleChange('invoice_number', e.target.value)}
+            <Input
+              id="invoice_number"
               placeholder="Opcional"
+              value={formData.invoice_number}
+              onChange={(e) => handleChange('invoice_number', e.target.value)}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="notes">Observações</Label>
-            <Textarea 
-              id="notes" 
-              value={formData.notes || ''} 
-              onChange={(e) => handleChange('notes', e.target.value)}
+            <Textarea
+              id="notes"
               placeholder="Observações adicionais"
               rows={3}
+              value={formData.notes || ''}
+              onChange={(e) => handleChange('notes', e.target.value)}
             />
           </div>
 
           <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-6">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
+            <Button
               className="w-full sm:w-auto"
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
             >
               Cancelar
             </Button>
-            <Button 
-              type="submit"
+            <Button
               className="w-full sm:w-auto"
+              type="submit"
             >
               {purchase ? 'Atualizar' : 'Salvar'} Compra
             </Button>

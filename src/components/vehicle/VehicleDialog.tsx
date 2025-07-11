@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
+
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -7,12 +8,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { VehicleType, VehicleStatus } from '@/types';
-import { Vehicle, CreateVehiclePayload } from '@/integrations/supabase/api';
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import type { Vehicle, CreateVehiclePayload } from '@/integrations/supabase/api';
+import { VehicleType, VehicleStatus } from '@/types';
 
 interface VehicleDialogProps {
   open: boolean;
@@ -23,10 +25,10 @@ interface VehicleDialogProps {
 
 const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogProps) => {
   const { toast } = useToast();
-  
+
   const [formData, setFormData] = useState({
     model: '',
-    type: VehicleType.GAS,
+    type: VehicleType.CAR,
     capacity: '',
     acquisitionDate: '',
     lastMaintenance: '',
@@ -38,11 +40,11 @@ const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogPro
     if (vehicle) {
       setFormData({
         model: vehicle.model || '',
-        type: (vehicle.type as VehicleType) || VehicleType.GAS,
+        type: (vehicle.type as VehicleType) || VehicleType.CAR,
         capacity: vehicle.capacity || '',
-        acquisitionDate: vehicle.acquisition_date ? 
+        acquisitionDate: vehicle.acquisition_date ?
           new Date(vehicle.acquisition_date).toISOString().split('T')[0] : '',
-        lastMaintenance: vehicle.last_maintenance ? 
+        lastMaintenance: vehicle.last_maintenance ?
           new Date(vehicle.last_maintenance).toISOString().split('T')[0] : '',
         status: (vehicle.status as VehicleStatus) || VehicleStatus.OPERATIONAL,
         hourMeter: vehicle.hour_meter || 0,
@@ -50,7 +52,7 @@ const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogPro
     } else {
       setFormData({
         model: '',
-        type: VehicleType.GAS,
+        type: VehicleType.CAR,
         capacity: '',
         acquisitionDate: '',
         lastMaintenance: '',
@@ -66,16 +68,16 @@ const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogPro
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.model || !formData.type) {
       toast({
-        title: "Erro ao salvar",
-        description: "Preencha todos os campos obrigatórios",
-        variant: "destructive"
+        title: 'Erro ao salvar',
+        description: 'Preencha todos os campos obrigatórios',
+        variant: 'destructive',
       });
       return;
     }
-    
+
     // Converte os dados para o formato esperado pelo banco (snake_case)
     const vehicleData = {
       model: formData.model,
@@ -84,9 +86,9 @@ const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogPro
       acquisition_date: formData.acquisitionDate || null,
       last_maintenance: formData.lastMaintenance || null,
       status: formData.status,
-      hour_meter: formData.hourMeter === '' ? 0 : Number(formData.hourMeter) || 0
+      hour_meter: formData.hourMeter === '' ? 0 : Number(formData.hourMeter) || 0,
     };
-    
+
     onSave(vehicleData);
   };
 
@@ -99,107 +101,107 @@ const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogPro
             Preencha as informações do veículo abaixo.
           </DialogDescription>
         </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+
+        <form className="space-y-6 pt-4" onSubmit={handleSubmit}>
           {/* Informações Básicas */}
           <div className="space-y-4">
             <h3 className="text-sm font-medium text-gray-900 border-b pb-2">
               Informações Básicas
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="model">Modelo *</Label>
-                <Input 
-                  id="model" 
-                  value={formData.model} 
-                  onChange={(e) => handleChange('model', e.target.value)}
-                  placeholder="Ex: Toyota Hilux"
+                <Input
                   required
+                  id="model"
+                  placeholder="Ex: Toyota Hilux"
+                  value={formData.model}
+                  onChange={(e) => handleChange('model', e.target.value)}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="type">Tipo *</Label>
-                <select 
-                  id="type"
-                  className="w-full p-2 rounded-md border border-input bg-background text-sm"
-                  value={formData.type}
-                  onChange={(e) => handleChange('type', e.target.value as VehicleType)}
-                  required
-                >
-                  {Object.values(VehicleType).map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
+                <Select value={formData.type} onValueChange={(value) => handleChange('type', value as VehicleType)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(VehicleType).map(type => (
+                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="capacity">Capacidade em Toneladas</Label>
-                <Input 
-                  id="capacity" 
-                  value={formData.capacity} 
-                  onChange={(e) => handleChange('capacity', e.target.value)}
+                <Input
+                  id="capacity"
                   placeholder="Ex: 2.5 toneladas"
+                  value={formData.capacity}
+                  onChange={(e) => handleChange('capacity', e.target.value)}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
-                <select 
-                  id="status"
-                  className="w-full p-2 rounded-md border border-input bg-background text-sm"
-                  value={formData.status}
-                  onChange={(e) => handleChange('status', e.target.value as VehicleStatus)}
-                >
-                  {Object.values(VehicleStatus).map(status => (
-                    <option key={status} value={status}>{status}</option>
-                  ))}
-                </select>
+                <Select value={formData.status} onValueChange={(value) => handleChange('status', value as VehicleStatus)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.values(VehicleStatus).map(status => (
+                      <SelectItem key={status} value={status}>{status}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
-          
+
           {/* Datas e Horímetro */}
           <div className="space-y-4">
             <h3 className="text-sm font-medium text-gray-900 border-b pb-2">
               Controle e Manutenção
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="acquisitionDate">Data de Aquisição</Label>
-                <Input 
-                  id="acquisitionDate" 
+                <Input
+                  id="acquisitionDate"
                   type="date"
-                  value={formData.acquisitionDate} 
+                  value={formData.acquisitionDate}
                   onChange={(e) => handleChange('acquisitionDate', e.target.value)}
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="lastMaintenance">Última Manutenção</Label>
-                <Input 
-                  id="lastMaintenance" 
+                <Input
+                  id="lastMaintenance"
                   type="date"
-                  value={formData.lastMaintenance} 
+                  value={formData.lastMaintenance}
                   onChange={(e) => handleChange('lastMaintenance', e.target.value)}
                 />
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="hourMeter">Horímetro (horas)</Label>
-                <Input 
-                  id="hourMeter" 
-                  type="number"
+                <Input
+                  id="hourMeter"
                   min="0"
-                  value={formData.hourMeter || ''} 
+                  placeholder="Digite as horas"
+                  type="number"
+                  value={formData.hourMeter || ''}
                   onChange={(e) => {
-                    const value = e.target.value;
+                    const { value } = e.target;
                     if (value === '') {
                       handleChange('hourMeter', '');
                     } else {
@@ -209,7 +211,6 @@ const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogPro
                       }
                     }
                   }}
-                  placeholder="Digite as horas"
                 />
               </div>
               <div className="space-y-2">
@@ -217,19 +218,19 @@ const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogPro
               </div>
             </div>
           </div>
-          
+
           <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-6">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
+            <Button
               className="w-full sm:w-auto"
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
             >
               Cancelar
             </Button>
-            <Button 
-              type="submit"
+            <Button
               className="w-full sm:w-auto"
+              type="submit"
             >
               {vehicle ? 'Atualizar' : 'Criar'} Veículo
             </Button>

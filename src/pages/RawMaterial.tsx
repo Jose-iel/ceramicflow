@@ -1,197 +1,274 @@
 
-import { useState, useMemo } from 'react';
-import { Button } from "@/components/ui/button";
 import { Mountain, Plus, Truck } from 'lucide-react';
+import { useState, useMemo } from 'react';
+
+
+import DataTable from '@/components/common/DataTable';
+import { DeleteConfirmationDialog } from '@/components/common/DeleteConfirmationDialog';
 import PageLayout from '@/components/common/PageLayout';
 import ClayConsumptionDialog from '@/components/rawmaterial/ClayConsumptionDialog';
+import {
+  useClayConsumptions,
+  useCreateClayConsumption,
+  useUpdateClayConsumption,
+  useDeleteClayConsumption,
+} from '@/hooks';
 import { useToast } from '@/hooks/use-toast';
 import { useMonthFilter } from '@/hooks/useMonthFilter';
-import {
-  useClayConsumptions, 
-  useCreateClayConsumption, 
-  useUpdateClayConsumption, 
-  useDeleteClayConsumption
-} from '@/hooks';
-import { CreateClayConsumptionPayload, ClayConsumption } from '@/integrations/supabase/api';
+import type { CreateClayConsumptionPayload } from '@/integrations/supabase/api';
 import type { ClayConsumptionRawData } from '@/types';
 
 const RawMaterialPage = () => {
   const { toast } = useToast();
-  
+
   // Month filter hook
   const { selectedMonth, setSelectedMonth, filterDataByMonth } = useMonthFilter();
-  
+
   // Real database hooks
   const { data: clayConsumptions = [], isLoading } = useClayConsumptions();
   const createClayConsumption = useCreateClayConsumption();
   const updateClayConsumption = useUpdateClayConsumption();
   const deleteClayConsumption = useDeleteClayConsumption();
-  
-  // Function to get truck model by ID
-  const getTruckModel = (truckId: string) => {
-    // TODO: Implement trucks hook when needed
-    // const truck = trucks.find(t => t.id === truckId);
-    // return truck ? truck.model : truckId;
-    return `Caminhão ${truckId}`;
-  };
-  
+
+  // State management
+  const [search, setSearch] = useState('');
   const [showDialog, setShowDialog] = useState(false);
   const [editingConsumption, setEditingConsumption] = useState<ClayConsumptionRawData | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [consumptionToDelete, setConsumptionToDelete] = useState<{ id: string; name: string } | null>(null);
 
-  // Filter data by selected month using the hook
+  // Filter data by selected month and search
   const filteredConsumptions = useMemo(() => {
-    return filterDataByMonth(clayConsumptions);
-  }, [clayConsumptions, filterDataByMonth]);
-  
+    // First filter by month
+    const monthFiltered = filterDataByMonth(clayConsumptions);
+
+    // Then filter by search
+    const finalFiltered = monthFiltered.filter(consumption =>
+      consumption.supplier?.toLowerCase().includes(search.toLowerCase()) ||
+      consumption.origin?.toLowerCase().includes(search.toLowerCase()) ||
+      consumption.recorded_by?.toLowerCase().includes(search.toLowerCase()) ||
+      consumption.notes?.toLowerCase().includes(search.toLowerCase()),
+    );
+
+    return finalFiltered;
+  }, [clayConsumptions, filterDataByMonth, search]);
+
   const totalMonthlyTrucks = filteredConsumptions.reduce((sum, item) => sum + Number(item.trucks_quantity || 0), 0);
-  const averageDailyConsumption = filteredConsumptions.length > 0 
-    ? totalMonthlyTrucks / filteredConsumptions.length 
+  const averageDailyConsumption = filteredConsumptions.length > 0
+    ? totalMonthlyTrucks / filteredConsumptions.length
     : 0;
 
-  const handleSaveConsumption = (consumption: { 
-    date: string; 
-    trucks_quantity: number; 
-    supplier?: string; 
-    origin?: string; 
-    truck_id?: string; 
-    recorded_by: string; 
-    notes?: string; 
+  const handleSaveConsumption = (consumption: {
+    date: string;
+    trucks_quantity: number;
+    supplier?: string;
+    origin?: string;
+    truck_id?: string;
+    recorded_by: string;
+    notes?: string;
   }) => {
     if (editingConsumption) {
       updateClayConsumption.mutate({
         clayConsumptionId: editingConsumption.id,
-        payload: consumption as unknown as CreateClayConsumptionPayload
+        payload: consumption as unknown as CreateClayConsumptionPayload,
+      }, {
+        onSuccess: () => {
+          toast({
+            title: 'Consumo atualizado',
+            description: 'O consumo de barro foi atualizado com sucesso.',
+          });
+        },
       });
     } else {
-      createClayConsumption.mutate(consumption as unknown as CreateClayConsumptionPayload);
+      createClayConsumption.mutate(consumption as unknown as CreateClayConsumptionPayload, {
+        onSuccess: () => {
+          toast({
+            title: 'Consumo registrado',
+            description: 'O consumo de barro foi registrado com sucesso.',
+          });
+        },
+      });
     }
     setEditingConsumption(null);
     setShowDialog(false);
   };
 
-  const handleEditConsumption = (consumption: ClayConsumption) => {
-    setEditingConsumption(consumption as unknown as ClayConsumptionRawData);
+  const handleEditConsumption = (consumption: ClayConsumptionRawData) => {
+    setEditingConsumption(consumption);
     setShowDialog(true);
   };
 
-  const handleDeleteConsumption = (id: string) => {
-    deleteClayConsumption.mutate(id);
+  const handleDeleteConsumption = (consumption: ClayConsumptionRawData) => {
+    setConsumptionToDelete({
+      id: consumption.id,
+      name: `Consumo de ${consumption.trucks_quantity} caminhões - ${new Date(consumption.date).toLocaleDateString('pt-BR')}`,
+    });
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    if (consumptionToDelete) {
+      try {
+        await deleteClayConsumption.mutateAsync(consumptionToDelete.id);
+        toast({
+          title: 'Consumo excluído',
+          description: `O consumo ${consumptionToDelete.name} foi excluído com sucesso.`,
+        });
+      } catch {
+        toast({
+          title: 'Erro ao excluir',
+          description: 'Ocorreu um erro ao excluir o consumo.',
+          variant: 'destructive',
+        });
+      }
+    }
+    setShowDeleteDialog(false);
+    setConsumptionToDelete(null);
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString('pt-BR');
+    } catch {
+      return dateString;
+    }
   };
 
   // Stats cards configuration
   const statsCards = [
     {
-      title: "Total no Mês",
+      title: 'Total no Mês',
       value: `${totalMonthlyTrucks} caminhões`,
-      subtitle: "Total de caminhões no período",
+      subtitle: 'Total de caminhões no período',
       icon: Truck,
-      iconColor: "text-blue-600",
-      iconBgColor: "bg-blue-100"
+      iconColor: 'text-blue-600',
+      iconBgColor: 'bg-blue-100',
     },
     {
-      title: "Média por Registro",
+      title: 'Média por Registro',
       value: `${averageDailyConsumption.toFixed(1)} caminhões`,
-      subtitle: "Média por registro no período",
+      subtitle: 'Média por registro no período',
       icon: Mountain,
-      iconColor: "text-green-600",
-      iconBgColor: "bg-green-100"
-    }
+      iconColor: 'text-green-600',
+      iconBgColor: 'bg-green-100',
+    },
+  ];
+
+  // Table columns
+  const columns = [
+    {
+      key: 'date',
+      label: 'Data',
+      render: (value: unknown) => formatDate(value as string),
+      className: 'min-w-[100px]',
+    },
+    {
+      key: 'trucks_quantity',
+      label: 'Quantidade',
+      render: (value: unknown) => `${value} caminhões`,
+      className: 'min-w-[120px]',
+    },
+    {
+      key: 'recorded_by',
+      label: 'Registrado por',
+      className: 'min-w-[150px]',
+    },
+    {
+      key: 'supplier',
+      label: 'Fornecedor',
+      render: (value: unknown) => (value as string) || '-',
+      className: 'min-w-[120px] hidden sm:table-cell',
+    },
+    {
+      key: 'origin',
+      label: 'Origem',
+      render: (value: unknown) => (value as string) || '-',
+      className: 'min-w-[120px] hidden md:table-cell',
+    },
+    {
+      key: 'truck_id',
+      label: 'Caminhão',
+      render: (value: unknown) => value ? `Caminhão ${value}` : '-',
+      className: 'min-w-[100px] hidden lg:table-cell',
+    },
+    {
+      key: 'notes',
+      label: 'Observações',
+      render: (value: unknown) => (value as string) || '-',
+      className: 'min-w-[150px] hidden xl:table-cell',
+    },
+  ];
+
+  // Table actions
+  const tableActions = [
+    {
+      label: 'Editar',
+      onClick: (row: Record<string, unknown>) => handleEditConsumption(row as unknown as ClayConsumptionRawData),
+      variant: 'outline' as const,
+      className: 'sm:w-auto w-full mb-2 sm:mb-0',
+    },
+    {
+      label: 'Excluir',
+      variant: 'ghost' as const,
+      className: 'text-red-500 hover:text-red-700 hover:bg-red-50 sm:w-auto w-full',
+      onClick: (row: Record<string, unknown>) => handleDeleteConsumption(row as unknown as ClayConsumptionRawData),
+    },
   ];
 
   // Actions configuration
   const actions = [
     {
-      label: "Registrar Consumo",
+      label: 'Registrar Consumo',
       onClick: () => {
         setEditingConsumption(null);
         setShowDialog(true);
       },
-      icon: <Plus className="w-4 h-4" />
-    }
+      icon: <Plus className="w-4 h-4" />,
+    },
   ];
 
   return (
     <PageLayout
-      title="Matéria-Prima"
-      subtitle="Gestão de Consumo de Barro"
-      selectedMonth={selectedMonth}
-      onMonthChange={setSelectedMonth}
-      statsCards={statsCards}
       actions={actions}
       isLoading={isLoading}
-      showSearch={false}
+      searchPlaceholder="Buscar por fornecedor, origem, responsável..."
+      searchValue={search}
+      selectedMonth={selectedMonth}
+      statsCards={statsCards}
+      subtitle="Gestão de Consumo de Barro"
+      title="Matéria-Prima"
+      onMonthChange={setSelectedMonth}
+      onSearchChange={setSearch}
     >
       <div className="space-y-6">
-        <h2 className="text-2xl font-semibold">Consumo de Barro</h2>
-        
-        <div className="space-y-4">
-          {filteredConsumptions.length === 0 ? (
-            <div className="bg-card rounded-lg p-8 text-center">
-              <p className="text-muted-foreground">
-                Nenhum consumo registrado neste período.
-              </p>
-            </div>
-          ) : (
-            filteredConsumptions.map((consumption) => (
-              <div key={consumption.id} className="bg-card border rounded-lg p-4">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <h4 className="font-medium text-lg mb-2">
-                      {consumption.trucks_quantity} caminhões de barro
-                    </h4>
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>
-                        📅 {new Date(consumption.date).toLocaleDateString('pt-BR')} - por {consumption.recorded_by}
-                      </p>
-                      {consumption.supplier && (
-                        <p>🏢 Fornecedor: {consumption.supplier}</p>
-                      )}
-                      {consumption.origin && (
-                        <p>📍 Origem: {consumption.origin}</p>
-                      )}
-                      {consumption.truck_id && (
-                        <p>🚛 Caminhão: {getTruckModel(consumption.truck_id)}</p>
-                      )}
-                      {consumption.notes && (
-                        <p className="mt-2 p-2 bg-muted/50 rounded text-foreground">💬 {consumption.notes}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-right ml-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Truck className="w-5 h-5 text-muted-foreground" />
-                      <span className="text-lg font-semibold">{consumption.trucks_quantity}</span>
-                    </div>
-                    <div className="flex gap-1">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEditConsumption(consumption)}
-                      >
-                        Editar
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => handleDeleteConsumption(consumption.id)}
-                      >
-                        Excluir
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+        <DataTable
+          showMobileCards
+          actions={tableActions}
+          columns={columns}
+          data={filteredConsumptions as unknown as Record<string, unknown>[]}
+          emptyMessage="Nenhum consumo registrado para este período"
+          isLoading={isLoading}
+          minWidth="600px"
+        />
       </div>
-      
+
       <ClayConsumptionDialog
+        consumption={editingConsumption}
         open={showDialog}
         onOpenChange={setShowDialog}
         onSave={handleSaveConsumption}
-        consumption={editingConsumption}
+      />
+
+      <DeleteConfirmationDialog
+        cancelText="Cancelar"
+        confirmText="Excluir"
+        description="Esta ação não pode ser desfeita."
+        itemName={consumptionToDelete?.name}
+        itemType="consumo"
+        open={showDeleteDialog}
+        trigger={<></>}
+        onConfirm={confirmDelete}
+        onOpenChange={setShowDeleteDialog}
       />
     </PageLayout>
   );

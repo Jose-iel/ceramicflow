@@ -1,16 +1,17 @@
 
-import { useLocation, Link } from "react-router-dom";
-import { useEffect } from "react";
-import { Home } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Home } from 'lucide-react';
+import { useEffect } from 'react';
+import { useLocation, Link } from 'react-router-dom';
+
+import { Button } from '@/components/ui/button';
 
 const NotFound = () => {
   const location = useLocation();
 
   useEffect(() => {
     console.error(
-      "404 Erro: Usuário tentou acessar uma rota inexistente:",
-      location.pathname
+      '404 Erro: Usuário tentou acessar uma rota inexistente:',
+      location.pathname,
     );
   }, [location.pathname]);
 

@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
 import { Calendar } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import React, { useMemo } from 'react';
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface MonthFilterProps {
   selectedMonth: string;
@@ -9,28 +10,28 @@ interface MonthFilterProps {
   label?: string;
 }
 
-const MonthFilter: React.FC<MonthFilterProps> = ({ 
-  selectedMonth, 
-  onMonthChange, 
-  className = "",
-  label = "Filtrar por mês:"
+const MonthFilter: React.FC<MonthFilterProps> = ({
+  selectedMonth,
+  onMonthChange,
+  className = '',
+  label = 'Filtrar por mês:',
 }) => {
   // Generate month options for the last 12 months
   const monthOptions = useMemo(() => {
     const options = [];
     const currentDate = new Date();
-    
+
     for (let i = 0; i < 12; i++) {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       const monthLabel = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-      
+
       options.push({
         value: monthKey,
-        label: monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)
+        label: monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1),
       });
     }
-    
+
     return options;
   }, []);
 

@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import React, { createContext, useState } from 'react';
 
 interface MonthFilterContextType {
   selectedMonth: string;
@@ -25,7 +26,7 @@ export const MonthFilterProvider: React.FC<MonthFilterProviderProps> = ({ childr
     <MonthFilterContext.Provider value={{
       selectedMonth,
       setSelectedMonth,
-      getCurrentMonth
+      getCurrentMonth,
     }}>
       {children}
     </MonthFilterContext.Provider>

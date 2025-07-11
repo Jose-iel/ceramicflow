@@ -9,7 +9,7 @@ export const preloadComponents = () => {
   const preloadOperationDialog = () => import('@/components/operations/OperationDialog');
   const preloadEmployeeDialog = () => import('@/components/employees/EmployeeDialog');
   const preloadClayConsumptionDialog = () => import('@/components/rawmaterial/ClayConsumptionDialog');
-  
+
   return {
     preloadVehicleDialog,
     preloadMaintenanceDialog,
@@ -22,10 +22,10 @@ export const preloadComponents = () => {
 // Create lazy components with preload capability
 export const createLazyComponent = (importFn: () => Promise<{ default: React.ComponentType<unknown> }>) => {
   const LazyComponent = lazy(importFn);
-  
+
   // Add preload method
   (LazyComponent as React.LazyExoticComponent<React.ComponentType<unknown>> & { preload: () => Promise<{ default: React.ComponentType<unknown> }> }).preload = importFn;
-  
+
   return LazyComponent;
 };
 

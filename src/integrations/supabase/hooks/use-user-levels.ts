@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { UserLevelsService } from '../api/user-levels';
 import type { CreateUserLevelPayload, UpdateUserLevelPayload } from '../api/user-levels';
+
 import { useToast } from '@/hooks/use-toast';
 
 export function useUserLevels() {
@@ -38,11 +40,11 @@ export function useCreateUserLevel() {
   return useMutation({
     mutationFn: (payload: CreateUserLevelPayload) => UserLevelsService.createUserLevel(payload),
     onSuccess: () => {
-      toast({ title: "Nível criado", description: "Operação realizada com sucesso." });
+      toast({ title: 'Nível criado', description: 'Operação realizada com sucesso.' });
       queryClient.invalidateQueries({ queryKey: ['userLevels'] });
     },
     onError: (error: Error) => {
-      toast({ title: "Erro ao criar nível", description: error.message, variant: "destructive" });
+      toast({ title: 'Erro ao criar nível', description: error.message, variant: 'destructive' });
     },
   });
 }
@@ -52,14 +54,14 @@ export function useUpdateUserLevel() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: ({ levelId, payload }: { levelId: string; payload: UpdateUserLevelPayload }) => 
+    mutationFn: ({ levelId, payload }: { levelId: string; payload: UpdateUserLevelPayload }) =>
       UserLevelsService.updateUserLevel(levelId, payload),
     onSuccess: () => {
-      toast({ title: "Nível atualizado", description: "Operação realizada com sucesso." });
+      toast({ title: 'Nível atualizado', description: 'Operação realizada com sucesso.' });
       queryClient.invalidateQueries({ queryKey: ['userLevels'] });
     },
     onError: (error: Error) => {
-      toast({ title: "Erro ao atualizar nível", description: error.message, variant: "destructive" });
+      toast({ title: 'Erro ao atualizar nível', description: error.message, variant: 'destructive' });
     },
   });
 }
@@ -71,12 +73,12 @@ export function useDeleteUserLevel() {
   return useMutation({
     mutationFn: (levelId: string) => UserLevelsService.deleteUserLevel(levelId),
     onSuccess: () => {
-      toast({ title: "Nível excluído com sucesso" });
+      toast({ title: 'Nível excluído com sucesso' });
       queryClient.invalidateQueries({ queryKey: ['userLevels'] });
     },
     onError: (error: Error) => {
       if (error.message !== 'Exclusão cancelada') {
-        toast({ title: "Erro ao excluir nível", description: error.message, variant: "destructive" });
+        toast({ title: 'Erro ao excluir nível', description: error.message, variant: 'destructive' });
       }
     },
   });

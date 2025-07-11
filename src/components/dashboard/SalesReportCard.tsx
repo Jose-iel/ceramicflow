@@ -1,20 +1,40 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { TrendingUp, ShoppingCart, Package, DollarSign } from 'lucide-react';
-import { useSalesStatsOptimized } from '@/integrations/supabase/hooks';
+
 import AnimatedCounter from '@/components/common/AnimatedCounter';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMonthFilter } from '@/hooks/useMonthFilter';
+import { useSalesStatsOptimized } from '@/integrations/supabase/hooks';
 
-const SalesReportCard = () => {
+interface SalesData {
+  totalSales: number;
+  totalRevenue: number;
+  totalQuantity: number;
+  averagePrice: number;
+}
+
+interface SalesReportCardProps {
+  salesData?: SalesData;
+}
+
+const SalesReportCard = ({ salesData }: SalesReportCardProps) => {
   const { selectedMonth } = useMonthFilter();
-  // Usando hook otimizado com cache e filtro de mês
-  const { data: stats, isLoading } = useSalesStatsOptimized(selectedMonth);
+  // Só usar hook se salesData não for fornecido
+  const shouldFetchStats = !salesData;
+  const { data: stats, isLoading } = useSalesStatsOptimized(
+    selectedMonth,
+    shouldFetchStats
+  );
 
-  if (isLoading) {
+  // Usar salesData se fornecido, caso contrário usar stats do hook
+  const finalStats = salesData || stats;
+  const loading = !salesData && isLoading;
+
+  if (loading) {
     return (
       <Card className="animate-pulse">
         <CardContent className="p-6">
-          <div className="h-20 bg-muted rounded"></div>
+          <div className="h-20 bg-muted rounded" />
         </CardContent>
       </Card>
     );
@@ -28,7 +48,7 @@ const SalesReportCard = () => {
             <ShoppingCart className="h-5 w-5 text-primary" />
             Resumo de Vendas
           </CardTitle>
-          <Badge variant="secondary" className="text-xs">
+          <Badge className="text-xs" variant="secondary">
             Relatório
           </Badge>
         </div>
@@ -44,37 +64,37 @@ const SalesReportCard = () => {
               <span className="text-sm font-medium">Total Vendas</span>
             </div>
             <div className="text-2xl font-bold">
-              <AnimatedCounter value={stats?.totalSales || 0} />
+              <AnimatedCounter value={finalStats?.totalSales || 0} />
             </div>
           </div>
-          
+
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <DollarSign className="h-4 w-4 text-blue-600" />
               <span className="text-sm font-medium">Receita Total</span>
             </div>
             <div className="text-2xl font-bold text-green-600">
-              R$ {(stats?.totalRevenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              R$ {(finalStats?.totalRevenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </div>
           </div>
-          
+
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <Package className="h-4 w-4 text-orange-600" />
               <span className="text-sm font-medium">Tijolos Vendidos</span>
             </div>
             <div className="text-lg font-semibold">
-              <AnimatedCounter value={stats?.totalQuantity || 0} />
+              <AnimatedCounter value={finalStats?.totalQuantity || 0} />
             </div>
           </div>
-          
+
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-purple-600" />
               <span className="text-sm font-medium">Preço Médio/Milheiro</span>
             </div>
             <div className="text-lg font-semibold">
-              R$ {(stats?.averagePrice || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              R$ {(finalStats?.averagePrice || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </div>
           </div>
         </div>

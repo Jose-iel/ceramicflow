@@ -1,6 +1,6 @@
 // Lazy-loaded icons for LandingPage to reduce initial bundle size
-import { Suspense, lazy } from 'react';
 import type { LucideProps } from 'lucide-react';
+import { Suspense, lazy } from 'react';
 
 // Lazy load critical icons
 const ClockIcon = lazy(() => import('lucide-react/dist/esm/icons/clock').then(m => ({ default: m.Clock })));
@@ -32,6 +32,7 @@ interface LazyLucideProps {
   className?: string;
 }
 
+// eslint-disable-next-line unused-imports/no-unused-vars
 const LazyIcon: React.FC<LazyLucideProps> = ({ children, className }) => (
   <Suspense fallback={<IconFallback />}>
     <div className={className}>

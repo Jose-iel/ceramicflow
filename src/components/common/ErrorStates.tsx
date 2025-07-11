@@ -1,4 +1,5 @@
 import { AlertTriangle, RefreshCw, Wifi, Database } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -12,11 +13,11 @@ interface ErrorStateProps {
   variant?: 'default' | 'network' | 'api' | 'not-found';
 }
 
-export function ErrorState({ 
-  title, 
-  description, 
+export function ErrorState({
+  title,
+  description,
   action,
-  variant = 'default' 
+  variant = 'default',
 }: ErrorStateProps) {
   const getIcon = () => {
     switch (variant) {
@@ -34,22 +35,22 @@ export function ErrorState({
       case 'network':
         return {
           title: 'Problema de Conexão',
-          description: 'Verifique sua conexão com a internet e tente novamente.'
+          description: 'Verifique sua conexão com a internet e tente novamente.',
         };
       case 'api':
         return {
           title: 'Erro do Servidor',
-          description: 'Nossos serviços estão temporariamente indisponíveis.'
+          description: 'Nossos serviços estão temporariamente indisponíveis.',
         };
       case 'not-found':
         return {
           title: 'Dados Não Encontrados',
-          description: 'Não foi possível encontrar os dados solicitados.'
+          description: 'Não foi possível encontrar os dados solicitados.',
         };
       default:
         return {
           title: 'Erro Inesperado',
-          description: 'Algo deu errado. Nossa equipe foi notificada.'
+          description: 'Algo deu errado. Nossa equipe foi notificada.',
         };
     }
   };
@@ -70,7 +71,7 @@ export function ErrorState({
         </CardHeader>
         {action && (
           <CardContent>
-            <Button onClick={action.onClick} className="w-full">
+            <Button className="w-full" onClick={action.onClick}>
               <RefreshCw className="h-4 w-4 mr-2" />
               {action.label}
             </Button>
@@ -82,10 +83,10 @@ export function ErrorState({
 }
 
 // Error state para tabelas vazias
-export function EmptyState({ 
-  title = "Nenhum dado encontrado",
-  description = "Ainda não há dados para exibir aqui.",
-  action
+export function EmptyState({
+  title = 'Nenhum dado encontrado',
+  description = 'Ainda não há dados para exibir aqui.',
+  action,
 }: {
   title?: string;
   description?: string;
@@ -111,22 +112,22 @@ export function EmptyState({
 }
 
 // Loading state para substituir "Carregando..."
-export function LoadingState({ 
-  message = "Carregando dados...",
-  size = "default"
+export function LoadingState({
+  message = 'Carregando dados...',
+  size = 'default',
 }: {
   message?: string;
-  size?: "sm" | "default" | "lg";
+  size?: 'sm' | 'default' | 'lg';
 }) {
   const sizeClasses = {
-    sm: "p-4",
-    default: "p-8", 
-    lg: "p-12"
+    sm: 'p-4',
+    default: 'p-8',
+    lg: 'p-12',
   };
 
   return (
     <div className={`flex flex-col items-center justify-center text-center ${sizeClasses[size]}`}>
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4" />
       <p className="text-muted-foreground">{message}</p>
     </div>
   );

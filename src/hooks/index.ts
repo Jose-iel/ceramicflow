@@ -5,54 +5,55 @@
 export { useAuthOptimized as useAuth } from '@/integrations/supabase/hooks/use-auth';
 export { useToast } from './use-toast';
 export { useIsMobile as useMobile } from './use-mobile';
+export { useCurrentUser } from './useCurrentUser';
 
 // Filter hooks
 export { useMonthFilter } from './useMonthFilter';
 
 // Entity hooks - optimized versions only
-export { 
+export {
   useEmployeesOptimized as useEmployees,
   useCreateEmployeeOptimized as useCreateEmployee,
   useUpdateEmployeeOptimized as useUpdateEmployee,
-  useDeleteEmployeeOptimized as useDeleteEmployee
+  useDeleteEmployeeOptimized as useDeleteEmployee,
 } from '@/integrations/supabase/hooks/use-employees-optimized';
 
-export { 
+export {
   useVehiclesOptimized as useVehicles,
   useCreateVehicleOptimized as useCreateVehicle,
   useUpdateVehicleOptimized as useUpdateVehicle,
-  useDeleteVehicleOptimized as useDeleteVehicle
+  useDeleteVehicleOptimized as useDeleteVehicle,
 } from '@/integrations/supabase/hooks/use-vehicles-optimized';
 
-export { 
+export {
   useOperationsOptimized as useOperations,
   useCreateOperationOptimized as useCreateOperation,
   useUpdateOperationOptimized as useUpdateOperation,
-  useDeleteOperationOptimized as useDeleteOperation
+  useDeleteOperationOptimized as useDeleteOperation,
 } from '@/integrations/supabase/hooks/use-operations-optimized';
 
-export { 
+export {
   useMaintenancesOptimized as useMaintenances,
   useCreateMaintenanceOptimized as useCreateMaintenance,
   useUpdateMaintenanceOptimized as useUpdateMaintenance,
-  useDeleteMaintenanceOptimized as useDeleteMaintenance
+  useDeleteMaintenanceOptimized as useDeleteMaintenance,
 } from '@/integrations/supabase/hooks/use-maintenances-optimized';
 
-export { 
+export {
   useClayConsumptionsOptimized as useClayConsumptions,
   useCreateClayConsumptionOptimized as useCreateClayConsumption,
   useUpdateClayConsumptionOptimized as useUpdateClayConsumption,
-  useDeleteClayConsumptionOptimized as useDeleteClayConsumption
+  useDeleteClayConsumptionOptimized as useDeleteClayConsumption,
 } from '@/integrations/supabase/hooks/use-clay-consumptions-optimized';
 
-export { 
+export {
   useSalesOptimized as useSales,
   useCreateSaleOptimized as useCreateSale,
   useUpdateSaleOptimized as useUpdateSale,
-  useDeleteSaleOptimized as useDeleteSale
+  useDeleteSaleOptimized as useDeleteSale,
 } from '@/integrations/supabase/hooks/use-sales-optimized';
 
-export { 
+export {
   useWoodPurchasesOptimized as useWoodPurchases,
   useWoodConsumptionsOptimized as useWoodConsumptions,
   useCreateWoodPurchaseOptimized as useCreateWoodPurchase,
@@ -60,5 +61,5 @@ export {
   useUpdateWoodPurchaseOptimized as useUpdateWoodPurchase,
   useUpdateWoodConsumptionOptimized as useUpdateWoodConsumption,
   useDeleteWoodPurchaseOptimized as useDeleteWoodPurchase,
-  useDeleteWoodConsumptionOptimized as useDeleteWoodConsumption
+  useDeleteWoodConsumptionOptimized as useDeleteWoodConsumption,
 } from '@/integrations/supabase/hooks/use-wood-optimized';
