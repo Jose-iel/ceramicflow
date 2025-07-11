@@ -50,9 +50,18 @@ export const optimizeDepsConfig = {
     '@radix-ui/react-tabs',
   ],
   exclude: [],
-  // Configurações mínimas para ESBuild
+  // Configurações específicas para ESBuild
   esbuildOptions: {
+    define: {
+      // Garantir que process.env funcione corretamente
+      'process.env.NODE_ENV': '"production"',
+    },
+    // Preservar nomes de função para debugging
+    keepNames: true,
+    // Target ES2020 para compatibilidade
     target: 'es2020',
+    // Resolver corretamente para evitar duplicação
+    resolveExtensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
   },
 };
 
