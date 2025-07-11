@@ -20,6 +20,8 @@ export default defineConfig(({ mode }) => ({
       // Garantir que React e React-DOM usem a mesma versão
       "react": path.resolve(__dirname, "./node_modules/react"),
       "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
+      // Fix para Radix UI useLayoutEffect conflicts
+      "@radix-ui/react-use-layout-effect": path.resolve(__dirname, "./node_modules/@radix-ui/react-use-layout-effect"),
     },
   },
   build: {
