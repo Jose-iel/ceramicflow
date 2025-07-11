@@ -186,12 +186,6 @@ const RawMaterialPage = () => {
       className: 'min-w-[120px] hidden md:table-cell',
     },
     {
-      key: 'truck_id',
-      label: 'Caminhão',
-      render: (value: unknown) => value ? `Caminhão ${value}` : '-',
-      className: 'min-w-[100px] hidden lg:table-cell',
-    },
-    {
       key: 'notes',
       label: 'Observações',
       render: (value: unknown) => (value as string) || '-',
