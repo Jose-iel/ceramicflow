@@ -36,7 +36,9 @@ export class EmployeesService {
   }
 
   static async findEmployeeByEmail(email: string): Promise<Employee | null> {
-    if (!email) {return null;}
+    if (!email) {
+      return null;
+    }
 
     try {
       const ceramicId = await EmployeesService.getCurrentUserCeramicId();
@@ -88,11 +90,7 @@ export class EmployeesService {
       ceramic_id: ceramicId,
     };
 
-    const { data, error } = await supabase
-      .from('employees')
-      .insert(employeeData)
-      .select()
-      .single();
+    const { data, error } = await supabase.from('employees').insert(employeeData).select().single();
 
     if (error) {
       throw new Error(error.message);
@@ -128,11 +126,7 @@ export class EmployeesService {
   static async deleteEmployee(employeeId: string): Promise<void> {
     const ceramicId = await EmployeesService.getCurrentUserCeramicId();
 
-    const { error } = await supabase
-      .from('employees')
-      .delete()
-      .eq('id', employeeId)
-      .eq('ceramic_id', ceramicId);
+    const { error } = await supabase.from('employees').delete().eq('id', employeeId).eq('ceramic_id', ceramicId);
 
     if (error) {
       throw new Error(error.message);

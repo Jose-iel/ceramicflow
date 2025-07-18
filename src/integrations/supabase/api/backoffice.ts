@@ -30,8 +30,8 @@ export type UpdateCeramicPayload = CreateCeramicPayload;
 
 export interface UsersTabData {
   users: BackofficeUser[];
-  ceramics: {id: string, name: string}[];
-  userLevels: {id: string, name: string}[];
+  ceramics: { id: string; name: string }[];
+  userLevels: { id: string; name: string }[];
 }
 
 export class BackofficeService {

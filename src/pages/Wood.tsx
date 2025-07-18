@@ -1,6 +1,3 @@
-
-
-
 import { Plus, TreePine, ShoppingCart, Flame } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 
@@ -18,12 +15,15 @@ import {
   useUpdateWoodConsumption,
   useDeleteWoodConsumption,
 } from '@/hooks';
-import { useToast } from '@/hooks/use-toast';
 import { useMonthFilter } from '@/hooks/useMonthFilter';
-import type { WoodPurchase, WoodConsumption, CreateWoodPurchasePayload, CreateWoodConsumptionPayload } from '@/integrations/supabase/api/wood';
+import type {
+  WoodPurchase,
+  WoodConsumption,
+  CreateWoodPurchasePayload,
+  CreateWoodConsumptionPayload,
+} from '@/integrations/supabase/api/wood';
 
 const WoodPage = () => {
-  const { toast: _toast } = useToast();
   const [search, setSearch] = useState('');
   const { selectedMonth, setSelectedMonth, filterDataByMonth } = useMonthFilter();
 
@@ -46,16 +46,16 @@ const WoodPage = () => {
   // Filter data by selected month using the hook
   const filteredPurchases = useMemo(() => {
     const monthFiltered = filterDataByMonth(purchases);
-    return monthFiltered.filter(purchase =>
-      purchase.supplier?.toLowerCase().includes(search.toLowerCase()) || false,
-    );
+    return monthFiltered.filter(purchase => purchase.supplier?.toLowerCase().includes(search.toLowerCase()) || false);
   }, [purchases, search, filterDataByMonth]);
 
   const filteredConsumption = useMemo(() => {
     const monthFiltered = filterDataByMonth(consumption);
-    return monthFiltered.filter(consumptionItem =>
-      (consumptionItem.oven?.toLowerCase().includes(search.toLowerCase()) ||
-       consumptionItem.responsible?.toLowerCase().includes(search.toLowerCase())) || false,
+    return monthFiltered.filter(
+      consumptionItem =>
+        consumptionItem.oven?.toLowerCase().includes(search.toLowerCase()) ||
+        consumptionItem.responsible?.toLowerCase().includes(search.toLowerCase()) ||
+        false
     );
   }, [consumption, search, filterDataByMonth]);
 
@@ -192,7 +192,12 @@ const WoodPage = () => {
     { key: 'supplier', label: 'Fornecedor' },
     { key: 'quantity', label: 'Quantidade', render: (value: unknown) => `${value}m³` },
     { key: 'unit_price', label: 'Valor Unit.', render: (value: unknown) => `R$ ${Number(value).toFixed(2)}` },
-    { key: 'total_value', label: 'Total', render: (value: unknown) => `R$ ${Number(value).toFixed(2)}`, className: 'font-medium' },
+    {
+      key: 'total_value',
+      label: 'Total',
+      render: (value: unknown) => `R$ ${Number(value).toFixed(2)}`,
+      className: 'font-medium',
+    },
   ];
 
   // Purchase table actions

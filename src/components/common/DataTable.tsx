@@ -52,11 +52,7 @@ const DataTable = <T extends Record<string, unknown> & { id?: string }>({
 
   if (data.length === 0) {
     return (
-      <EmptyState
-        action={emptyAction}
-        description="Tente ajustar os filtros ou adicionar novos dados."
-        title={emptyMessage}
-      />
+      <EmptyState action={emptyAction} description="Tente ajustar os filtros ou adicionar novos dados." title={emptyMessage} />
     );
   }
 
@@ -66,19 +62,16 @@ const DataTable = <T extends Record<string, unknown> & { id?: string }>({
       <div className="space-y-4">
         {data.map((row, index) => (
           <div key={row.id || `card-${index}`} className="bg-card rounded-lg border p-4 space-y-3">
-            {columns.filter(col => !col.className?.includes('hidden')).map((column) => (
-              <div key={column.key} className="flex justify-between items-start">
-                <span className="text-sm font-medium text-muted-foreground">
-                  {column.label}:
-                </span>
-                <div className="text-sm text-right max-w-[60%]">
-                  {column.render
-                    ? column.render(row[column.key], row)
-                    : (row[column.key] as React.ReactNode) || '-'
-                  }
+            {columns
+              .filter(col => !col.className?.includes('hidden'))
+              .map(column => (
+                <div key={column.key} className="flex justify-between items-start">
+                  <span className="text-sm font-medium text-muted-foreground">{column.label}:</span>
+                  <div className="text-sm text-right max-w-[60%]">
+                    {column.render ? column.render(row[column.key], row) : (row[column.key] as React.ReactNode) || '-'}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
             {actions.length > 0 && (
               <div className="flex gap-2 pt-3 border-t">
                 {actions.map((action, actionIndex) => {
@@ -113,7 +106,7 @@ const DataTable = <T extends Record<string, unknown> & { id?: string }>({
         <table className="w-full" style={{ minWidth }}>
           <thead className="bg-muted/50">
             <tr>
-              {columns.map((column) => (
+              {columns.map(column => (
                 <th
                   key={column.key}
                   className={`p-2 md:p-4 text-left text-xs md:text-sm font-medium text-muted-foreground uppercase tracking-wider ${column.className || ''}`}
@@ -131,15 +124,9 @@ const DataTable = <T extends Record<string, unknown> & { id?: string }>({
           <tbody className="divide-y divide-border">
             {data.map((row, index) => (
               <tr key={row.id || `row-${index}`} className="hover:bg-muted/50 transition-colors">
-                {columns.map((column) => (
-                  <td
-                    key={column.key}
-                    className={`p-2 md:p-4 text-xs md:text-sm whitespace-nowrap ${column.className || ''}`}
-                  >
-                    {column.render
-                      ? column.render(row[column.key], row)
-                      : (row[column.key] as React.ReactNode) || '-'
-                    }
+                {columns.map(column => (
+                  <td key={column.key} className={`p-2 md:p-4 text-xs md:text-sm whitespace-nowrap ${column.className || ''}`}>
+                    {column.render ? column.render(row[column.key], row) : (row[column.key] as React.ReactNode) || '-'}
                   </td>
                 ))}
                 {actions.length > 0 && (

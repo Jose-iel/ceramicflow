@@ -1,4 +1,3 @@
-
 import { Plus, Edit, Truck, Settings, AlertTriangle, Filter, Car, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
 
@@ -45,10 +44,8 @@ const VehiclesPage = () => {
     id: vehicle.id,
     model: vehicle.model,
     type: vehicle.type as VehicleType,
-    acquisitionDate: vehicle.acquisition_date ?
-      new Date(vehicle.acquisition_date).toLocaleDateString('pt-BR') : '',
-    lastMaintenance: vehicle.last_maintenance ?
-      new Date(vehicle.last_maintenance).toLocaleDateString('pt-BR') : '',
+    acquisitionDate: vehicle.acquisition_date ? new Date(vehicle.acquisition_date).toLocaleDateString('pt-BR') : '',
+    lastMaintenance: vehicle.last_maintenance ? new Date(vehicle.last_maintenance).toLocaleDateString('pt-BR') : '',
     status: vehicle.status as VehicleStatus,
     hourMeter: vehicle.hour_meter || 0,
     capacity: vehicle.capacity,
@@ -56,8 +53,8 @@ const VehiclesPage = () => {
 
   // Filter vehicles
   const filteredVehicles = transformedVehicles.filter(vehicle => {
-    const matchesSearch = vehicle.model.toLowerCase().includes(search.toLowerCase()) ||
-                          vehicle.id.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch =
+      vehicle.model.toLowerCase().includes(search.toLowerCase()) || vehicle.id.toLowerCase().includes(search.toLowerCase());
 
     const matchesType = type === 'all' || vehicle.type === type;
     const matchesStatus = status === 'all' || vehicle.status === status;
@@ -95,10 +92,12 @@ const VehiclesPage = () => {
     } catch (error: unknown) {
       let errorMessage = 'Erro inesperado ao excluir veículo.';
 
-      if (error instanceof Error &&
-          (error.message.includes('foreign key constraint') ||
-           error.message.includes('operations_vehicle_id_fkey'))) {
-        errorMessage = 'Você não pode excluir um veículo que esteja vinculado a uma operação. Remova as operações relacionadas primeiro.';
+      if (
+        error instanceof Error &&
+        (error.message.includes('foreign key constraint') || error.message.includes('operations_vehicle_id_fkey'))
+      ) {
+        errorMessage =
+          'Você não pode excluir um veículo que esteja vinculado a uma operação. Remova as operações relacionadas primeiro.';
       }
 
       toast({
@@ -189,7 +188,9 @@ const VehiclesPage = () => {
             <SelectContent>
               <SelectItem value="all">Todos os tipos</SelectItem>
               {Object.values(VehicleType).map(vehicleType => (
-                <SelectItem key={vehicleType} value={vehicleType}>{vehicleType}</SelectItem>
+                <SelectItem key={vehicleType} value={vehicleType}>
+                  {vehicleType}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -201,7 +202,9 @@ const VehiclesPage = () => {
             <SelectContent>
               <SelectItem value="all">Todos os status</SelectItem>
               {Object.values(VehicleStatus).map(vehicleStatus => (
-                <SelectItem key={vehicleStatus} value={vehicleStatus}>{vehicleStatus}</SelectItem>
+                <SelectItem key={vehicleStatus} value={vehicleStatus}>
+                  {vehicleStatus}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -209,7 +212,7 @@ const VehiclesPage = () => {
 
         {/* Vehicles Grid - responsive */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-          {filteredVehicles.map((vehicle) => (
+          {filteredVehicles.map(vehicle => (
             <div key={vehicle.id} className="relative group">
               <VehicleCard vehicle={vehicle} />
 
@@ -253,12 +256,7 @@ const VehiclesPage = () => {
         )}
       </div>
 
-      <VehicleDialog
-        open={showDialog}
-        vehicle={editingVehicle}
-        onOpenChange={handleDialogClose}
-        onSave={handleSaveVehicle}
-      />
+      <VehicleDialog open={showDialog} vehicle={editingVehicle} onOpenChange={handleDialogClose} onSave={handleSaveVehicle} />
     </PageLayout>
   );
 };

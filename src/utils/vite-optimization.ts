@@ -22,10 +22,6 @@ export function bundleOptimizationPlugin(): Plugin {
       }
       return null;
     },
-    transform(_code: string, _id: string) {
-      // Não fazer transformações que possam quebrar desenvolvimento
-      return null;
-    },
   };
 }
 
@@ -117,7 +113,12 @@ export const createManualChunks = (id: string): string | undefined => {
   }
 
   // Styling e temas
-  if (id.includes('next-themes') || id.includes('tailwind-merge') || id.includes('clsx') || id.includes('class-variance-authority')) {
+  if (
+    id.includes('next-themes') ||
+    id.includes('tailwind-merge') ||
+    id.includes('clsx') ||
+    id.includes('class-variance-authority')
+  ) {
     return 'styling';
   }
 
@@ -178,13 +179,27 @@ export const createManualChunks = (id: string): string | undefined => {
 
   // APIs - agrupar por feature
   if (id.includes('src/integrations/supabase/api') || id.includes('src/integrations/supabase/hooks')) {
-    if (id.includes('employees')) {return 'api-employees';}
-    if (id.includes('vehicles')) {return 'api-vehicles';}
-    if (id.includes('operations')) {return 'api-operations';}
-    if (id.includes('maintenance')) {return 'api-maintenance';}
-    if (id.includes('clay') || id.includes('raw')) {return 'api-raw-materials';}
-    if (id.includes('sales')) {return 'api-sales';}
-    if (id.includes('wood')) {return 'api-wood';}
+    if (id.includes('employees')) {
+      return 'api-employees';
+    }
+    if (id.includes('vehicles')) {
+      return 'api-vehicles';
+    }
+    if (id.includes('operations')) {
+      return 'api-operations';
+    }
+    if (id.includes('maintenance')) {
+      return 'api-maintenance';
+    }
+    if (id.includes('clay') || id.includes('raw')) {
+      return 'api-raw-materials';
+    }
+    if (id.includes('sales')) {
+      return 'api-sales';
+    }
+    if (id.includes('wood')) {
+      return 'api-wood';
+    }
     return 'api-common';
   }
 

@@ -32,13 +32,7 @@ export const optimizedImports = {
 // Code splitting patterns
 export const chunkingStrategy = {
   // Vendor chunks
-  vendors: [
-    'react',
-    'react-dom',
-    '@tanstack/react-query',
-    '@supabase/supabase-js',
-    'react-router-dom',
-  ],
+  vendors: ['react', 'react-dom', '@tanstack/react-query', '@supabase/supabase-js', 'react-router-dom'],
 
   // Feature chunks
   features: [
@@ -55,11 +49,7 @@ export const chunkingStrategy = {
   ],
 
   // UI chunks
-  ui: [
-    '@radix-ui',
-    'lucide-react',
-    'next-themes',
-  ],
+  ui: ['@radix-ui', 'lucide-react', 'next-themes'],
 };
 
 // Bundle size targets (in KB)

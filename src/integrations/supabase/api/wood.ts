@@ -76,26 +76,26 @@ export class WoodService {
     }
   }
 
-  static async createWoodPurchase(payload: CreateWoodPurchasePayload): Promise<void> {
+  static async createWoodPurchase(payload: CreateWoodPurchasePayload): Promise<WoodPurchase> {
     const ceramicId = await WoodService.getCurrentUserCeramicId();
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('wood_purchases')
       .insert({
         ceramic_id: ceramicId,
         ...payload,
-      });
+      })
+      .select()
+      .single();
 
     if (error) {
       throw new Error(error.message);
     }
+    return data;
   }
 
   static async updateWoodPurchase(purchaseId: string, payload: UpdateWoodPurchasePayload): Promise<void> {
-    const { error } = await supabase
-      .from('wood_purchases')
-      .update(payload)
-      .eq('id', purchaseId);
+    const { error } = await supabase.from('wood_purchases').update(payload).eq('id', purchaseId);
 
     if (error) {
       throw new Error(error.message);
@@ -103,10 +103,7 @@ export class WoodService {
   }
 
   static async deleteWoodPurchase(purchaseId: string): Promise<void> {
-    const { error } = await supabase
-      .from('wood_purchases')
-      .delete()
-      .eq('id', purchaseId);
+    const { error } = await supabase.from('wood_purchases').delete().eq('id', purchaseId);
 
     if (error) {
       throw new Error(error.message);
@@ -135,26 +132,26 @@ export class WoodService {
     }
   }
 
-  static async createWoodConsumption(payload: CreateWoodConsumptionPayload): Promise<void> {
+  static async createWoodConsumption(payload: CreateWoodConsumptionPayload): Promise<WoodConsumption> {
     const ceramicId = await WoodService.getCurrentUserCeramicId();
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('wood_consumptions')
       .insert({
         ceramic_id: ceramicId,
         ...payload,
-      });
+      })
+      .select()
+      .single();
 
     if (error) {
       throw new Error(error.message);
     }
+    return data;
   }
 
   static async updateWoodConsumption(consumptionId: string, payload: UpdateWoodConsumptionPayload): Promise<void> {
-    const { error } = await supabase
-      .from('wood_consumptions')
-      .update(payload)
-      .eq('id', consumptionId);
+    const { error } = await supabase.from('wood_consumptions').update(payload).eq('id', consumptionId);
 
     if (error) {
       throw new Error(error.message);
@@ -162,10 +159,7 @@ export class WoodService {
   }
 
   static async deleteWoodConsumption(consumptionId: string): Promise<void> {
-    const { error } = await supabase
-      .from('wood_consumptions')
-      .delete()
-      .eq('id', consumptionId);
+    const { error } = await supabase.from('wood_consumptions').delete().eq('id', consumptionId);
 
     if (error) {
       throw new Error(error.message);

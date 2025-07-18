@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -29,7 +28,6 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
 
   useEffect(() => {
     if (open) {
-      const _permissionsString = currentPermissions.join(',');
       if (userLevel) {
         setFormData({
           name: userLevel.name,
@@ -63,9 +61,7 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
   const handleRouteChange = (routeId: string, checked: boolean) => {
     setFormData(prev => ({
       ...prev,
-      selectedRoutes: checked
-        ? [...prev.selectedRoutes, routeId]
-        : prev.selectedRoutes.filter(id => id !== routeId),
+      selectedRoutes: checked ? [...prev.selectedRoutes, routeId] : prev.selectedRoutes.filter(id => id !== routeId),
     }));
   };
 
@@ -73,7 +69,9 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[95vw] max-w-[600px] max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader className="pb-4">
-          <DialogTitle className="text-lg sm:text-xl">{userLevel ? 'Editar Nível de Acesso' : 'Novo Nível de Acesso'}</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">
+            {userLevel ? 'Editar Nível de Acesso' : 'Novo Nível de Acesso'}
+          </DialogTitle>
           <DialogDescription className="text-sm">
             {userLevel ? 'Edite as permissões do nível de acesso' : 'Configure as permissões para o novo nível'}
           </DialogDescription>
@@ -81,7 +79,9 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
-            <Label className="text-sm font-medium" htmlFor="name">Nome do Nível</Label>
+            <Label className="text-sm font-medium" htmlFor="name">
+              Nome do Nível
+            </Label>
             <Input
               className={userLevel ? 'bg-gray-100' : ''}
               id="name"
@@ -94,7 +94,9 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium" htmlFor="description">Descrição</Label>
+            <Label className="text-sm font-medium" htmlFor="description">
+              Descrição
+            </Label>
             <Textarea
               id="description"
               name="description"
@@ -107,12 +109,12 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
           <div className="space-y-2">
             <Label className="text-sm font-medium">Rotas Permitidas</Label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[300px] sm:max-h-80 overflow-y-auto border rounded-md p-3">
-              {routes.map((route) => (
+              {routes.map(route => (
                 <div key={route.id} className="flex items-start space-x-2">
                   <Checkbox
                     checked={formData.selectedRoutes.includes(route.id)}
                     id={route.id}
-                    onCheckedChange={(checked) => handleRouteChange(route.id, checked as boolean)}
+                    onCheckedChange={checked => handleRouteChange(route.id, checked as boolean)}
                   />
                   <div className="grid gap-1.5 leading-none min-w-0 flex-1">
                     <Label
@@ -121,9 +123,7 @@ const UserLevelDialog: React.FC<UserLevelDialogProps> = ({ open, onOpenChange, u
                     >
                       {route.name}
                     </Label>
-                    <p className="text-xs text-muted-foreground">
-                      {route.description || route.path}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{route.description || route.path}</p>
                   </div>
                 </div>
               ))}

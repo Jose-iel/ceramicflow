@@ -9,10 +9,9 @@ import Vehicles from './pages/Vehicles';
 
 import Wood from './pages/Wood';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from '@/components/ui/sonner';
+import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
-
 
 import { MonthFilterProvider } from '@/contexts/MonthFilterContext';
 import { AuthProvider } from '@/integrations/supabase/hooks/use-auth';
@@ -42,65 +41,95 @@ function App() {
                   <Route element={<Login />} path="/login" />
 
                   {/* Protected routes */}
-                  <Route element={
-                    <ProtectedRoute>
-                      <Index />
-                    </ProtectedRoute>
-                  } path="/dashboard" />
+                  <Route
+                    element={
+                      <ProtectedRoute>
+                        <Index />
+                      </ProtectedRoute>
+                    }
+                    path="/dashboard"
+                  />
 
-                  <Route element={
-                    <ProtectedRoute>
-                      <Vehicles />
-                    </ProtectedRoute>
-                  } path="/vehicles" />
+                  <Route
+                    element={
+                      <ProtectedRoute>
+                        <Vehicles />
+                      </ProtectedRoute>
+                    }
+                    path="/vehicles"
+                  />
 
-                  <Route element={
-                    <ProtectedRoute>
-                      <Employees />
-                    </ProtectedRoute>
-                  } path="/employees" />
+                  <Route
+                    element={
+                      <ProtectedRoute>
+                        <Employees />
+                      </ProtectedRoute>
+                    }
+                    path="/employees"
+                  />
 
-                  <Route element={
-                    <ProtectedRoute>
-                      <Operations />
-                    </ProtectedRoute>
-                  } path="/operations" />
+                  <Route
+                    element={
+                      <ProtectedRoute>
+                        <Operations />
+                      </ProtectedRoute>
+                    }
+                    path="/operations"
+                  />
 
-                  <Route element={
-                    <ProtectedRoute>
-                      <Maintenance />
-                    </ProtectedRoute>
-                  } path="/maintenance" />
+                  <Route
+                    element={
+                      <ProtectedRoute>
+                        <Maintenance />
+                      </ProtectedRoute>
+                    }
+                    path="/maintenance"
+                  />
 
-                  <Route element={
-                    <ProtectedRoute>
-                      <Wood />
-                    </ProtectedRoute>
-                  } path="/wood" />
+                  <Route
+                    element={
+                      <ProtectedRoute>
+                        <Wood />
+                      </ProtectedRoute>
+                    }
+                    path="/wood"
+                  />
 
-                  <Route element={
-                    <ProtectedRoute>
-                      <RawMaterial />
-                    </ProtectedRoute>
-                  } path="/raw-material" />
+                  <Route
+                    element={
+                      <ProtectedRoute>
+                        <RawMaterial />
+                      </ProtectedRoute>
+                    }
+                    path="/raw-material"
+                  />
 
-                  <Route element={
-                    <ProtectedRoute>
-                      <Reports />
-                    </ProtectedRoute>
-                  } path="/reports" />
+                  <Route
+                    element={
+                      <ProtectedRoute>
+                        <Reports />
+                      </ProtectedRoute>
+                    }
+                    path="/reports"
+                  />
 
-                  <Route element={
-                    <ProtectedRoute>
-                      <Sales />
-                    </ProtectedRoute>
-                  } path="/sales" />
+                  <Route
+                    element={
+                      <ProtectedRoute>
+                        <Sales />
+                      </ProtectedRoute>
+                    }
+                    path="/sales"
+                  />
 
-                  <Route element={
-                    <ProtectedRoute>
-                      <AdminBackoffice />
-                    </ProtectedRoute>
-                  } path="/admin" />
+                  <Route
+                    element={
+                      <ProtectedRoute>
+                        <AdminBackoffice />
+                      </ProtectedRoute>
+                    }
+                    path="/admin"
+                  />
 
                   {/* Catch all route */}
                   <Route element={<NotFound />} path="*" />

@@ -1,6 +1,15 @@
 import {
-  Truck, Users, ClipboardList, TreePine,
-  Settings, FileText, LayoutDashboard, Menu, X, Mountain, ShoppingCart,
+  Truck,
+  Users,
+  ClipboardList,
+  TreePine,
+  Settings,
+  FileText,
+  LayoutDashboard,
+  Menu,
+  X,
+  Mountain,
+  ShoppingCart,
 } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -17,9 +26,7 @@ interface SidebarLinkProps {
   onClick?: () => void;
 }
 
-const SidebarLink: React.FC<SidebarLinkProps> = ({
-  to, icon: Icon, label, isActive, onClick,
-}) => {
+const SidebarLink: React.FC<SidebarLinkProps> = ({ to, icon: Icon, label, isActive, onClick }) => {
   return (
     <Link
       className={cn(
@@ -27,7 +34,7 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({
         'min-h-[44px]', // Touch-friendly minimum height
         isActive
           ? 'bg-sidebar-primary text-sidebar-primary-foreground font-medium shadow-sm'
-          : 'text-sidebar-foreground/90 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:scale-95',
+          : 'text-sidebar-foreground/90 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:scale-95'
       )}
       to={to}
       onClick={onClick}
@@ -69,7 +76,7 @@ const Sidebar: React.FC = () => {
             'fixed top-4 left-4 z-50 p-3 rounded-lg bg-primary text-primary-foreground shadow-lg',
             'touch-manipulation min-h-[44px] min-w-[44px]', // Touch-friendly size
             'transition-all duration-300 active:scale-95',
-            'hover:shadow-xl hover:bg-primary/90',
+            'hover:shadow-xl hover:bg-primary/90'
           )}
           onClick={toggleSidebar}
         >
@@ -79,10 +86,7 @@ const Sidebar: React.FC = () => {
 
       {/* Sidebar Backdrop (Mobile Only) */}
       {isMobile && isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm transition-opacity duration-300"
-          onClick={closeSidebar}
-        />
+        <div className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm transition-opacity duration-300" onClick={closeSidebar} />
       )}
 
       {/* Sidebar */}
@@ -91,7 +95,7 @@ const Sidebar: React.FC = () => {
           'fixed top-0 left-0 z-50 h-full w-64 bg-sidebar transition-all duration-300 ease-out',
           'border-r border-sidebar-border shadow-xl backdrop-blur-sm',
           'flex flex-col', // Garantir que o flex funcione
-          isMobile ? (isOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0',
+          isMobile ? (isOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'
         )}
       >
         <div className="flex flex-col h-full overflow-hidden">
@@ -106,7 +110,7 @@ const Sidebar: React.FC = () => {
                 aria-label="Fechar Menu"
                 className={cn(
                   'p-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200',
-                  'min-h-[40px] min-w-[40px] touch-manipulation active:scale-95',
+                  'min-h-[40px] min-w-[40px] touch-manipulation active:scale-95'
                 )}
                 onClick={closeSidebar}
               >
@@ -117,7 +121,7 @@ const Sidebar: React.FC = () => {
 
           {/* Sidebar Navigation */}
           <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-sidebar-accent">
-            {links.map((link) => (
+            {links.map(link => (
               <SidebarLink
                 key={link.to}
                 icon={link.icon}

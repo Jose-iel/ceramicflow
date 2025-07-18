@@ -11,7 +11,6 @@ import { PageHeaderSkeleton, StatsGridSkeleton } from '@/components/ui/skeleton-
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
-
 interface StatsCardConfig {
   title: string;
   value: string | number;
@@ -85,19 +84,11 @@ const PageLayout = ({
     <div className="flex min-h-screen bg-background">
       <Sidebar />
 
-      <div className={cn(
-        'flex-1 flex flex-col min-w-0',
-        !isMobile && 'ml-64',
-      )}>
+      <div className={cn('flex-1 flex flex-col min-w-0', !isMobile && 'ml-64')}>
         <Navbar subtitle={subtitle} title={title} />
 
         <main className="flex-1 px-3 md:px-6 py-4 md:py-6 overflow-x-hidden space-y-6">
-          {showMonthFilter && (
-            <MonthFilter
-              selectedMonth={selectedMonth}
-              onMonthChange={onMonthChange}
-            />
-          )}
+          {showMonthFilter && <MonthFilter selectedMonth={selectedMonth} onMonthChange={onMonthChange} />}
 
           {/* Stats Cards */}
           {statsCards.length > 0 && (
@@ -109,7 +100,7 @@ const PageLayout = ({
           )}
 
           {/* Search and Actions */}
-          {showSearch && (searchValue !== undefined && onSearchChange) && (
+          {showSearch && searchValue !== undefined && onSearchChange && (
             <SearchAndActions
               actions={actions}
               searchPlaceholder={searchPlaceholder}
@@ -119,9 +110,7 @@ const PageLayout = ({
           )}
 
           {/* Page Content */}
-          <div className="space-y-6">
-            {children}
-          </div>
+          <div className="space-y-6">{children}</div>
         </main>
       </div>
     </div>

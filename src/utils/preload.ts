@@ -24,7 +24,11 @@ export const createLazyComponent = (importFn: () => Promise<{ default: React.Com
   const LazyComponent = lazy(importFn);
 
   // Add preload method
-  (LazyComponent as React.LazyExoticComponent<React.ComponentType<unknown>> & { preload: () => Promise<{ default: React.ComponentType<unknown> }> }).preload = importFn;
+  (
+    LazyComponent as React.LazyExoticComponent<React.ComponentType<unknown>> & {
+      preload: () => Promise<{ default: React.ComponentType<unknown> }>;
+    }
+  ).preload = importFn;
 
   return LazyComponent;
 };

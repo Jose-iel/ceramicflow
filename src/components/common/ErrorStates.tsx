@@ -13,12 +13,7 @@ interface ErrorStateProps {
   variant?: 'default' | 'network' | 'api' | 'not-found';
 }
 
-export function ErrorState({
-  title,
-  description,
-  action,
-  variant = 'default',
-}: ErrorStateProps) {
+export function ErrorState({ title, description, action, variant = 'default' }: ErrorStateProps) {
   const getIcon = () => {
     switch (variant) {
       case 'network':
@@ -61,13 +56,9 @@ export function ErrorState({
     <div className="flex items-center justify-center p-8">
       <Card className="w-full max-w-md text-center">
         <CardHeader>
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-            {getIcon()}
-          </div>
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">{getIcon()}</div>
           <CardTitle>{title || defaultContent.title}</CardTitle>
-          <CardDescription>
-            {description || defaultContent.description}
-          </CardDescription>
+          <CardDescription>{description || defaultContent.description}</CardDescription>
         </CardHeader>
         {action && (
           <CardContent>
@@ -102,11 +93,7 @@ export function EmptyState({
       </div>
       <h3 className="text-lg font-semibold mb-2">{title}</h3>
       <p className="text-muted-foreground mb-4 max-w-sm">{description}</p>
-      {action && (
-        <Button onClick={action.onClick}>
-          {action.label}
-        </Button>
-      )}
+      {action && <Button onClick={action.onClick}>{action.label}</Button>}
     </div>
   );
 }

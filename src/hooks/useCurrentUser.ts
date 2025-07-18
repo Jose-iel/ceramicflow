@@ -52,7 +52,9 @@ export function useCurrentUser(): CurrentUserInfo {
   }, [user?.email, authLoading]); // Depender apenas do email do usuário e do status de autenticação
 
   const getInitials = (name: string) => {
-    if (!name || name === 'Usuário') {return 'U';}
+    if (!name || name === 'Usuário') {
+      return 'U';
+    }
     return name
       .split(' ')
       .map(n => n[0])

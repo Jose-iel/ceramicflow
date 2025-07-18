@@ -13,7 +13,6 @@ import type { CreateUserPayload, UpdateUserPayload } from '@/integrations/supaba
 import { useUsersTabData, useCreateUser, useUpdateUser, useDeleteUser } from '@/integrations/supabase/hooks';
 import type { BackofficeUser } from '@/types/backoffice';
 
-
 const UsersTab = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<BackofficeUser | null>(null);
@@ -45,9 +44,12 @@ const UsersTab = () => {
 
   const handleSaveUser = (userData: Record<string, unknown>) => {
     if (editingUser) {
-      updateUserMutation.mutate({ userId: editingUser.id, userData: userData as unknown as UpdateUserPayload }, {
-        onSuccess: () => setDialogOpen(false),
-      });
+      updateUserMutation.mutate(
+        { userId: editingUser.id, userData: userData as unknown as UpdateUserPayload },
+        {
+          onSuccess: () => setDialogOpen(false),
+        }
+      );
     } else {
       createUserMutation.mutate(userData as unknown as CreateUserPayload, {
         onSuccess: () => setDialogOpen(false),
@@ -67,9 +69,7 @@ const UsersTab = () => {
     );
   }
 
-  const filteredUsers = users.filter((user: BackofficeUser) =>
-    !selectedCeramic || user.ceramic_id === selectedCeramic,
-  );
+  const filteredUsers = users.filter((user: BackofficeUser) => !selectedCeramic || user.ceramic_id === selectedCeramic);
 
   return (
     <Card>
@@ -77,29 +77,27 @@ const UsersTab = () => {
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
           <div className="space-y-1">
             <CardTitle className="text-lg sm:text-xl">Gerenciamento de Usuários</CardTitle>
-            <CardDescription className="text-sm">
-              Gerencie todos os usuários do sistema
-            </CardDescription>
+            <CardDescription className="text-sm">Gerencie todos os usuários do sistema</CardDescription>
           </div>
-          <Button
-            className="flex items-center gap-2 w-full sm:w-auto"
-            size="sm"
-            onClick={handleCreateUser}
-          >
+          <Button className="flex items-center gap-2 w-full sm:w-auto" size="sm" onClick={handleCreateUser}>
             <Plus className="h-4 w-4" />
             <span className="sm:inline">Novo Usuário</span>
           </Button>
         </div>
         <div className="pt-4 space-y-2">
-          <Label className="text-sm font-medium" htmlFor="ceramic-filter">Filtrar por Cerâmica</Label>
-          <Select value={selectedCeramic} onValueChange={(value) => setSelectedCeramic(value === 'all' ? '' : value)}>
+          <Label className="text-sm font-medium" htmlFor="ceramic-filter">
+            Filtrar por Cerâmica
+          </Label>
+          <Select value={selectedCeramic} onValueChange={value => setSelectedCeramic(value === 'all' ? '' : value)}>
             <SelectTrigger className="w-full sm:w-[280px]" id="ceramic-filter">
               <SelectValue placeholder="Todas as cerâmicas" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas as cerâmicas</SelectItem>
-              {ceramics.map((ceramic: {id: string, name: string}) => (
-                <SelectItem key={ceramic.id} value={ceramic.id}>{ceramic.name}</SelectItem>
+              {ceramics.map((ceramic: { id: string; name: string }) => (
+                <SelectItem key={ceramic.id} value={ceramic.id}>
+                  {ceramic.name}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -108,47 +106,41 @@ const UsersTab = () => {
       <CardContent className="p-0 sm:p-6">
         {/* Mobile Card View */}
         <div className="block sm:hidden space-y-4 p-4">
-          {filteredUsers.length > 0 ? filteredUsers.map((user) => (
-            <Card key={user.id} className="p-4">
-              <div className="space-y-3">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-medium text-base">{user.full_name || user.email}</h3>
-                    <p className="text-sm text-muted-foreground">{user.email}</p>
+          {filteredUsers.length > 0 ? (
+            filteredUsers.map(user => (
+              <Card key={user.id} className="p-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-medium text-base">{user.full_name || user.email}</h3>
+                      <p className="text-sm text-muted-foreground">{user.email}</p>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button size="sm" variant="ghost" onClick={() => handleEditUser(user)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => handleDeleteUser(user.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-1">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleEditUser(user)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDeleteUser(user.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <Badge variant={user.is_admin ? 'destructive' : 'outline'}>
+                      {user.is_admin ? 'Admin Global' : user.user_levels?.name || 'N/A'}
+                    </Badge>
+                    {user.ceramics && <Badge variant="secondary">{user.ceramics.name}</Badge>}
+                  </div>
+
+                  <div className="text-xs text-muted-foreground">
+                    <p>Criado em: {new Date(user.created_at).toLocaleDateString('pt-BR')}</p>
                   </div>
                 </div>
-
-                <div className="flex flex-wrap gap-2 text-xs">
-                  <Badge variant={user.is_admin ? 'destructive' : 'outline'}>
-                    {user.is_admin ? 'Admin Global' : user.user_levels?.name || 'N/A'}
-                  </Badge>
-                  {user.ceramics && (
-                    <Badge variant="secondary">{user.ceramics.name}</Badge>
-                  )}
-                </div>
-
-                <div className="text-xs text-muted-foreground">
-                  <p>Criado em: {new Date(user.created_at).toLocaleDateString('pt-BR')}</p>
-                </div>
-              </div>
-            </Card>
-          )) : <p className="text-center text-muted-foreground p-4">Nenhum usuário encontrado para a cerâmica selecionada.</p>}
+              </Card>
+            ))
+          ) : (
+            <p className="text-center text-muted-foreground p-4">Nenhum usuário encontrado para a cerâmica selecionada.</p>
+          )}
         </div>
 
         {/* Desktop Table View */}
@@ -165,39 +157,33 @@ const UsersTab = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.length > 0 ? filteredUsers.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.full_name || '-'}</TableCell>
-                  <TableCell className="max-w-[200px] truncate">{user.email}</TableCell>
-                  <TableCell>
-                    <Badge className="text-xs" variant={user.is_admin ? 'destructive' : 'outline'}>
-                      {user.is_admin ? 'Admin Global' : user.user_levels?.name || 'N/A'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{user.ceramics?.name || '-'}</TableCell>
-                  <TableCell className="hidden lg:table-cell">
-                    {new Date(user.created_at).toLocaleDateString('pt-BR')}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEditUser(user)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleDeleteUser(user.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )) : (
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map(user => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">{user.full_name || '-'}</TableCell>
+                    <TableCell className="max-w-[200px] truncate">{user.email}</TableCell>
+                    <TableCell>
+                      <Badge className="text-xs" variant={user.is_admin ? 'destructive' : 'outline'}>
+                        {user.is_admin ? 'Admin Global' : user.user_levels?.name || 'N/A'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{user.ceramics?.name || '-'}</TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      {new Date(user.created_at).toLocaleDateString('pt-BR')}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Button size="sm" variant="ghost" onClick={() => handleEditUser(user)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => handleDeleteUser(user.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
                 <TableRow>
                   <TableCell className="h-24 text-center" colSpan={6}>
                     Nenhum usuário encontrado para a cerâmica selecionada.

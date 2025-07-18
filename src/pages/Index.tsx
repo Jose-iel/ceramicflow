@@ -88,7 +88,6 @@ const generateStatsCards = (data: DashboardData | undefined): StatCardProps[] =>
   ];
 };
 
-
 const Index = () => {
   const { selectedMonth, setSelectedMonth } = useMonthFilter();
   const { data: dashboardData, isLoading, refetch } = useDashboard(selectedMonth);
@@ -101,7 +100,7 @@ const Index = () => {
   };
 
   // Invalida a query do dashboard em qualquer mutação para manter os dados atualizados
-  queryClient.getQueryCache().subscribe((event) => {
+  queryClient.getQueryCache().subscribe(event => {
     if (event.type === 'observerResultsUpdated' && event.query.state.status === 'success') {
       const mutationKeys = ['create', 'update', 'delete'];
       if (mutationKeys.some(key => event.query.queryKey.includes(key))) {
@@ -122,7 +121,6 @@ const Index = () => {
     return dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
   }, []);
 
-
   return (
     <PageLayout
       selectedMonth={selectedMonth}
@@ -131,16 +129,15 @@ const Index = () => {
       subtitle={subtitle}
       title="Dashboard"
       onMonthChange={setSelectedMonth}
-      actions={[{
-        label: 'Atualizar Dados',
-        onClick: handleRefresh,
-        icon: <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />,
-      }]}
+      actions={[
+        {
+          label: 'Atualizar Dados',
+          onClick: handleRefresh,
+          icon: <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />,
+        },
+      ]}
     >
-      <DashboardOverview
-        data={dashboardData}
-        isLoading={isLoading}
-      />
+      <DashboardOverview data={dashboardData} isLoading={isLoading} />
     </PageLayout>
   );
 };

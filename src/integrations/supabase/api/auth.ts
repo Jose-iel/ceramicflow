@@ -40,7 +40,10 @@ export class AuthService {
 
   static async getSession(): Promise<Session | null> {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
 
       if (error) {
         console.warn('Session error:', error.message);

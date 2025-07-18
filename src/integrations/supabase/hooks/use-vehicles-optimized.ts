@@ -36,37 +36,47 @@ export function useCreateVehicleOptimized() {
     queryKeyToInvalidate: ['vehicles', 'trucks'],
     successMessage: 'Veículo adicionado com sucesso.',
     errorMessage: 'Erro ao criar veículo',
-    onMutate: async (newVehicle) => {
+    onMutate: async newVehicle => {
       await queryClient.cancelQueries({ queryKey: ['vehicles'] });
       await queryClient.cancelQueries({ queryKey: ['trucks'] });
 
       const previousVehicles = queryClient.getQueryData(['vehicles']);
       const previousTrucks = queryClient.getQueryData(['trucks']);
 
-      if (previousVehicles) {
-        const optimisticVehicle = {
-          id: `temp-${Date.now()}`,
-          ...newVehicle,
-          ceramic_id: 'temp',
-          status: newVehicle.status || 'OPERATIONAL',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-        queryClient.setQueryData(['vehicles'], [optimisticVehicle, ...(previousVehicles as Vehicle[])]);
-      }
+      const optimisticVehicleId = `temp-${Date.now()}`;
+      const optimisticVehicle = {
+        id: optimisticVehicleId,
+        ...newVehicle,
+        ceramic_id: 'temp',
+        status: newVehicle.status || 'OPERATIONAL',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      queryClient.setQueryData(['vehicles'], [optimisticVehicle, ...(previousVehicles as Vehicle[])]);
 
-      if (newVehicle.type === 'Caminhão' && previousTrucks) {
+      if (newVehicle.type === 'Caminhão') {
         const optimisticTruck = {
-          id: `temp-${Date.now()}`,
+          id: optimisticVehicleId,
           model: newVehicle.model,
           type: newVehicle.type,
         };
         queryClient.setQueryData(['trucks'], [optimisticTruck, ...(previousTrucks as TruckData[])]);
       }
 
-      return { previousVehicles, previousTrucks };
+      return { previousVehicles, previousTrucks, optimisticVehicleId };
     },
-    onError: (err, newVehicle, context?: { previousVehicles: unknown; previousTrucks: unknown }) => {
+    onSuccess: (data, variables, context) => {
+      queryClient.setQueryData(['vehicles'], (old: Vehicle[] = []) =>
+        old.map(vehicle => (vehicle.id === context?.optimisticVehicleId ? data : vehicle))
+      );
+
+      if (variables.type === 'Caminhão') {
+        queryClient.setQueryData(['trucks'], (old: TruckData[] = []) =>
+          old.map(truck => (truck.id === context?.optimisticVehicleId ? { ...truck, id: data.id } : truck))
+        );
+      }
+    },
+    onError: (err, newVehicle, context) => {
       if (context?.previousVehicles) {
         queryClient.setQueryData(['vehicles'], context.previousVehicles);
       }
@@ -96,26 +106,22 @@ export function useUpdateVehicleOptimized() {
       if (previousVehicles) {
         queryClient.setQueryData(['vehicles'], (old: Vehicle[] = []) =>
           old?.map((vehicle: Vehicle) =>
-            vehicle.id === vehicleId
-              ? { ...vehicle, ...payload, updated_at: new Date().toISOString() }
-              : vehicle,
-          ),
+            vehicle.id === vehicleId ? { ...vehicle, ...payload, updated_at: new Date().toISOString() } : vehicle
+          )
         );
       }
 
       if (previousTrucks && payload.type === 'Caminhão') {
         queryClient.setQueryData(['trucks'], (old: TruckData[] = []) =>
           old?.map((truck: TruckData) =>
-            truck.id === vehicleId
-              ? { ...truck, model: payload.model || truck.model, type: payload.type || truck.type }
-              : truck,
-          ),
+            truck.id === vehicleId ? { ...truck, model: payload.model || truck.model, type: payload.type || truck.type } : truck
+          )
         );
       }
 
       return { previousVehicles, previousTrucks };
     },
-    onError: (err, { vehicleId: _vehicleId }, context?: { previousVehicles: unknown; previousTrucks: unknown }) => {
+    onError: (err, _variables, context?: { previousVehicles: unknown; previousTrucks: unknown }) => {
       if (context?.previousVehicles) {
         queryClient.setQueryData(['vehicles'], context.previousVehicles);
       }
@@ -134,7 +140,7 @@ export function useDeleteVehicleOptimized() {
     queryKeyToInvalidate: ['vehicles', 'trucks'],
     successMessage: 'Veículo removido com sucesso.',
     errorMessage: 'Erro ao excluir veículo',
-    onMutate: async (vehicleId) => {
+    onMutate: async vehicleId => {
       await queryClient.cancelQueries({ queryKey: ['vehicles'] });
       await queryClient.cancelQueries({ queryKey: ['trucks'] });
 
@@ -143,13 +149,13 @@ export function useDeleteVehicleOptimized() {
 
       if (previousVehicles) {
         queryClient.setQueryData(['vehicles'], (old: Vehicle[] = []) =>
-          old?.filter((vehicle: Vehicle) => vehicle.id !== vehicleId),
+          old?.filter((vehicle: Vehicle) => vehicle.id !== vehicleId)
         );
       }
 
       if (previousTrucks) {
         queryClient.setQueryData(['trucks'], (old: TruckData[] = []) =>
-          old?.filter((truck: TruckData) => truck.id !== vehicleId),
+          old?.filter((truck: TruckData) => truck.id !== vehicleId)
         );
       }
 

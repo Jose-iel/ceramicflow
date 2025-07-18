@@ -27,9 +27,10 @@ const Sales = () => {
     // First filter by month using the sale_date field
     const monthFiltered = filterDataByMonth(sales.map(sale => ({ ...sale, date: sale.sale_date })));
     // Then filter by search
-    return monthFiltered.filter(sale =>
-      sale.customer_name?.toLowerCase().includes(search.toLowerCase()) ||
-      sale.recorded_by?.toLowerCase().includes(search.toLowerCase()),
+    return monthFiltered.filter(
+      sale =>
+        sale.customer_name?.toLowerCase().includes(search.toLowerCase()) ||
+        sale.recorded_by?.toLowerCase().includes(search.toLowerCase())
     );
   }, [sales, search, filterDataByMonth]);
 
@@ -108,12 +109,8 @@ const Sales = () => {
       label: 'Cliente',
       render: (value: unknown, sale: Sale) => (
         <div>
-          <div className="text-sm font-medium text-gray-900">
-            {sale.customer_name}
-          </div>
-          <div className="text-sm text-gray-500">
-            {sale.customer_contact || 'Sem contato'}
-          </div>
+          <div className="text-sm font-medium text-gray-900">{sale.customer_name}</div>
+          <div className="text-sm text-gray-500">{sale.customer_contact || 'Sem contato'}</div>
         </div>
       ),
     },
@@ -121,46 +118,34 @@ const Sales = () => {
       key: 'sale_date',
       label: 'Data',
       render: (value: unknown, sale: Sale) => (
-        <div className="text-sm text-gray-900">
-          {format(new Date(sale.sale_date), 'dd/MM/yyyy', { locale: ptBR })}
-        </div>
+        <div className="text-sm text-gray-900">{format(new Date(sale.sale_date), 'dd/MM/yyyy', { locale: ptBR })}</div>
       ),
     },
     {
       key: 'brick_quantity',
       label: 'Quantidade',
       render: (value: unknown, sale: Sale) => (
-        <div className="text-sm text-gray-900">
-          {formatNumber(sale.brick_quantity)} tijolos
-        </div>
+        <div className="text-sm text-gray-900">{formatNumber(sale.brick_quantity)} tijolos</div>
       ),
     },
     {
       key: 'price_per_thousand',
       label: 'Preço/Milheiro',
       render: (value: unknown, sale: Sale) => (
-        <div className="text-sm text-gray-900">
-          {formatCurrency(sale.price_per_thousand)}
-        </div>
+        <div className="text-sm text-gray-900">{formatCurrency(sale.price_per_thousand)}</div>
       ),
     },
     {
       key: 'total_value',
       label: 'Total',
       render: (value: unknown, sale: Sale) => (
-        <div className="text-sm font-medium text-green-600">
-          {formatCurrency(sale.total_value)}
-        </div>
+        <div className="text-sm font-medium text-green-600">{formatCurrency(sale.total_value)}</div>
       ),
     },
     {
       key: 'recorded_by',
       label: 'Registrado por',
-      render: (value: unknown, sale: Sale) => (
-        <div className="text-sm text-gray-900">
-          {sale.recorded_by}
-        </div>
-      ),
+      render: (value: unknown, sale: Sale) => <div className="text-sm text-gray-900">{sale.recorded_by}</div>,
     },
   ];
 
@@ -196,7 +181,8 @@ const Sales = () => {
       subtitle="Gerencie e acompanhe todas as vendas realizadas"
       title="Vendas de Tijolos"
       onMonthChange={setSelectedMonth}
-      onSearchChange={setSearch}    >
+      onSearchChange={setSearch}
+    >
       <DataTable
         actions={tableActions as never}
         columns={columns as never}
@@ -205,12 +191,7 @@ const Sales = () => {
         minWidth="800px"
       />
 
-      <SaleDialog
-        open={dialogOpen}
-        sale={editingSale}
-        onOpenChange={setDialogOpen}
-        onSave={handleSaveSale}
-      />
+      <SaleDialog open={dialogOpen} sale={editingSale} onOpenChange={setDialogOpen} onSave={handleSaveSale} />
     </PageLayout>
   );
 };

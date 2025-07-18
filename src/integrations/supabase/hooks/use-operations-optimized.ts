@@ -24,24 +24,30 @@ export function useCreateOperationOptimized() {
     queryKeyToInvalidate: ['operations'],
     successMessage: 'Operação registrada com sucesso.',
     errorMessage: 'Erro ao criar operação',
-    onMutate: async (newOperation) => {
+    onMutate: async newOperation => {
       await queryClient.cancelQueries({ queryKey: ['operations'] });
       const previousOperations = queryClient.getQueryData(['operations']);
-      if (previousOperations) {
-        const optimisticOperation = {
-          id: `temp-${Date.now()}`,
-          ...newOperation,
-          ceramic_id: 'temp',
-          status: newOperation.status || 'IN_PROGRESS',
-          operation_type: newOperation.operation_type || 'manual',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-        queryClient.setQueryData(['operations'], [optimisticOperation, ...(previousOperations as Operation[])]);
-      }
-      return { previousOperations };
+
+      const optimisticOperationId = `temp-${Date.now()}`;
+      const optimisticOperation = {
+        id: optimisticOperationId,
+        ...newOperation,
+        ceramic_id: 'temp',
+        status: newOperation.status || 'IN_PROGRESS',
+        operation_type: newOperation.operation_type || 'manual',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      queryClient.setQueryData(['operations'], [optimisticOperation, ...(previousOperations as Operation[])]);
+
+      return { previousOperations, optimisticOperationId };
     },
-    onError: (err, newOperation, context?: { previousOperations: unknown }) => {
+    onSuccess: (data, variables, context) => {
+      queryClient.setQueryData(['operations'], (old: Operation[] = []) =>
+        old.map(operation => (operation.id === context?.optimisticOperationId ? data : operation))
+      );
+    },
+    onError: (err, newOperation, context) => {
       if (context?.previousOperations) {
         queryClient.setQueryData(['operations'], context.previousOperations);
       }
@@ -64,15 +70,13 @@ export function useUpdateOperationOptimized() {
       if (previousOperations) {
         queryClient.setQueryData(['operations'], (old: Operation[] = []) =>
           old?.map((operation: Operation) =>
-            operation.id === operationId
-              ? { ...operation, ...payload, updated_at: new Date().toISOString() }
-              : operation,
-          ),
+            operation.id === operationId ? { ...operation, ...payload, updated_at: new Date().toISOString() } : operation
+          )
         );
       }
       return { previousOperations };
     },
-    onError: (err, { operationId: _operationId }, context?: { previousOperations: unknown }) => {
+    onError: (err, _variables, context?: { previousOperations: unknown }) => {
       if (context?.previousOperations) {
         queryClient.setQueryData(['operations'], context.previousOperations);
       }
@@ -88,12 +92,12 @@ export function useDeleteOperationOptimized() {
     queryKeyToInvalidate: ['operations'],
     successMessage: 'Operação removida com sucesso.',
     errorMessage: 'Erro ao excluir operação',
-    onMutate: async (operationId) => {
+    onMutate: async operationId => {
       await queryClient.cancelQueries({ queryKey: ['operations'] });
       const previousOperations = queryClient.getQueryData(['operations']);
       if (previousOperations) {
         queryClient.setQueryData(['operations'], (old: Operation[] = []) =>
-          old?.filter((operation: Operation) => operation.id !== operationId),
+          old?.filter((operation: Operation) => operation.id !== operationId)
         );
       }
       return { previousOperations };

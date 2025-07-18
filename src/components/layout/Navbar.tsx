@@ -32,21 +32,17 @@ const Navbar: React.FC<NavbarProps> = ({ title, subtitle }) => {
   };
 
   return (
-    <header className={cn(
-      'w-full py-3 md:py-4 px-4 md:px-6 flex items-center justify-between',
-      'bg-background/90 backdrop-blur-md border-b border-border',
-      'sticky top-0 z-30 transition-all duration-200',
-      isMobile && 'pl-16', // Add left padding on mobile to account for menu button
-    )}>
+    <header
+      className={cn(
+        'w-full py-3 md:py-4 px-4 md:px-6 flex items-center justify-between',
+        'bg-background/90 backdrop-blur-md border-b border-border',
+        'sticky top-0 z-30 transition-all duration-200',
+        isMobile && 'pl-16' // Add left padding on mobile to account for menu button
+      )}
+    >
       <div className="flex-1 min-w-0 mr-4">
-        <h1 className="text-lg md:text-xl lg:text-2xl font-bold truncate">
-          {title}
-        </h1>
-        {subtitle && (
-          <p className="text-xs md:text-sm text-muted-foreground truncate mt-0.5">
-            {subtitle}
-          </p>
-        )}
+        <h1 className="text-lg md:text-xl lg:text-2xl font-bold truncate">{title}</h1>
+        {subtitle && <p className="text-xs md:text-sm text-muted-foreground truncate mt-0.5">{subtitle}</p>}
       </div>
 
       <div className="flex items-center gap-1 md:gap-3">
@@ -58,7 +54,7 @@ const Navbar: React.FC<NavbarProps> = ({ title, subtitle }) => {
               'py-2 pl-10 pr-4 rounded-lg bg-secondary/50 border border-border/50',
               'focus:outline-none focus:ring-2 focus:ring-ring focus:bg-secondary',
               'w-full max-w-xs transition-all duration-300',
-              'placeholder:text-muted-foreground/70',
+              'placeholder:text-muted-foreground/70'
             )}
             placeholder="Buscar..."
             type="text"
@@ -67,10 +63,12 @@ const Navbar: React.FC<NavbarProps> = ({ title, subtitle }) => {
 
         {/* Notifications - touch friendly */}
         <div className="relative">
-          <button className={cn(
-            'p-2 md:p-2.5 rounded-lg hover:bg-secondary/50 transition-colors duration-200',
-            'touch-manipulation min-h-[40px] min-w-[40px] flex items-center justify-center',
-          )}>
+          <button
+            className={cn(
+              'p-2 md:p-2.5 rounded-lg hover:bg-secondary/50 transition-colors duration-200',
+              'touch-manipulation min-h-[40px] min-w-[40px] flex items-center justify-center'
+            )}
+          >
             <Bell className="w-4 h-4 md:w-5 md:h-5" />
             <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-status-warning animate-pulse" />
           </button>
@@ -79,10 +77,12 @@ const Navbar: React.FC<NavbarProps> = ({ title, subtitle }) => {
         {/* User Menu - dropdown with logout option */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className={cn(
-              'flex items-center gap-2 p-1.5 md:p-2 rounded-lg hover:bg-secondary/50',
-              'transition-colors duration-200 touch-manipulation min-h-[40px]',
-            )}>
+            <button
+              className={cn(
+                'flex items-center gap-2 p-1.5 md:p-2 rounded-lg hover:bg-secondary/50',
+                'transition-colors duration-200 touch-manipulation min-h-[40px]'
+              )}
+            >
               <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs md:text-sm font-medium">
                 {initials}
               </div>

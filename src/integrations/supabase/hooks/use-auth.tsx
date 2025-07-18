@@ -1,7 +1,5 @@
 import type { User, Session } from '@supabase/supabase-js';
-import {
-  useState, useEffect, useContext, createContext, useMemo,
-} from 'react';
+import { useState, useEffect, useContext, createContext, useMemo, useCallback } from 'react';
 import type { ReactNode } from 'react';
 
 import { AuthService } from '../api/auth';
@@ -35,7 +33,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const currentSession = await AuthService.getSession();
 
-        if (!isMounted) {return;}
+        if (!isMounted) {
+          return;
+        }
 
         setSession(currentSession);
         setUser(currentSession?.user || null);
@@ -44,7 +44,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Carregar perfil primeiro
           const userProfile = await AuthService.getCurrentProfile();
 
-          if (!isMounted) {return;}
+          if (!isMounted) {
+            return;
+          }
 
           setProfile(userProfile);
 
@@ -52,35 +54,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (userProfile?.is_admin) {
             // Admin tem acesso a tudo - criar cache básico
             const adminCache = {
-              'dashboard': true, 'vehicles': true, 'employees': true,
-              'operations': true, 'maintenance': true, 'wood': true,
-              'raw-material': true, 'sales': true, 'reports': true, 'admin': true,
+              dashboard: true,
+              vehicles: true,
+              employees: true,
+              operations: true,
+              maintenance: true,
+              wood: true,
+              'raw-material': true,
+              sales: true,
+              reports: true,
+              admin: true,
             };
             setPermissionsCache(adminCache);
           } else if (userProfile) {
             // Para usuários não-admin, carregar permissões apenas uma vez
-            const routes = ['dashboard', 'vehicles', 'employees', 'operations', 'maintenance', 'wood', 'raw-material', 'sales', 'reports', 'admin'];
+            const routes = [
+              'dashboard',
+              'vehicles',
+              'employees',
+              'operations',
+              'maintenance',
+              'wood',
+              'raw-material',
+              'sales',
+              'reports',
+              'admin',
+            ];
 
             try {
-              const permissionsPromises = routes.map(async (route) => {
+              const permissionsPromises = routes.map(async route => {
                 const hasPermission = await AuthService.hasRoutePermission(currentSession.user.id, route);
                 return { route, hasPermission };
               });
 
               const permissions = await Promise.all(permissionsPromises);
 
-              if (!isMounted) {return;}
+              if (!isMounted) {
+                return;
+              }
 
-              const permissionsMap = permissions.reduce((acc, { route, hasPermission }) => {
-                acc[route] = hasPermission;
-                return acc;
-              }, {} as Record<string, boolean>);
+              const permissionsMap = permissions.reduce(
+                (acc, { route, hasPermission }) => {
+                  acc[route] = hasPermission;
+                  return acc;
+                },
+                {} as Record<string, boolean>
+              );
 
               setPermissionsCache(permissionsMap);
             } catch (error) {
               console.error('Error loading permissions:', error);
               // Em caso de erro, permitir acesso básico
-              setPermissionsCache({ 'dashboard': true });
+              setPermissionsCache({ dashboard: true });
             }
           }
         } else {
@@ -125,44 +150,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     await AuthService.signIn({ email, password });
     // O listener onAuthStateChange cuidará de atualizar o estado
-  };
+  }, []);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await AuthService.signOut();
     // O listener onAuthStateChange cuidará de atualizar o estado
-  };
+  }, []);
 
-  const hasRoutePermission = (routePath: string): boolean => {
-    if (isLoading || !initializationComplete) {
-      return false; // Ou um estado de carregamento
-    }
-    if (profile?.is_admin) {
-      return true;
-    }
-    const routeKey = routePath.replace('/', '');
-    return permissionsCache[routeKey] ?? false;
-  };
+  const hasRoutePermission = useCallback(
+    (routePath: string): boolean => {
+      if (isLoading || !initializationComplete) {
+        return false; // Ou um estado de carregamento
+      }
+      if (profile?.is_admin) {
+        return true;
+      }
+      const routeKey = routePath.replace('/', '');
+      return permissionsCache[routeKey] ?? false;
+    },
+    [isLoading, initializationComplete, profile, permissionsCache]
+  );
 
   // Memoriza o valor do contexto para evitar re-renderizações desnecessárias
-  const value = useMemo(() => ({
-    user,
-    session,
-    profile,
-    loading: isLoading,
-    isLoading: isLoading || !initializationComplete,
-    signIn,
-    signOut,
-    hasRoutePermission,
-  }), [user, session, profile, isLoading, initializationComplete, permissionsCache]);
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({
+      user,
+      session,
+      profile,
+      loading: isLoading,
+      isLoading: isLoading || !initializationComplete,
+      signIn,
+      signOut,
+      hasRoutePermission,
+    }),
+    [user, session, profile, isLoading, initializationComplete, signIn, signOut, hasRoutePermission]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => {
@@ -171,7 +198,7 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
+};
 
 // Alias for centralized hooks
 export const useAuthOptimized = useAuth;

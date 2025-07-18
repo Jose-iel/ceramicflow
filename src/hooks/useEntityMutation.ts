@@ -1,21 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 
-interface UseEntityMutationOptions<TData, TError, TVariables> {
+interface UseEntityMutationOptions<TData, TError, TVariables, TContext> {
   mutationFn: (variables: TVariables) => Promise<TData>;
   queryKeyToInvalidate: string[];
   successMessage: string;
   errorMessage: string;
-  onMutate?: (variables: TVariables) => Promise<unknown> | unknown;
-  onSuccess?: (data: TData, variables: TVariables, context: unknown) => Promise<unknown> | unknown;
-  onError?: (error: TError, variables: TVariables, context: unknown) => Promise<unknown> | unknown;
+  onMutate?: (variables: TVariables) => Promise<TContext> | TContext;
+  onSuccess?: (data: TData, variables: TVariables, context: TContext) => Promise<unknown> | unknown;
+  onError?: (error: TError, variables: TVariables, context: TContext | undefined) => Promise<unknown> | unknown;
 }
 
-export function useEntityMutation<
-  TData = unknown,
-  TError extends Error = Error,
-  TVariables = void,
->({
+export function useEntityMutation<TData = unknown, TError extends Error = Error, TVariables = void, TContext = unknown>({
   mutationFn,
   queryKeyToInvalidate,
   successMessage,
@@ -23,11 +19,11 @@ export function useEntityMutation<
   onMutate,
   onSuccess,
   onError,
-}: UseEntityMutationOptions<TData, TError, TVariables>) {
+}: UseEntityMutationOptions<TData, TError, TVariables, TContext>) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  return useMutation<TData, TError, TVariables>({
+  return useMutation<TData, TError, TVariables, TContext>({
     mutationFn,
     onMutate,
     onSuccess: (data, variables, context) => {
@@ -35,7 +31,7 @@ export function useEntityMutation<
         title: 'Sucesso',
         description: successMessage,
       });
-      
+
       // Invalida a query do dashboard e outras queries relacionadas
       queryClient.invalidateQueries({ queryKey: queryKeyToInvalidate });
       queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] });

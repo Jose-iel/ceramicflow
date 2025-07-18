@@ -1,4 +1,3 @@
-
 import { QueryClient } from '@tanstack/react-query';
 
 // Configuração mais agressiva para velocidade máxima
@@ -32,10 +31,6 @@ export const invalidateRelatedQueries = (queryClient: QueryClient, keys: string[
 };
 
 // Função para atualizar cache otimista
-export const updateCacheOptimistically = <T>(
-  queryClient: QueryClient,
-  queryKey: string[],
-  updateFn: (oldData: T) => T,
-) => {
+export const updateCacheOptimistically = <T>(queryClient: QueryClient, queryKey: string[], updateFn: (oldData: T) => T) => {
   queryClient.setQueryData(queryKey, updateFn);
 };

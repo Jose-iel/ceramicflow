@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -69,10 +62,8 @@ const EmployeeDialog = ({ open, onOpenChange, onSave, employee }: EmployeeDialog
         cpf: employee.cpf || '',
         contact: employee.contact || '',
         shift: employee.shift || '',
-        admissionDate: employee.admission_date ?
-          new Date(employee.admission_date).toISOString().split('T')[0] : '',
-        vacationDueDate: employee.vacation_due_date ?
-          new Date(employee.vacation_due_date).toISOString().split('T')[0] : '',
+        admissionDate: employee.admission_date ? new Date(employee.admission_date).toISOString().split('T')[0] : '',
+        vacationDueDate: employee.vacation_due_date ? new Date(employee.vacation_due_date).toISOString().split('T')[0] : '',
       });
     } else {
       setFormData({
@@ -122,17 +113,13 @@ const EmployeeDialog = ({ open, onOpenChange, onSave, employee }: EmployeeDialog
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{employee ? 'Editar Funcionário' : 'Novo Funcionário'}</DialogTitle>
-          <DialogDescription>
-            Preencha as informações do funcionário abaixo.
-          </DialogDescription>
+          <DialogDescription>Preencha as informações do funcionário abaixo.</DialogDescription>
         </DialogHeader>
 
         <form className="space-y-6 pt-4" onSubmit={handleSubmit}>
           {/* Informações Básicas */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">
-              Informações Básicas
-            </h3>
+            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Informações Básicas</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -142,7 +129,7 @@ const EmployeeDialog = ({ open, onOpenChange, onSave, employee }: EmployeeDialog
                   id="name"
                   placeholder="Nome completo"
                   value={formData.name}
-                  onChange={(e) => handleChange('name', e.target.value)}
+                  onChange={e => handleChange('name', e.target.value)}
                 />
               </div>
 
@@ -153,10 +140,12 @@ const EmployeeDialog = ({ open, onOpenChange, onSave, employee }: EmployeeDialog
                   className="w-full p-2 rounded-md border border-input bg-background text-sm"
                   id="role"
                   value={formData.role}
-                  onChange={(e) => handleChange('role', e.target.value as EmployeeRole)}
+                  onChange={e => handleChange('role', e.target.value as EmployeeRole)}
                 >
                   {Object.values(EmployeeRole).map(role => (
-                    <option key={role} value={role}>{role}</option>
+                    <option key={role} value={role}>
+                      {role}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -169,7 +158,7 @@ const EmployeeDialog = ({ open, onOpenChange, onSave, employee }: EmployeeDialog
                   id="cpf"
                   placeholder="000.000.000-00"
                   value={formData.cpf}
-                  onChange={(e) => handleChange('cpf', e.target.value)}
+                  onChange={e => handleChange('cpf', e.target.value)}
                 />
               </div>
 
@@ -179,7 +168,7 @@ const EmployeeDialog = ({ open, onOpenChange, onSave, employee }: EmployeeDialog
                   id="contact"
                   placeholder="Telefone ou email"
                   value={formData.contact}
-                  onChange={(e) => handleChange('contact', e.target.value)}
+                  onChange={e => handleChange('contact', e.target.value)}
                 />
               </div>
             </div>
@@ -191,7 +180,7 @@ const EmployeeDialog = ({ open, onOpenChange, onSave, employee }: EmployeeDialog
                   id="shift"
                   placeholder="Ex: Manhã, Tarde, Noite"
                   value={formData.shift}
-                  onChange={(e) => handleChange('shift', e.target.value)}
+                  onChange={e => handleChange('shift', e.target.value)}
                 />
               </div>
 
@@ -201,7 +190,7 @@ const EmployeeDialog = ({ open, onOpenChange, onSave, employee }: EmployeeDialog
                   id="admissionDate"
                   type="date"
                   value={formData.admissionDate}
-                  onChange={(e) => handleChange('admissionDate', e.target.value)}
+                  onChange={e => handleChange('admissionDate', e.target.value)}
                 />
               </div>
             </div>
@@ -209,9 +198,7 @@ const EmployeeDialog = ({ open, onOpenChange, onSave, employee }: EmployeeDialog
 
           {/* Certificações */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">
-              Certificações e Exames
-            </h3>
+            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Certificações e Exames</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -220,25 +207,17 @@ const EmployeeDialog = ({ open, onOpenChange, onSave, employee }: EmployeeDialog
                   id="vacationDueDate"
                   type="date"
                   value={formData.vacationDueDate}
-                  onChange={(e) => handleChange('vacationDueDate', e.target.value)}
+                  onChange={e => handleChange('vacationDueDate', e.target.value)}
                 />
               </div>
             </div>
           </div>
 
           <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-6">
-            <Button
-              className="w-full sm:w-auto"
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button className="w-full sm:w-auto" type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button
-              className="w-full sm:w-auto"
-              type="submit"
-            >
+            <Button className="w-full sm:w-auto" type="submit">
               {employee ? 'Atualizar' : 'Criar'} Funcionário
             </Button>
           </DialogFooter>

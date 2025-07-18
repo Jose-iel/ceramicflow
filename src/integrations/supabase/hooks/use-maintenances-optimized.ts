@@ -24,24 +24,30 @@ export function useCreateMaintenanceOptimized() {
     queryKeyToInvalidate: ['maintenances'],
     successMessage: 'Manutenção adicionada com sucesso.',
     errorMessage: 'Erro ao criar manutenção',
-    onMutate: async (newMaintenance) => {
+    onMutate: async newMaintenance => {
       await queryClient.cancelQueries({ queryKey: ['maintenances'] });
       const previousMaintenances = queryClient.getQueryData(['maintenances']);
-      if (previousMaintenances) {
-        const optimisticMaintenance = {
-          id: `temp-${Date.now()}`,
-          ...newMaintenance,
-          ceramic_id: 'temp',
-          status: newMaintenance.status || 'WAITING',
-          reported_date: newMaintenance.reported_date || new Date().toISOString().split('T')[0],
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-        queryClient.setQueryData(['maintenances'], [optimisticMaintenance, ...(previousMaintenances as Maintenance[])]);
-      }
-      return { previousMaintenances };
+
+      const optimisticMaintenanceId = `temp-${Date.now()}`;
+      const optimisticMaintenance = {
+        id: optimisticMaintenanceId,
+        ...newMaintenance,
+        ceramic_id: 'temp',
+        status: newMaintenance.status || 'WAITING',
+        reported_date: newMaintenance.reported_date || new Date().toISOString().split('T')[0],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      queryClient.setQueryData(['maintenances'], [optimisticMaintenance, ...(previousMaintenances as Maintenance[])]);
+
+      return { previousMaintenances, optimisticMaintenanceId };
     },
-    onError: (err, newMaintenance, context?: { previousMaintenances: unknown }) => {
+    onSuccess: (data, variables, context) => {
+      queryClient.setQueryData(['maintenances'], (old: Maintenance[] = []) =>
+        old.map(maintenance => (maintenance.id === context?.optimisticMaintenanceId ? data : maintenance))
+      );
+    },
+    onError: (err, newMaintenance, context) => {
       if (context?.previousMaintenances) {
         queryClient.setQueryData(['maintenances'], context.previousMaintenances);
       }
@@ -64,15 +70,13 @@ export function useUpdateMaintenanceOptimized() {
       if (previousMaintenances) {
         queryClient.setQueryData(['maintenances'], (old: Maintenance[] = []) =>
           old?.map((maintenance: Maintenance) =>
-            maintenance.id === maintenanceId
-              ? { ...maintenance, ...payload, updated_at: new Date().toISOString() }
-              : maintenance,
-          ),
+            maintenance.id === maintenanceId ? { ...maintenance, ...payload, updated_at: new Date().toISOString() } : maintenance
+          )
         );
       }
       return { previousMaintenances };
     },
-    onError: (err, { maintenanceId: _maintenanceId }, context?: { previousMaintenances: unknown }) => {
+    onError: (err, _variables, context?: { previousMaintenances: unknown }) => {
       if (context?.previousMaintenances) {
         queryClient.setQueryData(['maintenances'], context.previousMaintenances);
       }
@@ -88,12 +92,12 @@ export function useDeleteMaintenanceOptimized() {
     queryKeyToInvalidate: ['maintenances'],
     successMessage: 'Manutenção removida com sucesso.',
     errorMessage: 'Erro ao excluir manutenção',
-    onMutate: async (maintenanceId) => {
+    onMutate: async maintenanceId => {
       await queryClient.cancelQueries({ queryKey: ['maintenances'] });
       const previousMaintenances = queryClient.getQueryData(['maintenances']);
       if (previousMaintenances) {
         queryClient.setQueryData(['maintenances'], (old: Maintenance[] = []) =>
-          old?.filter((maintenance: Maintenance) => maintenance.id !== maintenanceId),
+          old?.filter((maintenance: Maintenance) => maintenance.id !== maintenanceId)
         );
       }
       return { previousMaintenances };

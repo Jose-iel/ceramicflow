@@ -26,21 +26,6 @@ const XIcon = lazy(() => import('lucide-react/dist/esm/icons/x').then(m => ({ de
 // Icon fallback component
 const IconFallback = () => <div className="w-6 h-6" />;
 
-// Wrapper component with Suspense
-interface LazyLucideProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-// eslint-disable-next-line unused-imports/no-unused-vars
-const LazyIcon: React.FC<LazyLucideProps> = ({ children, className }) => (
-  <Suspense fallback={<IconFallback />}>
-    <div className={className}>
-      {children}
-    </div>
-  </Suspense>
-);
-
 // Export icons with Suspense wrapper
 export const Clock = (props: LucideProps) => (
   <Suspense fallback={<IconFallback />}>

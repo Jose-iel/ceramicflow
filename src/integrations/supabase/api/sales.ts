@@ -72,9 +72,7 @@ export class SalesService {
         ...payload,
       };
 
-      const { error } = await supabase
-        .from('sales')
-        .insert(insertData);
+      const { error } = await supabase.from('sales').insert(insertData);
 
       if (error) {
         console.error('Erro do Supabase ao criar venda:', error);
@@ -87,10 +85,7 @@ export class SalesService {
   }
 
   static async updateSale(saleId: string, payload: UpdateSalePayload): Promise<void> {
-    const { error } = await supabase
-      .from('sales')
-      .update(payload)
-      .eq('id', saleId);
+    const { error } = await supabase.from('sales').update(payload).eq('id', saleId);
 
     if (error) {
       throw new Error(error.message);
@@ -98,10 +93,7 @@ export class SalesService {
   }
 
   static async deleteSale(saleId: string): Promise<void> {
-    const { error } = await supabase
-      .from('sales')
-      .delete()
-      .eq('id', saleId);
+    const { error } = await supabase.from('sales').delete().eq('id', saleId);
 
     if (error) {
       throw new Error(error.message);

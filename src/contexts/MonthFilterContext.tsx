@@ -23,11 +23,13 @@ export const MonthFilterProvider: React.FC<MonthFilterProviderProps> = ({ childr
   const [selectedMonth, setSelectedMonth] = useState<string>(getCurrentMonth());
 
   return (
-    <MonthFilterContext.Provider value={{
-      selectedMonth,
-      setSelectedMonth,
-      getCurrentMonth,
-    }}>
+    <MonthFilterContext.Provider
+      value={{
+        selectedMonth,
+        setSelectedMonth,
+        getCurrentMonth,
+      }}
+    >
       {children}
     </MonthFilterContext.Provider>
   );

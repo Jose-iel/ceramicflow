@@ -1,4 +1,3 @@
-
 import { Home } from 'lucide-react';
 import { useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
@@ -9,10 +8,7 @@ const NotFound = () => {
   const location = useLocation();
 
   useEffect(() => {
-    console.error(
-      '404 Erro: Usuário tentou acessar uma rota inexistente:',
-      location.pathname,
-    );
+    console.error('404 Erro: Usuário tentou acessar uma rota inexistente:', location.pathname);
   }, [location.pathname]);
 
   return (
@@ -21,7 +17,7 @@ const NotFound = () => {
         <h1 className="text-6xl font-bold mb-4 text-primary">404</h1>
         <p className="text-xl text-foreground mb-6">Página não encontrada</p>
         <p className="text-muted-foreground mb-8">
-          A página "{location.pathname}" que você está tentando acessar não existe ou foi movida.
+          A página &quot;{location.pathname}&quot; que você está tentando acessar não existe ou foi movida.
         </p>
         <Button asChild className="gap-2">
           <Link to="/">

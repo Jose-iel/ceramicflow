@@ -7,8 +7,12 @@ function HomePage() {
       <h1>🏠 CeramicFlow - Home</h1>
       <p>Bem-vindo ao sistema de gestão ceramistas!</p>
       <nav style={{ marginTop: '20px' }}>
-        <a href="/login" style={{ marginRight: '20px', color: 'blue' }}>Login</a>
-        <a href="/about" style={{ color: 'blue' }}>Sobre</a>
+        <a href="/login" style={{ marginRight: '20px', color: 'blue' }}>
+          Login
+        </a>
+        <a href="/about" style={{ color: 'blue' }}>
+          Sobre
+        </a>
       </nav>
     </div>
   );
@@ -32,7 +36,9 @@ function LoginPage() {
         </button>
       </form>
       <p style={{ marginTop: '20px' }}>
-        <a href="/" style={{ color: 'blue' }}>← Voltar para Home</a>
+        <a href="/" style={{ color: 'blue' }}>
+          ← Voltar para Home
+        </a>
       </p>
     </div>
   );
@@ -42,7 +48,11 @@ function NotFoundPage() {
   return (
     <div style={{ padding: '40px', fontFamily: 'Arial', textAlign: 'center' }}>
       <h1>404 - Página não encontrada</h1>
-      <p><a href="/" style={{ color: 'blue' }}>← Voltar para Home</a></p>
+      <p>
+        <a href="/" style={{ color: 'blue' }}>
+          ← Voltar para Home
+        </a>
+      </p>
     </div>
   );
 }

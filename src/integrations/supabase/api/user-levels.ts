@@ -25,10 +25,7 @@ export type UpdateUserLevelPayload = CreateUserLevelPayload;
 
 export class UserLevelsService {
   static async getAllUserLevels(): Promise<UserLevel[]> {
-    const { data, error } = await supabase
-      .from('user_levels')
-      .select('*')
-      .order('name');
+    const { data, error } = await supabase.from('user_levels').select('*').order('name');
 
     if (error) {
       throw new Error(error.message);
@@ -38,10 +35,7 @@ export class UserLevelsService {
   }
 
   static async getAllRoutes(): Promise<Route[]> {
-    const { data, error } = await supabase
-      .from('routes')
-      .select('*')
-      .order('name');
+    const { data, error } = await supabase.from('routes').select('*').order('name');
 
     if (error) {
       throw new Error(error.message);
@@ -51,10 +45,7 @@ export class UserLevelsService {
   }
 
   static async getUserLevelPermissions(levelId: string): Promise<string[]> {
-    const { data, error } = await supabase
-      .from('user_level_permissions')
-      .select('route_id')
-      .eq('user_level_id', levelId);
+    const { data, error } = await supabase.from('user_level_permissions').select('route_id').eq('user_level_id', levelId);
 
     if (error) {
       throw new Error(error.message);
@@ -64,10 +55,7 @@ export class UserLevelsService {
   }
 
   static async deleteUserLevel(levelId: string): Promise<void> {
-    const { error } = await supabase
-      .from('user_levels')
-      .delete()
-      .eq('id', levelId);
+    const { error } = await supabase.from('user_levels').delete().eq('id', levelId);
 
     if (error) {
       throw new Error(error.message);
@@ -109,10 +97,7 @@ export class UserLevelsService {
 
   private static async updateUserLevelPermissions(levelId: string, permissions: string[]): Promise<void> {
     // Primeiro, remove todas as permissões existentes
-    const { error: deleteError } = await supabase
-      .from('user_level_permissions')
-      .delete()
-      .eq('user_level_id', levelId);
+    const { error: deleteError } = await supabase.from('user_level_permissions').delete().eq('user_level_id', levelId);
 
     if (deleteError) {
       throw new Error(deleteError.message);
@@ -125,9 +110,7 @@ export class UserLevelsService {
         route_id: routeId,
       }));
 
-      const { error: insertError } = await supabase
-        .from('user_level_permissions')
-        .insert(permissionsToInsert);
+      const { error: insertError } = await supabase.from('user_level_permissions').insert(permissionsToInsert);
 
       if (insertError) {
         throw new Error(insertError.message);

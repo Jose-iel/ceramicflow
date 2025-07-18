@@ -30,7 +30,9 @@ export class ProfileCacheService {
    */
   static async getCurrentUserCeramicId(): Promise<string> {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
       if (!session?.user?.id) {
         throw new Error('Usuário não autenticado');
@@ -40,11 +42,7 @@ export class ProfileCacheService {
       const now = Date.now();
 
       // Verifica se o cache é válido
-      if (
-        profileCache.ceramicId &&
-        profileCache.userId === currentUserId &&
-        (now - profileCache.lastFetch) < CACHE_DURATION
-      ) {
+      if (profileCache.ceramicId && profileCache.userId === currentUserId && now - profileCache.lastFetch < CACHE_DURATION) {
         return profileCache.ceramicId;
       }
 
@@ -54,11 +52,7 @@ export class ProfileCacheService {
       }
 
       // Buscar perfil no banco
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('ceramic_id')
-        .eq('id', currentUserId)
-        .single();
+      const { data, error } = await supabase.from('profiles').select('ceramic_id').eq('id', currentUserId).single();
 
       if (error) {
         console.error('Error fetching ceramic_id:', error);
@@ -88,7 +82,9 @@ export class ProfileCacheService {
    */
   static async getCurrentProfile(): Promise<UserProfile> {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
       if (!session?.user?.id) {
         throw new Error('Usuário não autenticado');
@@ -98,11 +94,7 @@ export class ProfileCacheService {
       const now = Date.now();
 
       // Verifica se o cache é válido
-      if (
-        profileCache.profile &&
-        profileCache.userId === currentUserId &&
-        (now - profileCache.lastFetch) < CACHE_DURATION
-      ) {
+      if (profileCache.profile && profileCache.userId === currentUserId && now - profileCache.lastFetch < CACHE_DURATION) {
         return profileCache.profile;
       }
 
@@ -112,11 +104,7 @@ export class ProfileCacheService {
       }
 
       // Buscar perfil completo no banco
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', currentUserId)
-        .single();
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', currentUserId).single();
 
       if (error) {
         console.error('Error fetching profile:', error);
@@ -167,10 +155,7 @@ export class ProfileCacheService {
    */
   static isCacheValid(userId: string): boolean {
     const now = Date.now();
-    return (
-      profileCache.userId === userId &&
-      (now - profileCache.lastFetch) < CACHE_DURATION
-    );
+    return profileCache.userId === userId && now - profileCache.lastFetch < CACHE_DURATION;
   }
 
   /**

@@ -1,4 +1,3 @@
-
 import { Plus, Edit, Trash2, Users } from 'lucide-react';
 import { useState } from 'react';
 
@@ -12,9 +11,6 @@ import type { CreateCeramicPayload } from '@/integrations/supabase/api/backoffic
 import { useCeramicsData, useCreateCeramic, useUpdateCeramic, useDeleteCeramic } from '@/integrations/supabase/hooks';
 import type { Ceramic } from '@/types/backoffice';
 
-
-
-
 const CeramicsTab = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCeramic, setEditingCeramic] = useState<Ceramic | null>(null);
@@ -23,7 +19,6 @@ const CeramicsTab = () => {
   const createCeramicMutation = useCreateCeramic();
   const updateCeramicMutation = useUpdateCeramic();
   const deleteCeramicMutation = useDeleteCeramic();
-
 
   const handleCreateCeramic = () => {
     setEditingCeramic(null);
@@ -42,9 +37,12 @@ const CeramicsTab = () => {
 
   const handleSaveCeramic = (ceramicData: CreateCeramicPayload) => {
     if (editingCeramic) {
-      updateCeramicMutation.mutate({ ceramicId: editingCeramic.id, ceramicData }, {
-        onSuccess: () => setDialogOpen(false),
-      });
+      updateCeramicMutation.mutate(
+        { ceramicId: editingCeramic.id, ceramicData },
+        {
+          onSuccess: () => setDialogOpen(false),
+        }
+      );
     } else {
       createCeramicMutation.mutate(ceramicData, {
         onSuccess: () => setDialogOpen(false),
@@ -70,15 +68,9 @@ const CeramicsTab = () => {
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
           <div className="space-y-1">
             <CardTitle className="text-lg sm:text-xl">Gerenciamento de Cerâmicas</CardTitle>
-            <CardDescription className="text-sm">
-              Cadastre e gerencie as cerâmicas do sistema
-            </CardDescription>
+            <CardDescription className="text-sm">Cadastre e gerencie as cerâmicas do sistema</CardDescription>
           </div>
-          <Button
-            className="flex items-center gap-2 w-full sm:w-auto"
-            size="sm"
-            onClick={handleCreateCeramic}
-          >
+          <Button className="flex items-center gap-2 w-full sm:w-auto" size="sm" onClick={handleCreateCeramic}>
             <Plus className="h-4 w-4" />
             Nova Cerâmica
           </Button>
@@ -87,7 +79,7 @@ const CeramicsTab = () => {
       <CardContent className="p-0 sm:p-6">
         {/* Mobile Card View */}
         <div className="block sm:hidden space-y-4 p-4">
-          {ceramics.map((ceramic) => (
+          {ceramics.map(ceramic => (
             <Card key={ceramic.id} className="p-4">
               <div className="space-y-3">
                 <div className="flex justify-between items-start">
@@ -96,18 +88,10 @@ const CeramicsTab = () => {
                     <p className="text-sm text-muted-foreground truncate">{ceramic.email}</p>
                   </div>
                   <div className="flex gap-1 ml-2">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleEditCeramic(ceramic)}
-                    >
+                    <Button size="sm" variant="ghost" onClick={() => handleEditCeramic(ceramic)}>
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDeleteCeramic(ceramic.id)}
-                    >
+                    <Button size="sm" variant="ghost" onClick={() => handleDeleteCeramic(ceramic.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -124,8 +108,7 @@ const CeramicsTab = () => {
                   </Badge>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Users className="h-3 w-3" />
-                    {/* User count would require another query. Leaving as 0 for now. */}
-                    0
+                    {/* User count would require another query. Leaving as 0 for now. */}0
                   </div>
                 </div>
               </div>
@@ -148,12 +131,10 @@ const CeramicsTab = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {ceramics.map((ceramic) => (
+              {ceramics.map(ceramic => (
                 <TableRow key={ceramic.id}>
                   <TableCell className="font-medium">{ceramic.name}</TableCell>
-                  <TableCell className="hidden lg:table-cell max-w-[200px] truncate">
-                    {ceramic.address}
-                  </TableCell>
+                  <TableCell className="hidden lg:table-cell max-w-[200px] truncate">{ceramic.address}</TableCell>
                   <TableCell className="hidden md:table-cell">{ceramic.phone}</TableCell>
                   <TableCell className="max-w-[150px] truncate">{ceramic.email}</TableCell>
                   <TableCell>
@@ -164,24 +145,15 @@ const CeramicsTab = () => {
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <Users className="h-4 w-4" />
-                      {/* User count requires another query. Leaving as 0. */}
-                      0
+                      {/* User count requires another query. Leaving as 0. */}0
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEditCeramic(ceramic)}
-                      >
+                      <Button size="sm" variant="ghost" onClick={() => handleEditCeramic(ceramic)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleDeleteCeramic(ceramic.id)}
-                      >
+                      <Button size="sm" variant="ghost" onClick={() => handleDeleteCeramic(ceramic.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -192,12 +164,7 @@ const CeramicsTab = () => {
           </Table>
         </div>
 
-        <CeramicDialog
-          ceramic={editingCeramic}
-          open={dialogOpen}
-          onOpenChange={setDialogOpen}
-          onSave={handleSaveCeramic}
-        />
+        <CeramicDialog ceramic={editingCeramic} open={dialogOpen} onOpenChange={setDialogOpen} onSave={handleSaveCeramic} />
       </CardContent>
     </Card>
   );

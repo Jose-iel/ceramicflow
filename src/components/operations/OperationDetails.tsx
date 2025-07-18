@@ -2,17 +2,9 @@ import { Clock, Gauge, Info, MapPin, Settings, Truck, User, Wrench } from 'lucid
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import type { Operation } from '@/types';
 import { OperationStatus } from '@/types';
-
 
 interface OperationDetailsProps {
   open: boolean;
@@ -22,7 +14,9 @@ interface OperationDetailsProps {
 }
 
 const OperationDetails = ({ open, onOpenChange, operation, onEdit }: OperationDetailsProps) => {
-  if (!operation) {return null;}
+  if (!operation) {
+    return null;
+  }
 
   // Format date
   const formatDate = (dateString: string) => {
@@ -76,7 +70,8 @@ const OperationDetails = ({ open, onOpenChange, operation, onEdit }: OperationDe
             </Badge>
           </DialogTitle>
           <DialogDescription>
-            Iniciada em: {formatDate(operation.startTime || operation.startDate)} às {formatTime(operation.startTime || operation.startDate)}
+            Iniciada em: {formatDate(operation.startTime || operation.startDate)} às{' '}
+            {formatTime(operation.startTime || operation.startDate)}
           </DialogDescription>
         </DialogHeader>
 
@@ -101,9 +96,7 @@ const OperationDetails = ({ open, onOpenChange, operation, onEdit }: OperationDe
                   <Settings className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">Tipo</span>
                 </div>
-                <span className="text-sm font-medium">
-                  {operation.operationType === 'vehicle' ? 'Com Veículo' : 'Manual'}
-                </span>
+                <span className="text-sm font-medium">{operation.operationType === 'vehicle' ? 'Com Veículo' : 'Manual'}</span>
               </div>
 
               {operation.vehicleModel && (
@@ -112,7 +105,9 @@ const OperationDetails = ({ open, onOpenChange, operation, onEdit }: OperationDe
                     <Truck className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">Veículo</span>
                   </div>
-                  <span className="text-sm font-medium">{operation.vehicleModel} ({operation.vehicleId})</span>
+                  <span className="text-sm font-medium">
+                    {operation.vehicleModel} ({operation.vehicleId})
+                  </span>
                 </div>
               )}
 
@@ -140,9 +135,7 @@ const OperationDetails = ({ open, onOpenChange, operation, onEdit }: OperationDe
 
               <div className="flex items-center justify-between border-b pb-2">
                 <span className="text-sm">Término</span>
-                <span className="text-sm font-medium">
-                  {operation.endTime ? formatTime(operation.endTime) : 'Em andamento'}
-                </span>
+                <span className="text-sm font-medium">{operation.endTime ? formatTime(operation.endTime) : 'Em andamento'}</span>
               </div>
 
               <div className="flex items-center justify-between border-b pb-2">
@@ -204,9 +197,7 @@ const OperationDetails = ({ open, onOpenChange, operation, onEdit }: OperationDe
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Fechar
           </Button>
-          <Button onClick={onEdit}>
-            Editar Operação
-          </Button>
+          <Button onClick={onEdit}>Editar Operação</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

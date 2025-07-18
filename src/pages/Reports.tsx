@@ -1,4 +1,3 @@
-
 import { ChevronDown, Download, FileBarChart, Filter } from 'lucide-react';
 import React, { useState } from 'react';
 
@@ -53,12 +52,7 @@ const ReportsPage: React.FC = () => {
             <CardContent className="space-y-4">
               <div>
                 <h3 className="text-sm font-medium mb-2">Período</h3>
-                <Calendar
-                  className="rounded-md border"
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                />
+                <Calendar className="rounded-md border" mode="single" selected={date} onSelect={setDate} />
               </div>
 
               <Collapsible className="space-y-2" open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
@@ -74,25 +68,37 @@ const ReportsPage: React.FC = () => {
                 <CollapsibleContent className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <Checkbox id="operations" />
-                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="operations">
+                    <label
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      htmlFor="operations"
+                    >
                       Operações
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox id="maintenance" />
-                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="maintenance">
+                    <label
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      htmlFor="maintenance"
+                    >
                       Manutenções
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox id="vehicles" />
-                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="vehicles">
+                    <label
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      htmlFor="vehicles"
+                    >
                       Veículos
                     </label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox id="employees" />
-                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="employees">
+                    <label
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      htmlFor="employees"
+                    >
                       Funcionários
                     </label>
                   </div>

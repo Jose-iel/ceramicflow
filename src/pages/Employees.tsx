@@ -26,16 +26,19 @@ const EmployeesPage = () => {
   // Filter employees
   const filteredEmployees = (employees as Employee[]).filter(employee => {
     // Filtro de busca por texto
-    const matchesSearch = employee.name.toLowerCase().includes(search.toLowerCase()) ||
+    const matchesSearch =
+      employee.name.toLowerCase().includes(search.toLowerCase()) ||
       employee.role.toString().toLowerCase().includes(search.toLowerCase()) ||
       employee.cpf?.toLowerCase().includes(search.toLowerCase());
 
     // Filtro de férias próximas
     if (showUpcomingVacationsOnly) {
-      if (!employee.vacation_due_date) {return false;}
+      if (!employee.vacation_due_date) {
+        return false;
+      }
       const vacationDate = new Date(employee.vacation_due_date);
       const today = new Date();
-      const thirtyDaysFromNow = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
+      const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
       const hasUpcomingVacation = vacationDate <= thirtyDaysFromNow;
       return matchesSearch && hasUpcomingVacation;
     }
@@ -71,11 +74,14 @@ const EmployeesPage = () => {
     } catch (error: unknown) {
       let errorMessage = 'Erro inesperado ao excluir funcionário.';
 
-      if (error instanceof Error &&
-          (error.message.includes('foreign key constraint') ||
-           error.message.includes('operations_employee_id_fkey') ||
-           error.message.includes('operations_vehicle_id_fkey'))) {
-        errorMessage = 'Você não pode excluir um funcionário que esteja vinculado a uma operação. Remova as operações relacionadas primeiro.';
+      if (
+        error instanceof Error &&
+        (error.message.includes('foreign key constraint') ||
+          error.message.includes('operations_employee_id_fkey') ||
+          error.message.includes('operations_vehicle_id_fkey'))
+      ) {
+        errorMessage =
+          'Você não pode excluir um funcionário que esteja vinculado a uma operação. Remova as operações relacionadas primeiro.';
       }
 
       toast({
@@ -95,7 +101,7 @@ const EmployeesPage = () => {
   const totalEmployees = filteredEmployees.length;
   // Calcular funcionários com férias próximas do vencimento (dentro de 30 dias)
   const today = new Date();
-  const thirtyDaysFromNow = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
+  const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
   const employeesWithUpcomingVacations = filteredEmployees.filter(emp => {
     if (emp.vacation_due_date) {
       const vacationDate = new Date(emp.vacation_due_date);
@@ -126,11 +132,7 @@ const EmployeesPage = () => {
     {
       key: 'name',
       label: 'Nome',
-      render: (value: unknown) => (
-        <div className="text-sm font-medium text-gray-900">
-          {String(value)}
-        </div>
-      ),
+      render: (value: unknown) => <div className="text-sm font-medium text-gray-900">{String(value)}</div>,
       className: 'min-w-[150px]', // Garantir largura mínima
     },
     {
@@ -157,41 +159,31 @@ const EmployeesPage = () => {
     {
       key: 'cpf',
       label: 'CPF',
-      render: (value: unknown) => (
-        <div className="text-sm text-gray-900 font-mono">
-          {String(value || 'Não informado')}
-        </div>
-      ),
+      render: (value: unknown) => <div className="text-sm text-gray-900 font-mono">{String(value || 'Não informado')}</div>,
       className: 'min-w-[140px] hidden sm:table-cell', // Ocultar no mobile
     },
     {
       key: 'contact',
       label: 'Contato',
-      render: (value: unknown) => (
-        <div className="text-sm text-gray-900">
-          {String(value || 'Não informado')}
-        </div>
-      ),
+      render: (value: unknown) => <div className="text-sm text-gray-900">{String(value || 'Não informado')}</div>,
       className: 'min-w-[140px] hidden md:table-cell', // Ocultar em telas pequenas
     },
     {
       key: 'shift',
       label: 'Turno',
-      render: (value: unknown) => (
-        <div className="text-sm text-gray-900">
-          {String(value || 'Não definido')}
-        </div>
-      ),
+      render: (value: unknown) => <div className="text-sm text-gray-900">{String(value || 'Não definido')}</div>,
       className: 'min-w-[100px] hidden lg:table-cell', // Ocultar em telas menores
     },
     {
       key: 'vacation_due_date',
       label: 'Vencimento das Férias',
       render: (value: unknown) => {
-        if (!value) {return <span className="text-gray-400">Não definido</span>;}
+        if (!value) {
+          return <span className="text-gray-400">Não definido</span>;
+        }
         const date = new Date(value as string);
         const today = new Date();
-        const thirtyDaysFromNow = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
+        const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
         const isOverdue = date < today;
         const isUpcoming = date <= thirtyDaysFromNow && date >= today;
 
@@ -210,15 +202,9 @@ const EmployeesPage = () => {
 
         return (
           <div className={bgClassName}>
-            <div className={className}>
-              {date.toLocaleDateString('pt-BR')}
-            </div>
-            {isOverdue && (
-              <div className="text-xs text-red-600 font-medium">Vencido</div>
-            )}
-            {isUpcoming && !isOverdue && (
-              <div className="text-xs text-orange-600 font-medium">Próximo</div>
-            )}
+            <div className={className}>{date.toLocaleDateString('pt-BR')}</div>
+            {isOverdue && <div className="text-xs text-red-600 font-medium">Vencido</div>}
+            {isUpcoming && !isOverdue && <div className="text-xs text-orange-600 font-medium">Próximo</div>}
           </div>
         );
       },
@@ -236,7 +222,8 @@ const EmployeesPage = () => {
     },
     {
       label: 'Excluir',
-      onClick: (row: Record<string, unknown>) => handleDeleteEmployee((row as unknown as Employee).id, (row as unknown as Employee).name),
+      onClick: (row: Record<string, unknown>) =>
+        handleDeleteEmployee((row as unknown as Employee).id, (row as unknown as Employee).name),
       variant: 'ghost' as const,
       className: 'text-red-500 hover:text-red-700 hover:bg-red-50 sm:w-auto w-full',
     },
@@ -284,12 +271,7 @@ const EmployeesPage = () => {
         />
       </div>
 
-      <EmployeeDialog
-        employee={editingEmployee}
-        open={showDialog}
-        onOpenChange={handleDialogClose}
-        onSave={handleSaveEmployee}
-      />
+      <EmployeeDialog employee={editingEmployee} open={showDialog} onOpenChange={handleDialogClose} onSave={handleSaveEmployee} />
     </PageLayout>
   );
 };

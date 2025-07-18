@@ -44,9 +44,7 @@ export function DeleteConfirmationDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogTrigger asChild>
-        {trigger}
-      </AlertDialogTrigger>
+      <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-[425px]">
         <AlertDialogHeader>
           <div className="flex items-center gap-3">
@@ -54,19 +52,13 @@ export function DeleteConfirmationDialog({
               <AlertTriangle className="h-5 w-5 text-destructive" />
             </div>
             <div>
-              <AlertDialogTitle className="text-left">
-                Confirmar exclusão
-              </AlertDialogTitle>
+              <AlertDialogTitle className="text-left">Confirmar exclusão</AlertDialogTitle>
             </div>
           </div>
         </AlertDialogHeader>
-        <AlertDialogDescription className="text-left leading-relaxed">
-          {description || defaultDescription}
-        </AlertDialogDescription>
+        <AlertDialogDescription className="text-left leading-relaxed">{description || defaultDescription}</AlertDialogDescription>
         <AlertDialogFooter className="flex flex-col-reverse sm:flex-row gap-2">
-          <AlertDialogCancel disabled={isLoading}>
-            {cancelText}
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>{cancelText}</AlertDialogCancel>
           <AlertDialogAction
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             disabled={isLoading}

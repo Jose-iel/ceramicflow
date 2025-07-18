@@ -21,12 +21,7 @@ interface SearchAndActionsProps {
   actions: ActionButtonConfig[];
 }
 
-const SearchAndActions = ({
-  searchValue,
-  onSearchChange,
-  searchPlaceholder = 'Buscar...',
-  actions,
-}: SearchAndActionsProps) => {
+const SearchAndActions = ({ searchValue, onSearchChange, searchPlaceholder = 'Buscar...', actions }: SearchAndActionsProps) => {
   const isMobile = useIsMobile();
 
   return (
@@ -39,7 +34,7 @@ const SearchAndActions = ({
             placeholder={searchPlaceholder}
             type="text"
             value={searchValue}
-            onChange={(e) => onSearchChange(e.target.value)}
+            onChange={e => onSearchChange(e.target.value)}
           />
         </div>
         <div className="flex gap-2 flex-wrap">

@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -86,21 +79,13 @@ const WoodConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: Wood
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{consumption ? 'Editar Consumo' : 'Registrar Consumo de Lenha'}</DialogTitle>
-          <DialogDescription>
-            Preencha as informações do consumo de lenha nos campos abaixo.
-          </DialogDescription>
+          <DialogDescription>Preencha as informações do consumo de lenha nos campos abaixo.</DialogDescription>
         </DialogHeader>
 
         <form className="space-y-4 pt-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <Label htmlFor="date">Data</Label>
-            <Input
-              required
-              id="date"
-              type="date"
-              value={formData.date}
-              onChange={(e) => handleChange('date', e.target.value)}
-            />
+            <Input required id="date" type="date" value={formData.date} onChange={e => handleChange('date', e.target.value)} />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -114,7 +99,7 @@ const WoodConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: Wood
                 step="0.1"
                 type="number"
                 value={formData.quantity}
-                onChange={(e) => handleChange('quantity', e.target.value)}
+                onChange={e => handleChange('quantity', e.target.value)}
               />
             </div>
 
@@ -125,7 +110,7 @@ const WoodConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: Wood
                 id="oven"
                 placeholder="Ex: Forno 1"
                 value={formData.oven}
-                onChange={(e) => handleChange('oven', e.target.value)}
+                onChange={e => handleChange('oven', e.target.value)}
               />
             </div>
           </div>
@@ -137,7 +122,7 @@ const WoodConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: Wood
               id="responsible"
               placeholder="Nome do responsável"
               value={formData.responsible}
-              onChange={(e) => handleChange('responsible', e.target.value)}
+              onChange={e => handleChange('responsible', e.target.value)}
             />
           </div>
 
@@ -148,23 +133,15 @@ const WoodConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: Wood
               placeholder="Observações adicionais"
               rows={3}
               value={formData.observations || ''}
-              onChange={(e) => handleChange('observations', e.target.value)}
+              onChange={e => handleChange('observations', e.target.value)}
             />
           </div>
 
           <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-6">
-            <Button
-              className="w-full sm:w-auto"
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button className="w-full sm:w-auto" type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button
-              className="w-full sm:w-auto"
-              type="submit"
-            >
+            <Button className="w-full sm:w-auto" type="submit">
               {consumption ? 'Atualizar' : 'Registrar'} Consumo
             </Button>
           </DialogFooter>

@@ -1,10 +1,6 @@
-import {
-  Card, CardContent, CardHeader, CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -84,7 +80,9 @@ const RecentOperationsTable = ({ operations }: { operations: DashboardData['rece
           {operations.map(op => (
             <TableRow key={op.id}>
               <TableCell>{op.description}</TableCell>
-              <TableCell><Badge variant={op.status === 'COMPLETED' ? 'default' : 'secondary'}>{op.status}</Badge></TableCell>
+              <TableCell>
+                <Badge variant={op.status === 'COMPLETED' ? 'default' : 'secondary'}>{op.status}</Badge>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -92,7 +90,6 @@ const RecentOperationsTable = ({ operations }: { operations: DashboardData['rece
     </CardContent>
   </Card>
 );
-
 
 // --- Skeleton Loader ---
 const DashboardSkeleton = () => (

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 
 import { cn } from '@/lib/utils';
@@ -14,7 +13,7 @@ const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
   value,
   duration = 0.2,
   className,
-  formatter = (val) => val.toString(),
+  formatter = val => val.toString(),
 }) => {
   const [displayValue, setDisplayValue] = useState(0);
   const previousValue = useRef(0);
@@ -41,9 +40,7 @@ const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
 
       // Calculate current value with easing
       const easeOutQuart = 1 - Math.pow(1 - percentage, 4);
-      const currentValue = Math.floor(
-        previousValue.current + (value - previousValue.current) * easeOutQuart,
-      );
+      const currentValue = Math.floor(previousValue.current + (value - previousValue.current) * easeOutQuart);
 
       setDisplayValue(currentValue);
 
@@ -63,11 +60,7 @@ const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
 
   const formattedValue = formatter(displayValue);
 
-  return (
-    <span className={cn('font-medium', className)}>
-      {formattedValue}
-    </span>
-  );
+  return <span className={cn('font-medium', className)}>{formattedValue}</span>;
 };
 
 export default AnimatedCounter;

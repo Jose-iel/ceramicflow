@@ -13,8 +13,12 @@ export function useAuthOptimized() {
   // Função memoizada para verificação de permissões
   const checkRoutePermission = useMemo(() => {
     return (routePath: string) => {
-      if (!isReady) {return false;}
-      if (isAdmin) {return true;}
+      if (!isReady) {
+        return false;
+      }
+      if (isAdmin) {
+        return true;
+      }
       return hasRoutePermission(routePath);
     };
   }, [isReady, isAdmin, hasRoutePermission]);
@@ -35,10 +39,14 @@ export function useQuickNavigation() {
   const { isAdmin, isReady, hasRoutePermission } = useAuthOptimized();
 
   const canAccess = useMemo(() => {
-    if (!isReady) {return () => false;}
+    if (!isReady) {
+      return () => false;
+    }
 
     return (routePath: string) => {
-      if (isAdmin) {return true;}
+      if (isAdmin) {
+        return true;
+      }
       return hasRoutePermission(routePath);
     };
   }, [isReady, isAdmin, hasRoutePermission]);

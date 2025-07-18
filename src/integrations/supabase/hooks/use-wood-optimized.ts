@@ -1,7 +1,14 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { WoodService } from '../api/wood';
-import type { CreateWoodPurchasePayload, UpdateWoodPurchasePayload, CreateWoodConsumptionPayload, UpdateWoodConsumptionPayload } from '../api/wood';
+import type {
+  CreateWoodPurchasePayload,
+  UpdateWoodPurchasePayload,
+  CreateWoodConsumptionPayload,
+  UpdateWoodConsumptionPayload,
+  WoodPurchase,
+  WoodConsumption,
+} from '../api/wood';
 import { useEntityMutation } from '@/hooks/useEntityMutation';
 
 // Hook para listar compras de lenha
@@ -26,11 +33,38 @@ export function useWoodConsumptionsOptimized() {
 
 // Hook para criar compra de lenha
 export function useCreateWoodPurchaseOptimized() {
-  return useEntityMutation<void, Error, CreateWoodPurchasePayload>({
-    mutationFn: (payload) => WoodService.createWoodPurchase(payload),
+  const queryClient = useQueryClient();
+  return useEntityMutation({
+    mutationFn: (payload: CreateWoodPurchasePayload) => WoodService.createWoodPurchase(payload),
     queryKeyToInvalidate: ['wood-purchases'],
     successMessage: 'Compra de lenha criada com sucesso!',
     errorMessage: 'Erro ao criar compra',
+    onMutate: async newPurchase => {
+      await queryClient.cancelQueries({ queryKey: ['wood-purchases'] });
+      const previousPurchases = queryClient.getQueryData(['wood-purchases']);
+
+      const optimisticPurchaseId = `temp-${Date.now()}`;
+      const optimisticPurchase = {
+        id: optimisticPurchaseId,
+        ...newPurchase,
+        ceramic_id: 'temp',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      queryClient.setQueryData(['wood-purchases'], (old: WoodPurchase[] = []) => [optimisticPurchase, ...old]);
+
+      return { previousPurchases, optimisticPurchaseId };
+    },
+    onSuccess: (data, variables, context) => {
+      queryClient.setQueryData(['wood-purchases'], (old: WoodPurchase[] = []) =>
+        old.map(purchase => (purchase.id === context?.optimisticPurchaseId ? data : purchase))
+      );
+    },
+    onError: (error, newPurchase, context) => {
+      if (context?.previousPurchases) {
+        queryClient.setQueryData(['wood-purchases'], context.previousPurchases);
+      }
+    },
   });
 }
 
@@ -47,7 +81,7 @@ export function useUpdateWoodPurchaseOptimized() {
 // Hook para excluir compra de lenha
 export function useDeleteWoodPurchaseOptimized() {
   return useEntityMutation<void, Error, string>({
-    mutationFn: (purchaseId) => WoodService.deleteWoodPurchase(purchaseId),
+    mutationFn: purchaseId => WoodService.deleteWoodPurchase(purchaseId),
     queryKeyToInvalidate: ['wood-purchases'],
     successMessage: 'Compra de lenha excluída com sucesso!',
     errorMessage: 'Erro ao excluir compra',
@@ -56,11 +90,38 @@ export function useDeleteWoodPurchaseOptimized() {
 
 // Hook para criar consumo de lenha
 export function useCreateWoodConsumptionOptimized() {
-  return useEntityMutation<void, Error, CreateWoodConsumptionPayload>({
-    mutationFn: (payload) => WoodService.createWoodConsumption(payload),
+  const queryClient = useQueryClient();
+  return useEntityMutation({
+    mutationFn: (payload: CreateWoodConsumptionPayload) => WoodService.createWoodConsumption(payload),
     queryKeyToInvalidate: ['wood-consumptions'],
     successMessage: 'Consumo de lenha registrado com sucesso!',
     errorMessage: 'Erro ao registrar consumo',
+    onMutate: async newConsumption => {
+      await queryClient.cancelQueries({ queryKey: ['wood-consumptions'] });
+      const previousConsumptions = queryClient.getQueryData(['wood-consumptions']);
+
+      const optimisticConsumptionId = `temp-${Date.now()}`;
+      const optimisticConsumption = {
+        id: optimisticConsumptionId,
+        ...newConsumption,
+        ceramic_id: 'temp',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      queryClient.setQueryData(['wood-consumptions'], (old: WoodConsumption[] = []) => [optimisticConsumption, ...old]);
+
+      return { previousConsumptions, optimisticConsumptionId };
+    },
+    onSuccess: (data, variables, context) => {
+      queryClient.setQueryData(['wood-consumptions'], (old: WoodConsumption[] = []) =>
+        old.map(consumption => (consumption.id === context?.optimisticConsumptionId ? data : consumption))
+      );
+    },
+    onError: (error, newConsumption, context) => {
+      if (context?.previousConsumptions) {
+        queryClient.setQueryData(['wood-consumptions'], context.previousConsumptions);
+      }
+    },
   });
 }
 
@@ -77,7 +138,7 @@ export function useUpdateWoodConsumptionOptimized() {
 // Hook para excluir consumo de lenha
 export function useDeleteWoodConsumptionOptimized() {
   return useEntityMutation<void, Error, string>({
-    mutationFn: (consumptionId) => WoodService.deleteWoodConsumption(consumptionId),
+    mutationFn: consumptionId => WoodService.deleteWoodConsumption(consumptionId),
     queryKeyToInvalidate: ['wood-consumptions'],
     successMessage: 'Consumo de lenha excluído com sucesso!',
     errorMessage: 'Erro ao excluir consumo',

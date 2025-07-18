@@ -24,22 +24,28 @@ export function useCreateEmployeeOptimized() {
     queryKeyToInvalidate: ['employees'],
     successMessage: 'Funcionário adicionado com sucesso.',
     errorMessage: 'Erro ao criar funcionário',
-    onMutate: async (newEmployee) => {
+    onMutate: async newEmployee => {
       await queryClient.cancelQueries({ queryKey: ['employees'] });
       const previousEmployees = queryClient.getQueryData(['employees']);
-      if (previousEmployees) {
-        const optimisticEmployee = {
-          id: `temp-${Date.now()}`,
-          ...newEmployee,
-          ceramic_id: 'temp',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-        queryClient.setQueryData(['employees'], [optimisticEmployee, ...(previousEmployees as Employee[])]);
-      }
-      return { previousEmployees };
+
+      const optimisticEmployeeId = `temp-${Date.now()}`;
+      const optimisticEmployee = {
+        id: optimisticEmployeeId,
+        ...newEmployee,
+        ceramic_id: 'temp',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      queryClient.setQueryData(['employees'], [optimisticEmployee, ...(previousEmployees as Employee[])]);
+
+      return { previousEmployees, optimisticEmployeeId };
     },
-    onError: (err, newEmployee, context?: { previousEmployees: unknown }) => {
+    onSuccess: (data, variables, context) => {
+      queryClient.setQueryData(['employees'], (old: Employee[] = []) =>
+        old.map(employee => (employee.id === context?.optimisticEmployeeId ? data : employee))
+      );
+    },
+    onError: (err, newEmployee, context) => {
       if (context?.previousEmployees) {
         queryClient.setQueryData(['employees'], context.previousEmployees);
       }
@@ -62,15 +68,13 @@ export function useUpdateEmployeeOptimized() {
       if (previousEmployees) {
         queryClient.setQueryData(['employees'], (old: Employee[] = []) =>
           old?.map((employee: Employee) =>
-            employee.id === employeeId
-              ? { ...employee, ...payload, updated_at: new Date().toISOString() }
-              : employee,
-          ),
+            employee.id === employeeId ? { ...employee, ...payload, updated_at: new Date().toISOString() } : employee
+          )
         );
       }
       return { previousEmployees };
     },
-    onError: (err, { employeeId: _employeeId }, context?: { previousEmployees: unknown }) => {
+    onError: (err, _variables, context?: { previousEmployees: unknown }) => {
       if (context?.previousEmployees) {
         queryClient.setQueryData(['employees'], context.previousEmployees);
       }
@@ -86,12 +90,12 @@ export function useDeleteEmployeeOptimized() {
     queryKeyToInvalidate: ['employees'],
     successMessage: 'Funcionário removido com sucesso.',
     errorMessage: 'Erro ao excluir funcionário',
-    onMutate: async (employeeId) => {
+    onMutate: async employeeId => {
       await queryClient.cancelQueries({ queryKey: ['employees'] });
       const previousEmployees = queryClient.getQueryData(['employees']);
       if (previousEmployees) {
         queryClient.setQueryData(['employees'], (old: Employee[] = []) =>
-          old?.filter((employee: Employee) => employee.id !== employeeId),
+          old?.filter((employee: Employee) => employee.id !== employeeId)
         );
       }
       return { previousEmployees };

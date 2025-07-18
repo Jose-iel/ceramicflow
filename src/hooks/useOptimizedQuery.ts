@@ -6,7 +6,7 @@ export function useOptimizedQuery<TData, TError = Error>(
   options: UseQueryOptions<TData, TError> & {
     queryKey: (string | number | boolean)[];
     queryFn: () => Promise<TData>;
-  },
+  }
 ) {
   return useQuery({
     ...options,
@@ -26,7 +26,7 @@ export function useRealTimeQuery<TData, TError = Error>(
   options: UseQueryOptions<TData, TError> & {
     queryKey: (string | number | boolean)[];
     queryFn: () => Promise<TData>;
-  },
+  }
 ) {
   return useQuery({
     ...options,

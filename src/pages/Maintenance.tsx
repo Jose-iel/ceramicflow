@@ -4,7 +4,14 @@ import { useState, useMemo, Suspense, lazy } from 'react';
 import DataTable from '@/components/common/DataTable';
 import PageLayout from '@/components/common/PageLayout';
 import { Badge } from '@/components/ui/badge';
-import { useMaintenances, useCreateMaintenance, useUpdateMaintenance, useDeleteMaintenance, useVehicles, useEmployees } from '@/hooks';
+import {
+  useMaintenances,
+  useCreateMaintenance,
+  useUpdateMaintenance,
+  useDeleteMaintenance,
+  useVehicles,
+  useEmployees,
+} from '@/hooks';
 import { useMonthFilter } from '@/hooks/useMonthFilter';
 import type { CreateMaintenancePayload, Maintenance } from '@/integrations/supabase/api';
 import type { Employee } from '@/integrations/supabase/api/employees';
@@ -28,12 +35,15 @@ const MaintenancePage = () => {
   // Filter maintenances by month and search
   const filteredMaintenances = useMemo(() => {
     // First filter by month using the reported_date field
-    const monthFiltered = filterDataByMonth(maintenances.map(maintenance => ({ ...maintenance, date: maintenance.reported_date })));
+    const monthFiltered = filterDataByMonth(
+      maintenances.map(maintenance => ({ ...maintenance, date: maintenance.reported_date }))
+    );
     // Then filter by search
-    return monthFiltered.filter(maintenance =>
-      maintenance.issue?.toLowerCase().includes(search.toLowerCase()) ||
-      maintenance.vehicles?.model?.toLowerCase().includes(search.toLowerCase()) ||
-      maintenance.reported_by?.toLowerCase().includes(search.toLowerCase()),
+    return monthFiltered.filter(
+      maintenance =>
+        maintenance.issue?.toLowerCase().includes(search.toLowerCase()) ||
+        maintenance.vehicles?.model?.toLowerCase().includes(search.toLowerCase()) ||
+        maintenance.reported_by?.toLowerCase().includes(search.toLowerCase())
     );
   }, [maintenances, search, filterDataByMonth]);
 
@@ -64,9 +74,9 @@ const MaintenancePage = () => {
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
-      'PENDING': { label: 'Pendente', variant: 'destructive' as const },
-      'IN_PROGRESS': { label: 'Em Andamento', variant: 'default' as const },
-      'COMPLETED': { label: 'Concluída', variant: 'secondary' as const },
+      PENDING: { label: 'Pendente', variant: 'destructive' as const },
+      IN_PROGRESS: { label: 'Em Andamento', variant: 'default' as const },
+      COMPLETED: { label: 'Concluída', variant: 'secondary' as const },
     };
 
     const config = statusMap[status as keyof typeof statusMap] || { label: status, variant: 'outline' as const };
@@ -74,7 +84,9 @@ const MaintenancePage = () => {
   };
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) {return '-';}
+    if (!dateString) {
+      return '-';
+    }
     try {
       return new Date(dateString).toLocaleDateString('pt-BR');
     } catch {

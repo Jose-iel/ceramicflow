@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -105,10 +98,8 @@ const OperationDialog = ({
         type: operation.type || '',
         location: operation.location || '',
         operator: operation.operator || '',
-        startDate: operation.start_date ?
-          new Date(operation.start_date).toISOString().split('T')[0] : '',
-        endDate: operation.end_date ?
-          new Date(operation.end_date).toISOString().split('T')[0] : '',
+        startDate: operation.start_date ? new Date(operation.start_date).toISOString().split('T')[0] : '',
+        endDate: operation.end_date ? new Date(operation.end_date).toISOString().split('T')[0] : '',
         status: operation.status || OperationStatus.IN_PROGRESS,
         employeeId: operation.employee_id || '',
         vehicleId: operation.vehicle_id || '',
@@ -119,7 +110,7 @@ const OperationDialog = ({
         startTime: operation.start_time || '',
         endTime: operation.end_time || '',
         gasConsumption: operation.gas_consumption || 0,
-        fuelConsumption: operation.fuel_consumption || 0 as number | '',
+        fuelConsumption: operation.fuel_consumption || (0 as number | ''),
       });
     } else {
       setFormData({
@@ -176,7 +167,10 @@ const OperationDialog = ({
       start_time: formData.startTime || null,
       end_time: formData.endTime || null,
       gas_consumption: formData.gasConsumption || 0,
-      fuel_consumption: typeof formData.fuelConsumption === 'string' && formData.fuelConsumption === '' ? 0 : (formData.fuelConsumption as number) || 0,
+      fuel_consumption:
+        typeof formData.fuelConsumption === 'string' && formData.fuelConsumption === ''
+          ? 0
+          : (formData.fuelConsumption as number) || 0,
     };
 
     onSave(operationData);
@@ -187,17 +181,13 @@ const OperationDialog = ({
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{operation ? 'Editar Operação' : 'Nova Operação'}</DialogTitle>
-          <DialogDescription>
-            Preencha as informações da operação abaixo.
-          </DialogDescription>
+          <DialogDescription>Preencha as informações da operação abaixo.</DialogDescription>
         </DialogHeader>
 
         <form className="space-y-6 pt-4" onSubmit={handleSubmit}>
           {/* Informações Básicas */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">
-              Informações Básicas
-            </h3>
+            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Informações Básicas</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -207,7 +197,7 @@ const OperationDialog = ({
                   id="type"
                   placeholder="Ex: Coleta de Barro"
                   value={formData.type}
-                  onChange={(e) => handleChange('type', e.target.value)}
+                  onChange={e => handleChange('type', e.target.value)}
                 />
               </div>
 
@@ -217,7 +207,7 @@ const OperationDialog = ({
                   id="location"
                   placeholder="Local da operação"
                   value={formData.location}
-                  onChange={(e) => handleChange('location', e.target.value)}
+                  onChange={e => handleChange('location', e.target.value)}
                 />
               </div>
             </div>
@@ -230,7 +220,7 @@ const OperationDialog = ({
                   className="w-full p-2 rounded-md border border-input bg-background text-sm"
                   id="operator"
                   value={formData.employeeId}
-                  onChange={(e) => {
+                  onChange={e => {
                     const selectedOperator = availableOperators.find(op => op.id === e.target.value);
                     handleChange('employeeId', e.target.value);
                     handleChange('operator', selectedOperator?.name || '');
@@ -238,7 +228,9 @@ const OperationDialog = ({
                 >
                   <option value="">Selecione um operador</option>
                   {availableOperators.map(operator => (
-                    <option key={operator.id} value={operator.id}>{operator.name}</option>
+                    <option key={operator.id} value={operator.id}>
+                      {operator.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -249,11 +241,13 @@ const OperationDialog = ({
                   className="w-full p-2 rounded-md border border-input bg-background text-sm"
                   id="vehicle"
                   value={formData.vehicleId}
-                  onChange={(e) => handleChange('vehicleId', e.target.value)}
+                  onChange={e => handleChange('vehicleId', e.target.value)}
                 >
                   <option value="">Nenhum veículo</option>
                   {availableVehicles.map(vehicle => (
-                    <option key={vehicle.id} value={vehicle.id}>{vehicle.model}</option>
+                    <option key={vehicle.id} value={vehicle.id}>
+                      {vehicle.model}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -265,16 +259,14 @@ const OperationDialog = ({
                 id="description"
                 placeholder="Descrição da operação"
                 value={formData.description}
-                onChange={(e) => handleChange('description', e.target.value)}
+                onChange={e => handleChange('description', e.target.value)}
               />
             </div>
           </div>
 
           {/* Período e Status */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">
-              Período e Status
-            </h3>
+            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Período e Status</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -283,7 +275,7 @@ const OperationDialog = ({
                   id="startDate"
                   type="date"
                   value={formData.startDate}
-                  onChange={(e) => handleChange('startDate', e.target.value)}
+                  onChange={e => handleChange('startDate', e.target.value)}
                 />
               </div>
 
@@ -293,7 +285,7 @@ const OperationDialog = ({
                   id="endDate"
                   type="date"
                   value={formData.endDate}
-                  onChange={(e) => handleChange('endDate', e.target.value)}
+                  onChange={e => handleChange('endDate', e.target.value)}
                 />
               </div>
             </div>
@@ -304,10 +296,12 @@ const OperationDialog = ({
                 className="w-full p-2 rounded-md border border-input bg-background text-sm"
                 id="status"
                 value={formData.status}
-                onChange={(e) => handleChange('status', e.target.value as OperationStatus)}
+                onChange={e => handleChange('status', e.target.value as OperationStatus)}
               >
                 {Object.values(OperationStatus).map(status => (
-                  <option key={status} value={status}>{status}</option>
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
                 ))}
               </select>
             </div>
@@ -315,9 +309,7 @@ const OperationDialog = ({
 
           {/* Consumo de Combustível */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">
-              Consumo
-            </h3>
+            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Consumo</h3>
 
             <div className="space-y-2">
               <Label htmlFor="fuelConsumption">Consumo de Combustível (Litros)</Label>
@@ -328,7 +320,7 @@ const OperationDialog = ({
                 step="0.1"
                 type="number"
                 value={formData.fuelConsumption || ''}
-                onChange={(e) => {
+                onChange={e => {
                   const { value } = e.target;
                   handleChange('fuelConsumption', value === '' ? '' : parseFloat(value) || 0);
                 }}
@@ -337,18 +329,10 @@ const OperationDialog = ({
           </div>
 
           <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-6">
-            <Button
-              className="w-full sm:w-auto"
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button className="w-full sm:w-auto" type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button
-              className="w-full sm:w-auto"
-              type="submit"
-            >
+            <Button className="w-full sm:w-auto" type="submit">
               {operation ? 'Atualizar' : 'Criar'} Operação
             </Button>
           </DialogFooter>

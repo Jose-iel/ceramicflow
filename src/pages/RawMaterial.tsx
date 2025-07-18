@@ -1,18 +1,11 @@
-
 import { Mountain, Plus, Truck } from 'lucide-react';
 import { useState, useMemo } from 'react';
-
 
 import DataTable from '@/components/common/DataTable';
 import { DeleteConfirmationDialog } from '@/components/common/DeleteConfirmationDialog';
 import PageLayout from '@/components/common/PageLayout';
 import ClayConsumptionDialog from '@/components/rawmaterial/ClayConsumptionDialog';
-import {
-  useClayConsumptions,
-  useCreateClayConsumption,
-  useUpdateClayConsumption,
-  useDeleteClayConsumption,
-} from '@/hooks';
+import { useClayConsumptions, useCreateClayConsumption, useUpdateClayConsumption, useDeleteClayConsumption } from '@/hooks';
 import { useToast } from '@/hooks/use-toast';
 import { useMonthFilter } from '@/hooks/useMonthFilter';
 import type { CreateClayConsumptionPayload } from '@/integrations/supabase/api';
@@ -43,20 +36,19 @@ const RawMaterialPage = () => {
     const monthFiltered = filterDataByMonth(clayConsumptions);
 
     // Then filter by search
-    const finalFiltered = monthFiltered.filter(consumption =>
-      consumption.supplier?.toLowerCase().includes(search.toLowerCase()) ||
-      consumption.origin?.toLowerCase().includes(search.toLowerCase()) ||
-      consumption.recorded_by?.toLowerCase().includes(search.toLowerCase()) ||
-      consumption.notes?.toLowerCase().includes(search.toLowerCase()),
+    const finalFiltered = monthFiltered.filter(
+      consumption =>
+        consumption.supplier?.toLowerCase().includes(search.toLowerCase()) ||
+        consumption.origin?.toLowerCase().includes(search.toLowerCase()) ||
+        consumption.recorded_by?.toLowerCase().includes(search.toLowerCase()) ||
+        consumption.notes?.toLowerCase().includes(search.toLowerCase())
     );
 
     return finalFiltered;
   }, [clayConsumptions, filterDataByMonth, search]);
 
   const totalMonthlyTrucks = filteredConsumptions.reduce((sum, item) => sum + Number(item.trucks_quantity || 0), 0);
-  const averageDailyConsumption = filteredConsumptions.length > 0
-    ? totalMonthlyTrucks / filteredConsumptions.length
-    : 0;
+  const averageDailyConsumption = filteredConsumptions.length > 0 ? totalMonthlyTrucks / filteredConsumptions.length : 0;
 
   const handleSaveConsumption = (consumption: {
     date: string;
@@ -68,17 +60,20 @@ const RawMaterialPage = () => {
     notes?: string;
   }) => {
     if (editingConsumption) {
-      updateClayConsumption.mutate({
-        clayConsumptionId: editingConsumption.id,
-        payload: consumption as unknown as CreateClayConsumptionPayload,
-      }, {
-        onSuccess: () => {
-          toast({
-            title: 'Consumo atualizado',
-            description: 'O consumo de barro foi atualizado com sucesso.',
-          });
+      updateClayConsumption.mutate(
+        {
+          clayConsumptionId: editingConsumption.id,
+          payload: consumption as unknown as CreateClayConsumptionPayload,
         },
-      });
+        {
+          onSuccess: () => {
+            toast({
+              title: 'Consumo atualizado',
+              description: 'O consumo de barro foi atualizado com sucesso.',
+            });
+          },
+        }
+      );
     } else {
       createClayConsumption.mutate(consumption as unknown as CreateClayConsumptionPayload, {
         onSuccess: () => {

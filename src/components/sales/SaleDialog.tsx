@@ -129,17 +129,13 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{sale ? 'Editar Venda' : 'Nova Venda'}</DialogTitle>
-          <DialogDescription>
-            {sale ? 'Edite os dados da venda' : 'Registre uma nova venda de tijolos'}
-          </DialogDescription>
+          <DialogDescription>{sale ? 'Edite os dados da venda' : 'Registre uma nova venda de tijolos'}</DialogDescription>
         </DialogHeader>
 
         <form className="space-y-6 pt-4" onSubmit={handleSubmit}>
           {/* Informações da Venda */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">
-              Informações da Venda
-            </h3>
+            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Informações da Venda</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -147,10 +143,7 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
-                      className={cn(
-                        'w-full justify-start text-left font-normal',
-                        !formData.saleDate && 'text-muted-foreground',
-                      )}
+                      className={cn('w-full justify-start text-left font-normal', !formData.saleDate && 'text-muted-foreground')}
                       variant="outline"
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
@@ -162,7 +155,7 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
                       initialFocus
                       mode="single"
                       selected={formData.saleDate}
-                      onSelect={(date) => date && setFormData(prev => ({ ...prev, saleDate: date }))}
+                      onSelect={date => date && setFormData(prev => ({ ...prev, saleDate: date }))}
                     />
                   </PopoverContent>
                 </Popover>
@@ -175,7 +168,7 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
                   id="recordedBy"
                   placeholder="Nome do responsável"
                   value={formData.recordedBy}
-                  onChange={(e) => handleChange('recordedBy', e.target.value)}
+                  onChange={e => handleChange('recordedBy', e.target.value)}
                 />
               </div>
             </div>
@@ -183,9 +176,7 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
 
           {/* Informações do Cliente */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">
-              Informações do Cliente
-            </h3>
+            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Informações do Cliente</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -195,7 +186,7 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
                   id="customerName"
                   placeholder="Nome do cliente"
                   value={formData.customerName}
-                  onChange={(e) => handleChange('customerName', e.target.value)}
+                  onChange={e => handleChange('customerName', e.target.value)}
                 />
               </div>
 
@@ -205,7 +196,7 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
                   id="customerContact"
                   placeholder="Telefone ou email"
                   value={formData.customerContact}
-                  onChange={(e) => handleChange('customerContact', e.target.value)}
+                  onChange={e => handleChange('customerContact', e.target.value)}
                 />
               </div>
             </div>
@@ -213,9 +204,7 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
 
           {/* Detalhes da Venda */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">
-              Detalhes da Venda
-            </h3>
+            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Detalhes da Venda</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
@@ -227,7 +216,7 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
                   placeholder="Ex: 5000"
                   type="number"
                   value={formData.brickQuantity}
-                  onChange={(e) => handleQuantityOrPriceChange('brickQuantity', e.target.value)}
+                  onChange={e => handleQuantityOrPriceChange('brickQuantity', e.target.value)}
                 />
               </div>
 
@@ -241,7 +230,7 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
                   step="0.01"
                   type="number"
                   value={formData.pricePerThousand}
-                  onChange={(e) => handleQuantityOrPriceChange('pricePerThousand', e.target.value)}
+                  onChange={e => handleQuantityOrPriceChange('pricePerThousand', e.target.value)}
                 />
               </div>
 
@@ -255,7 +244,7 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
                   step="0.01"
                   type="number"
                   value={formData.totalValue}
-                  onChange={(e) => handleChange('totalValue', e.target.value)}
+                  onChange={e => handleChange('totalValue', e.target.value)}
                 />
               </div>
             </div>
@@ -267,24 +256,16 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
                 placeholder="Observações adicionais sobre a venda"
                 rows={3}
                 value={formData.notes}
-                onChange={(e) => handleChange('notes', e.target.value)}
+                onChange={e => handleChange('notes', e.target.value)}
               />
             </div>
           </div>
 
           <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-6">
-            <Button
-              className="w-full sm:w-auto"
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button className="w-full sm:w-auto" type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button
-              className="w-full sm:w-auto"
-              type="submit"
-            >
+            <Button className="w-full sm:w-auto" type="submit">
               {sale ? 'Atualizar' : 'Criar'} Venda
             </Button>
           </DialogFooter>

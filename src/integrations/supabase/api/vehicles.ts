@@ -75,11 +75,7 @@ export class VehiclesService {
       status: payload.status || 'OPERATIONAL',
     };
 
-    const { data, error } = await supabase
-      .from('vehicles')
-      .insert(vehicleData)
-      .select()
-      .single();
+    const { data, error } = await supabase.from('vehicles').insert(vehicleData).select().single();
 
     if (error) {
       throw new Error(error.message);
@@ -109,11 +105,7 @@ export class VehiclesService {
   static async deleteVehicle(vehicleId: string): Promise<void> {
     const ceramicId = await VehiclesService.getCurrentUserCeramicId();
 
-    const { error } = await supabase
-      .from('vehicles')
-      .delete()
-      .eq('id', vehicleId)
-      .eq('ceramic_id', ceramicId);
+    const { error } = await supabase.from('vehicles').delete().eq('id', vehicleId).eq('ceramic_id', ceramicId);
 
     if (error) {
       throw new Error(error.message);

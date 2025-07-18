@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -41,9 +34,7 @@ const ClayConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: Clay
   useEffect(() => {
     if (consumption) {
       setFormData({
-        date: consumption.date ?
-          new Date(consumption.date).toISOString().split('T')[0] :
-          new Date().toISOString().split('T')[0],
+        date: consumption.date ? new Date(consumption.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         trucks_quantity: consumption.trucks_quantity?.toString() || '',
         supplier: consumption.supplier || '',
         origin: consumption.origin || '',
@@ -97,22 +88,14 @@ const ClayConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: Clay
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{consumption ? 'Editar Consumo' : 'Registrar Consumo de Barro'}</DialogTitle>
-          <DialogDescription>
-            Preencha as informações do consumo de barro.
-          </DialogDescription>
+          <DialogDescription>Preencha as informações do consumo de barro.</DialogDescription>
         </DialogHeader>
 
         <form className="space-y-4 pt-4" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="date">Data *</Label>
-              <Input
-                required
-                id="date"
-                type="date"
-                value={formData.date}
-                onChange={(e) => handleChange('date', e.target.value)}
-              />
+              <Input required id="date" type="date" value={formData.date} onChange={e => handleChange('date', e.target.value)} />
             </div>
 
             <div className="space-y-2">
@@ -125,7 +108,7 @@ const ClayConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: Clay
                 step="1"
                 type="number"
                 value={formData.trucks_quantity}
-                onChange={(e) => handleChange('trucks_quantity', e.target.value)}
+                onChange={e => handleChange('trucks_quantity', e.target.value)}
               />
             </div>
           </div>
@@ -137,7 +120,7 @@ const ClayConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: Clay
                 id="supplier"
                 placeholder="Nome do fornecedor"
                 value={formData.supplier}
-                onChange={(e) => handleChange('supplier', e.target.value)}
+                onChange={e => handleChange('supplier', e.target.value)}
               />
             </div>
 
@@ -147,7 +130,7 @@ const ClayConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: Clay
                 id="origin"
                 placeholder="Local de origem do barro"
                 value={formData.origin}
-                onChange={(e) => handleChange('origin', e.target.value)}
+                onChange={e => handleChange('origin', e.target.value)}
               />
             </div>
           </div>
@@ -155,10 +138,7 @@ const ClayConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: Clay
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="truck_id">Caminhão</Label>
-              <Select
-                value={formData.truck_id}
-                onValueChange={(value) => handleChange('truck_id', value)}
-              >
+              <Select value={formData.truck_id} onValueChange={value => handleChange('truck_id', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione um caminhão" />
                 </SelectTrigger>
@@ -172,7 +152,7 @@ const ClayConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: Clay
                       Nenhum caminhão cadastrado
                     </SelectItem>
                   ) : (
-                    trucks.map((truck) => (
+                    trucks.map(truck => (
                       <SelectItem key={truck.id} value={truck.id}>
                         {truck.model}
                       </SelectItem>
@@ -189,7 +169,7 @@ const ClayConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: Clay
                 id="recorded_by"
                 placeholder="Nome do responsável"
                 value={formData.recorded_by}
-                onChange={(e) => handleChange('recorded_by', e.target.value)}
+                onChange={e => handleChange('recorded_by', e.target.value)}
               />
             </div>
           </div>
@@ -201,7 +181,7 @@ const ClayConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: Clay
               placeholder="Observações adicionais"
               rows={3}
               value={formData.notes}
-              onChange={(e) => handleChange('notes', e.target.value)}
+              onChange={e => handleChange('notes', e.target.value)}
             />
           </div>
 
@@ -209,9 +189,7 @@ const ClayConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: Clay
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit">
-              {consumption ? 'Atualizar' : 'Registrar'} Consumo
-            </Button>
+            <Button type="submit">{consumption ? 'Atualizar' : 'Registrar'} Consumo</Button>
           </DialogFooter>
         </form>
       </DialogContent>

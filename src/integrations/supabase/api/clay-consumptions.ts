@@ -58,11 +58,7 @@ export class ClayConsumptionsService {
       date: payload.date || new Date().toISOString().split('T')[0],
     };
 
-    const { data, error } = await supabase
-      .from('clay_consumptions')
-      .insert(clayConsumptionData)
-      .select()
-      .single();
+    const { data, error } = await supabase.from('clay_consumptions').insert(clayConsumptionData).select().single();
 
     if (error) {
       throw new Error(error.message);
@@ -92,11 +88,7 @@ export class ClayConsumptionsService {
   static async deleteClayConsumption(clayConsumptionId: string): Promise<void> {
     const ceramicId = await ClayConsumptionsService.getCurrentUserCeramicId();
 
-    const { error } = await supabase
-      .from('clay_consumptions')
-      .delete()
-      .eq('id', clayConsumptionId)
-      .eq('ceramic_id', ceramicId);
+    const { error } = await supabase.from('clay_consumptions').delete().eq('id', clayConsumptionId).eq('ceramic_id', ceramicId);
 
     if (error) {
       throw new Error(error.message);

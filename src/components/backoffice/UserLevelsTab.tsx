@@ -18,20 +18,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { UserLevel } from '@/integrations/supabase/api/user-levels';
-import {
-  useUserLevels,
-  useCreateUserLevel,
-  useUpdateUserLevel,
-  useDeleteUserLevel,
-  useRoutes,
-} from '@/integrations/supabase/hooks';
+import { useUserLevels, useCreateUserLevel, useUpdateUserLevel, useDeleteUserLevel } from '@/integrations/supabase/hooks';
 
 const UserLevelsTab = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLevel, setEditingLevel] = useState<UserLevel | null>(null);
 
   const { data: userLevels = [], isLoading } = useUserLevels();
-  const { data: _routes = [] } = useRoutes();
   const createUserLevelMutation = useCreateUserLevel();
   const updateUserLevelMutation = useUpdateUserLevel();
   const deleteUserLevelMutation = useDeleteUserLevel();
@@ -52,9 +45,12 @@ const UserLevelsTab = () => {
 
   const handleSaveLevel = (levelData: { name: string; description?: string; permissions: string[] }) => {
     if (editingLevel) {
-      updateUserLevelMutation.mutate({ levelId: editingLevel.id, payload: levelData }, {
-        onSuccess: () => setDialogOpen(false),
-      });
+      updateUserLevelMutation.mutate(
+        { levelId: editingLevel.id, payload: levelData },
+        {
+          onSuccess: () => setDialogOpen(false),
+        }
+      );
     } else {
       createUserLevelMutation.mutate(levelData, {
         onSuccess: () => setDialogOpen(false),
@@ -62,7 +58,9 @@ const UserLevelsTab = () => {
     }
   };
 
-  if (isLoading) {return <div className="text-center p-8">Carregando...</div>;}
+  if (isLoading) {
+    return <div className="text-center p-8">Carregando...</div>;
+  }
 
   return (
     <Card>
@@ -70,9 +68,7 @@ const UserLevelsTab = () => {
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
           <div>
             <CardTitle>Níveis de Acesso</CardTitle>
-            <CardDescription>
-              Crie, edite e configure os níveis de usuário e suas permissões.
-            </CardDescription>
+            <CardDescription>Crie, edite e configure os níveis de usuário e suas permissões.</CardDescription>
           </div>
           <Button onClick={handleAddNew}>
             <Plus className="mr-2 h-4 w-4" /> Novo Nível
@@ -91,7 +87,7 @@ const UserLevelsTab = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {userLevels.map((level) => (
+              {userLevels.map(level => (
                 <TableRow key={level.id}>
                   <TableCell className="font-medium">{level.name}</TableCell>
                   <TableCell className="text-sm text-muted-foreground hidden md:table-cell">{level.description}</TableCell>
@@ -102,20 +98,12 @@ const UserLevelsTab = () => {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => handleEditLevel(level)}
-                      >
+                      <Button size="icon" variant="ghost" onClick={() => handleEditLevel(level)}>
                         <Edit className="h-4 w-4" />
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button
-                            className="text-red-500 hover:text-red-600"
-                            size="icon"
-                            variant="ghost"
-                          >
+                          <Button className="text-red-500 hover:text-red-600" size="icon" variant="ghost">
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>
@@ -123,14 +111,13 @@ const UserLevelsTab = () => {
                           <AlertDialogHeader>
                             <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
                             <AlertDialogDescription>
-                              Essa ação não pode ser desfeita. Isso irá deletar permanentemente o nível de acesso "{level.name}".
+                              Essa ação não pode ser desfeita. Isso irá deletar permanentemente o nível de acesso &quot;
+                              {level.name}&quot;.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDeleteLevel(level.id)}>
-                              Deletar
-                            </AlertDialogAction>
+                            <AlertDialogAction onClick={() => handleDeleteLevel(level.id)}>Deletar</AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
@@ -141,12 +128,7 @@ const UserLevelsTab = () => {
             </TableBody>
           </Table>
         </div>
-        <UserLevelDialog
-          open={dialogOpen}
-          userLevel={editingLevel}
-          onOpenChange={setDialogOpen}
-          onSave={handleSaveLevel}
-        />
+        <UserLevelDialog open={dialogOpen} userLevel={editingLevel} onOpenChange={setDialogOpen} onSave={handleSaveLevel} />
       </CardContent>
     </Card>
   );

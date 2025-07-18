@@ -6,13 +6,13 @@ export enum VehicleType {
   BACKHOE = 'Retro Escavadeira',
   EXCAVATOR = 'Escavadeira Hidraulica',
   TRACTOR = 'Trator',
-  FORKLIFT = 'Empilhadeira'
+  FORKLIFT = 'Empilhadeira',
 }
 
 export enum VehicleStatus {
   OPERATIONAL = 'Em Operação',
   STOPPED = 'Parada',
-  MAINTENANCE = 'Aguardando Manutenção'
+  MAINTENANCE = 'Aguardando Manutenção',
 }
 
 export interface Vehicle {
@@ -34,13 +34,13 @@ export enum EmployeeRole {
   OPERADOR_MAQUINAS = 'Operador de Máquinas',
   SUPERVISOR = 'Supervisor',
   GERENTE = 'Gerente',
-  AJUDANTE = 'Ajudante'
+  AJUDANTE = 'Ajudante',
 }
 
 export enum CertificateStatus {
   REGULAR = 'Regular',
   WARNING = 'Próximo do Vencimento',
-  EXPIRED = 'Vencido'
+  EXPIRED = 'Vencido',
 }
 
 export interface Employee {
@@ -58,7 +58,7 @@ export interface Employee {
 export enum OperationStatus {
   IN_PROGRESS = 'Em Andamento',
   COMPLETED = 'Concluída',
-  PAUSED = 'Pausada'
+  PAUSED = 'Pausada',
 }
 
 // Operation Types - Updated to match the code usage
@@ -87,7 +87,7 @@ export interface Operation {
 export enum MaintenanceStatus {
   WAITING = 'WAITING',
   IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED'
+  COMPLETED = 'COMPLETED',
 }
 
 export interface Maintenance {
@@ -137,8 +137,6 @@ export interface ClayConsumption {
   notes?: string;
 }
 
-
-
 // Dashboard Types
 export interface DashboardStats {
   totalVehicles: number;
@@ -166,8 +164,6 @@ export interface StatusCardProps {
     trend: 'up' | 'down' | 'neutral';
   };
 }
-
-
 
 // Wood Management Types
 export interface WoodPurchaseRawData {

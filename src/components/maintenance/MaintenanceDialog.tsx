@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -76,11 +69,9 @@ const MaintenanceDialog = ({
         vehicleId: maintenance.vehicle_id || '',
         issue: maintenance.issue || '',
         reportedBy: maintenance.reported_by || '',
-        reportedDate: maintenance.reported_date ?
-          new Date(maintenance.reported_date).toISOString().split('T')[0] : '',
+        reportedDate: maintenance.reported_date ? new Date(maintenance.reported_date).toISOString().split('T')[0] : '',
         status: (maintenance.status as MaintenanceStatus) || MaintenanceStatus.WAITING,
-        completedDate: maintenance.completed_date ?
-          new Date(maintenance.completed_date).toISOString().split('T')[0] : '',
+        completedDate: maintenance.completed_date ? new Date(maintenance.completed_date).toISOString().split('T')[0] : '',
       });
     } else {
       setFormData({
@@ -140,22 +131,18 @@ const MaintenanceDialog = ({
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{maintenance ? 'Editar Manutenção' : 'Nova Manutenção'}</DialogTitle>
-          <DialogDescription>
-            Preencha as informações da manutenção abaixo.
-          </DialogDescription>
+          <DialogDescription>Preencha as informações da manutenção abaixo.</DialogDescription>
         </DialogHeader>
 
         <form className="space-y-6 pt-4" onSubmit={handleSubmit}>
           {/* Informações Básicas */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">
-              Informações Básicas
-            </h3>
+            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Informações Básicas</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="vehicleId">Veículo *</Label>
-                <Select value={formData.vehicleId} onValueChange={(value) => handleChange('vehicleId', value)}>
+                <Select value={formData.vehicleId} onValueChange={value => handleChange('vehicleId', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o veículo" />
                   </SelectTrigger>
@@ -171,7 +158,7 @@ const MaintenanceDialog = ({
 
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
-                <Select value={formData.status} onValueChange={(value) => handleChange('status', value as MaintenanceStatus)}>
+                <Select value={formData.status} onValueChange={value => handleChange('status', value as MaintenanceStatus)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o status" />
                   </SelectTrigger>
@@ -192,14 +179,14 @@ const MaintenanceDialog = ({
                 placeholder="Descreva o problema do veículo"
                 rows={3}
                 value={formData.issue}
-                onChange={(e) => handleChange('issue', e.target.value)}
+                onChange={e => handleChange('issue', e.target.value)}
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="reportedBy">Reportado por *</Label>
-                <Select value={formData.reportedBy} onValueChange={(value) => handleChange('reportedBy', value)}>
+                <Select value={formData.reportedBy} onValueChange={value => handleChange('reportedBy', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o funcionário" />
                   </SelectTrigger>
@@ -220,7 +207,7 @@ const MaintenanceDialog = ({
                   id="reportedDate"
                   type="date"
                   value={formData.reportedDate}
-                  onChange={(e) => handleChange('reportedDate', e.target.value)}
+                  onChange={e => handleChange('reportedDate', e.target.value)}
                 />
               </div>
             </div>
@@ -232,25 +219,17 @@ const MaintenanceDialog = ({
                   id="completedDate"
                   type="date"
                   value={formData.completedDate}
-                  onChange={(e) => handleChange('completedDate', e.target.value)}
+                  onChange={e => handleChange('completedDate', e.target.value)}
                 />
               </div>
             )}
           </div>
 
           <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-6">
-            <Button
-              className="w-full sm:w-auto"
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button className="w-full sm:w-auto" type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button
-              className="w-full sm:w-auto"
-              type="submit"
-            >
+            <Button className="w-full sm:w-auto" type="submit">
               {maintenance ? 'Atualizar' : 'Criar'} Manutenção
             </Button>
           </DialogFooter>

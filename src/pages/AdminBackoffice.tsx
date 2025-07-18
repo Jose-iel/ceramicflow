@@ -1,4 +1,3 @@
-
 import { Users, Shield, Building2, Route as RouteIcon } from 'lucide-react';
 import { useState } from 'react';
 
@@ -15,12 +14,8 @@ const AdminBackoffice = () => {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-red-50 p-3 sm:p-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-            Backoffice Administrativo
-          </h1>
-          <p className="text-sm sm:text-base text-gray-600">
-            Painel de controle completo do sistema CeramicFlow
-          </p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Backoffice Administrativo</h1>
+          <p className="text-sm sm:text-base text-gray-600">Painel de controle completo do sistema CeramicFlow</p>
         </div>
 
         <Tabs className="w-full" value={activeTab} onValueChange={setActiveTab}>

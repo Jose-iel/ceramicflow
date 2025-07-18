@@ -21,10 +21,7 @@ const SalesReportCard = ({ salesData }: SalesReportCardProps) => {
   const { selectedMonth } = useMonthFilter();
   // Só usar hook se salesData não for fornecido
   const shouldFetchStats = !salesData;
-  const { data: stats, isLoading } = useSalesStatsOptimized(
-    selectedMonth,
-    shouldFetchStats
-  );
+  const { data: stats, isLoading } = useSalesStatsOptimized(selectedMonth, shouldFetchStats);
 
   // Usar salesData se fornecido, caso contrário usar stats do hook
   const finalStats = salesData || stats;
@@ -52,9 +49,7 @@ const SalesReportCard = ({ salesData }: SalesReportCardProps) => {
             Relatório
           </Badge>
         </div>
-        <CardDescription className="text-sm">
-          Relatório geral das vendas de tijolos
-        </CardDescription>
+        <CardDescription className="text-sm">Relatório geral das vendas de tijolos</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-4">

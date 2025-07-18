@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -105,21 +98,13 @@ const WoodPurchaseDialog = ({ open, onOpenChange, onSave, purchase }: WoodPurcha
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{purchase ? 'Editar Compra' : 'Nova Compra de Lenha'}</DialogTitle>
-          <DialogDescription>
-            Preencha as informações da compra de lenha.
-          </DialogDescription>
+          <DialogDescription>Preencha as informações da compra de lenha.</DialogDescription>
         </DialogHeader>
 
         <form className="space-y-4 pt-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <Label htmlFor="date">Data</Label>
-            <Input
-              required
-              id="date"
-              type="date"
-              value={formData.date}
-              onChange={(e) => handleChange('date', e.target.value)}
-            />
+            <Input required id="date" type="date" value={formData.date} onChange={e => handleChange('date', e.target.value)} />
           </div>
 
           <div className="space-y-2">
@@ -129,7 +114,7 @@ const WoodPurchaseDialog = ({ open, onOpenChange, onSave, purchase }: WoodPurcha
               id="supplier"
               placeholder="Nome do fornecedor"
               value={formData.supplier}
-              onChange={(e) => handleChange('supplier', e.target.value)}
+              onChange={e => handleChange('supplier', e.target.value)}
             />
           </div>
 
@@ -144,7 +129,7 @@ const WoodPurchaseDialog = ({ open, onOpenChange, onSave, purchase }: WoodPurcha
                 step="0.1"
                 type="number"
                 value={formData.quantity}
-                onChange={(e) => handleChange('quantity', e.target.value)}
+                onChange={e => handleChange('quantity', e.target.value)}
               />
             </div>
 
@@ -158,7 +143,7 @@ const WoodPurchaseDialog = ({ open, onOpenChange, onSave, purchase }: WoodPurcha
                 step="0.01"
                 type="number"
                 value={formData.unit_price}
-                onChange={(e) => handleChange('unit_price', e.target.value)}
+                onChange={e => handleChange('unit_price', e.target.value)}
               />
             </div>
           </div>
@@ -174,7 +159,7 @@ const WoodPurchaseDialog = ({ open, onOpenChange, onSave, purchase }: WoodPurcha
               step="0.01"
               type="number"
               value={formData.total_value}
-              onChange={(e) => handleChange('total_value', e.target.value)}
+              onChange={e => handleChange('total_value', e.target.value)}
             />
           </div>
 
@@ -184,7 +169,7 @@ const WoodPurchaseDialog = ({ open, onOpenChange, onSave, purchase }: WoodPurcha
               id="invoice_number"
               placeholder="Opcional"
               value={formData.invoice_number}
-              onChange={(e) => handleChange('invoice_number', e.target.value)}
+              onChange={e => handleChange('invoice_number', e.target.value)}
             />
           </div>
 
@@ -195,23 +180,15 @@ const WoodPurchaseDialog = ({ open, onOpenChange, onSave, purchase }: WoodPurcha
               placeholder="Observações adicionais"
               rows={3}
               value={formData.notes || ''}
-              onChange={(e) => handleChange('notes', e.target.value)}
+              onChange={e => handleChange('notes', e.target.value)}
             />
           </div>
 
           <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-6">
-            <Button
-              className="w-full sm:w-auto"
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button className="w-full sm:w-auto" type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button
-              className="w-full sm:w-auto"
-              type="submit"
-            >
+            <Button className="w-full sm:w-auto" type="submit">
               {purchase ? 'Atualizar' : 'Salvar'} Compra
             </Button>
           </DialogFooter>

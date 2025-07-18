@@ -1,4 +1,3 @@
-
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -66,9 +65,7 @@ const RoutesTab = () => {
     <Card>
       <CardHeader>
         <CardTitle>Rotas do Sistema</CardTitle>
-        <CardDescription>
-          Visualize todas as rotas disponíveis no sistema para configuração de permissões
-        </CardDescription>
+        <CardDescription>Visualize todas as rotas disponíveis no sistema para configuração de permissões</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
@@ -82,7 +79,7 @@ const RoutesTab = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {systemRoutes.map((route) => (
+            {systemRoutes.map(route => (
               <TableRow key={route.id}>
                 <TableCell className="font-mono text-sm">{route.id}</TableCell>
                 <TableCell className="font-mono text-sm">{route.path}</TableCell>
@@ -99,9 +96,9 @@ const RoutesTab = () => {
         <div className="mt-4 p-4 bg-muted rounded-lg">
           <h3 className="font-medium mb-2">Informações sobre Rotas</h3>
           <p className="text-sm text-muted-foreground">
-            Estas são todas as rotas disponíveis no sistema. Use os IDs das rotas ao configurar os
-            níveis de acesso dos usuários na aba "Níveis de Acesso". As rotas são automaticamente
-            protegidas baseado nas permissões configuradas para cada nível de usuário.
+            Estas são todas as rotas disponíveis no sistema. Use os IDs das rotas ao configurar os níveis de acesso dos usuários
+            na aba &quot;Níveis de Acesso&quot;. As rotas são automaticamente protegidas baseado nas permissões configuradas para
+            cada nível de usuário.
           </p>
         </div>
       </CardContent>

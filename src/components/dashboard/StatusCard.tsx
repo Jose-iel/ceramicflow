@@ -1,4 +1,3 @@
-
 import { TrendingDown, TrendingUp, Minus } from 'lucide-react';
 import React from 'react';
 
@@ -6,13 +5,7 @@ import AnimatedCounter from '@/components/common/AnimatedCounter';
 import { cn } from '@/lib/utils';
 import type { StatusCardProps } from '@/types';
 
-const StatusCard: React.FC<StatusCardProps> = ({
-  title,
-  value,
-  icon: Icon,
-  status = 'info',
-  change,
-}) => {
+const StatusCard: React.FC<StatusCardProps> = ({ title, value, icon: Icon, status = 'info', change }) => {
   const statusClasses = {
     success: 'bg-status-operational/10 text-status-operational border-status-operational/30',
     warning: 'bg-status-maintenance/10 text-status-maintenance border-status-maintenance/30',
@@ -30,10 +23,7 @@ const StatusCard: React.FC<StatusCardProps> = ({
   };
 
   return (
-    <div className={cn(
-      'glass-card glass-card-hover p-4 rounded-xl overflow-hidden relative',
-      status && statusClasses[status],
-    )}>
+    <div className={cn('glass-card glass-card-hover p-4 rounded-xl overflow-hidden relative', status && statusClasses[status])}>
       <div className="flex items-start justify-between">
         <div>
           <h3 className="text-sm font-medium mb-1">{title}</h3>
@@ -51,10 +41,7 @@ const StatusCard: React.FC<StatusCardProps> = ({
           )}
         </div>
 
-        <div className={cn(
-          'p-2 rounded-lg',
-          status && iconClasses[status],
-        )}>
+        <div className={cn('p-2 rounded-lg', status && iconClasses[status])}>
           <Icon className="w-5 h-5" />
         </div>
       </div>

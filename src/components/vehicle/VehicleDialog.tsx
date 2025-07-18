@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -42,10 +35,8 @@ const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogPro
         model: vehicle.model || '',
         type: (vehicle.type as VehicleType) || VehicleType.CAR,
         capacity: vehicle.capacity || '',
-        acquisitionDate: vehicle.acquisition_date ?
-          new Date(vehicle.acquisition_date).toISOString().split('T')[0] : '',
-        lastMaintenance: vehicle.last_maintenance ?
-          new Date(vehicle.last_maintenance).toISOString().split('T')[0] : '',
+        acquisitionDate: vehicle.acquisition_date ? new Date(vehicle.acquisition_date).toISOString().split('T')[0] : '',
+        lastMaintenance: vehicle.last_maintenance ? new Date(vehicle.last_maintenance).toISOString().split('T')[0] : '',
         status: (vehicle.status as VehicleStatus) || VehicleStatus.OPERATIONAL,
         hourMeter: vehicle.hour_meter || 0,
       });
@@ -97,17 +88,13 @@ const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogPro
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{vehicle ? 'Editar Veículo' : 'Novo Veículo'}</DialogTitle>
-          <DialogDescription>
-            Preencha as informações do veículo abaixo.
-          </DialogDescription>
+          <DialogDescription>Preencha as informações do veículo abaixo.</DialogDescription>
         </DialogHeader>
 
         <form className="space-y-6 pt-4" onSubmit={handleSubmit}>
           {/* Informações Básicas */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">
-              Informações Básicas
-            </h3>
+            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Informações Básicas</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -117,19 +104,21 @@ const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogPro
                   id="model"
                   placeholder="Ex: Toyota Hilux"
                   value={formData.model}
-                  onChange={(e) => handleChange('model', e.target.value)}
+                  onChange={e => handleChange('model', e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="type">Tipo *</Label>
-                <Select value={formData.type} onValueChange={(value) => handleChange('type', value as VehicleType)}>
+                <Select value={formData.type} onValueChange={value => handleChange('type', value as VehicleType)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o tipo" />
                   </SelectTrigger>
                   <SelectContent>
                     {Object.values(VehicleType).map(type => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -143,19 +132,21 @@ const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogPro
                   id="capacity"
                   placeholder="Ex: 2.5 toneladas"
                   value={formData.capacity}
-                  onChange={(e) => handleChange('capacity', e.target.value)}
+                  onChange={e => handleChange('capacity', e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
-                <Select value={formData.status} onValueChange={(value) => handleChange('status', value as VehicleStatus)}>
+                <Select value={formData.status} onValueChange={value => handleChange('status', value as VehicleStatus)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o status" />
                   </SelectTrigger>
                   <SelectContent>
                     {Object.values(VehicleStatus).map(status => (
-                      <SelectItem key={status} value={status}>{status}</SelectItem>
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -165,9 +156,7 @@ const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogPro
 
           {/* Datas e Horímetro */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">
-              Controle e Manutenção
-            </h3>
+            <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Controle e Manutenção</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -176,7 +165,7 @@ const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogPro
                   id="acquisitionDate"
                   type="date"
                   value={formData.acquisitionDate}
-                  onChange={(e) => handleChange('acquisitionDate', e.target.value)}
+                  onChange={e => handleChange('acquisitionDate', e.target.value)}
                 />
               </div>
 
@@ -186,7 +175,7 @@ const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogPro
                   id="lastMaintenance"
                   type="date"
                   value={formData.lastMaintenance}
-                  onChange={(e) => handleChange('lastMaintenance', e.target.value)}
+                  onChange={e => handleChange('lastMaintenance', e.target.value)}
                 />
               </div>
             </div>
@@ -200,7 +189,7 @@ const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogPro
                   placeholder="Digite as horas"
                   type="number"
                   value={formData.hourMeter || ''}
-                  onChange={(e) => {
+                  onChange={e => {
                     const { value } = e.target;
                     if (value === '') {
                       handleChange('hourMeter', '');
@@ -213,25 +202,15 @@ const VehicleDialog = ({ open, onOpenChange, onSave, vehicle }: VehicleDialogPro
                   }}
                 />
               </div>
-              <div className="space-y-2">
-                {/* Espaço para futuras expansões */}
-              </div>
+              <div className="space-y-2">{/* Espaço para futuras expansões */}</div>
             </div>
           </div>
 
           <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-6">
-            <Button
-              className="w-full sm:w-auto"
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button className="w-full sm:w-auto" type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button
-              className="w-full sm:w-auto"
-              type="submit"
-            >
+            <Button className="w-full sm:w-auto" type="submit">
               {vehicle ? 'Atualizar' : 'Criar'} Veículo
             </Button>
           </DialogFooter>

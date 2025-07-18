@@ -1,12 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { BackofficeService } from '../api/backoffice';
-import type {
-  CreateUserPayload,
-  UpdateUserPayload,
-  CreateCeramicPayload,
-  UpdateCeramicPayload,
-} from '../api/backoffice';
+import type { CreateUserPayload, UpdateUserPayload, CreateCeramicPayload, UpdateCeramicPayload } from '../api/backoffice';
 
 import { useToast } from '@/hooks/use-toast';
 

@@ -41,14 +41,16 @@ export class MaintenancesService {
 
     const { data, error } = await supabase
       .from('maintenances')
-      .select(`
+      .select(
+        `
         *,
         vehicles (
           id,
           model,
           type
         )
-      `)
+      `
+      )
       .eq('ceramic_id', ceramicId)
       .order('created_at', { ascending: false });
 
@@ -69,11 +71,7 @@ export class MaintenancesService {
       reported_date: payload.reported_date || new Date().toISOString().split('T')[0],
     };
 
-    const { data, error } = await supabase
-      .from('maintenances')
-      .insert(maintenanceData)
-      .select()
-      .single();
+    const { data, error } = await supabase.from('maintenances').insert(maintenanceData).select().single();
 
     if (error) {
       throw new Error(error.message);
@@ -103,11 +101,7 @@ export class MaintenancesService {
   static async deleteMaintenance(maintenanceId: string): Promise<void> {
     const ceramicId = await MaintenancesService.getCurrentUserCeramicId();
 
-    const { error } = await supabase
-      .from('maintenances')
-      .delete()
-      .eq('id', maintenanceId)
-      .eq('ceramic_id', ceramicId);
+    const { error } = await supabase.from('maintenances').delete().eq('id', maintenanceId).eq('ceramic_id', ceramicId);
 
     if (error) {
       throw new Error(error.message);

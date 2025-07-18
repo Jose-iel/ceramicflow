@@ -1,11 +1,9 @@
-
 import { Clock, Settings, Calendar } from 'lucide-react';
 import React from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import type { Vehicle } from '@/types';
 import { VehicleStatus } from '@/types';
-
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -35,9 +33,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onClick }) => {
         <div>
           <h3 className="text-lg font-semibold">{vehicle.model}</h3>
         </div>
-        <Badge variant={getStatusVariant(vehicle.status)}>
-          {vehicle.status}
-        </Badge>
+        <Badge variant={getStatusVariant(vehicle.status)}>{vehicle.status}</Badge>
       </div>
 
       <div className="space-y-2">
@@ -50,9 +46,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onClick }) => {
         <div className="flex items-center text-sm">
           <Clock className="w-4 h-4 mr-2 text-muted-foreground" />
           <span className="text-muted-foreground mr-2">Horímetro:</span>
-          <span className="font-semibold bg-muted/40 px-2 py-0.5 rounded">
-            {vehicle.hourMeter}
-          </span>
+          <span className="font-semibold bg-muted/40 px-2 py-0.5 rounded">{vehicle.hourMeter}</span>
         </div>
 
         <div className="flex items-center text-sm">

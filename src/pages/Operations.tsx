@@ -14,7 +14,6 @@ import type { CreateOperationPayload } from '@/integrations/supabase/api';
 import type { Employee } from '@/integrations/supabase/api/employees';
 import type { OperationStatus } from '@/types';
 
-
 // Tipo para dados brutos do Supabase
 interface OperationRawData {
   id: string;
@@ -77,10 +76,11 @@ const OperationsPage = () => {
     const monthFiltered = filterDataByMonth(operations.map(operation => ({ ...operation, date: operation.start_date })));
 
     // Then filter by search
-    const finalFiltered = monthFiltered.filter(operation =>
-      operation.type?.toLowerCase().includes(search.toLowerCase()) ||
-      operation.location?.toLowerCase().includes(search.toLowerCase()) ||
-      operation.operator?.toLowerCase().includes(search.toLowerCase()),
+    const finalFiltered = monthFiltered.filter(
+      operation =>
+        operation.type?.toLowerCase().includes(search.toLowerCase()) ||
+        operation.location?.toLowerCase().includes(search.toLowerCase()) ||
+        operation.operator?.toLowerCase().includes(search.toLowerCase())
     );
 
     return finalFiltered;
@@ -88,17 +88,20 @@ const OperationsPage = () => {
 
   const handleSaveOperation = (operationData: Record<string, unknown>) => {
     if (editingOperation) {
-      updateOperation.mutate({
-        operationId: editingOperation.id,
-        payload: operationData as unknown as CreateOperationPayload,
-      }, {
-        onSuccess: () => {
-          toast({
-            title: 'Operação atualizada',
-            description: 'A operação foi atualizada com sucesso.',
-          });
+      updateOperation.mutate(
+        {
+          operationId: editingOperation.id,
+          payload: operationData as unknown as CreateOperationPayload,
         },
-      });
+        {
+          onSuccess: () => {
+            toast({
+              title: 'Operação atualizada',
+              description: 'A operação foi atualizada com sucesso.',
+            });
+          },
+        }
+      );
     } else {
       createOperation.mutate(operationData as unknown as CreateOperationPayload, {
         onSuccess: () => {
@@ -148,12 +151,12 @@ const OperationsPage = () => {
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
-      'IN_PROGRESS': { label: 'Em Andamento', variant: 'default' as const },
+      IN_PROGRESS: { label: 'Em Andamento', variant: 'default' as const },
       'Em Andamento': { label: 'Em Andamento', variant: 'default' as const },
-      'COMPLETED': { label: 'Concluída', variant: 'secondary' as const },
-      'Concluída': { label: 'Concluída', variant: 'secondary' as const },
-      'PAUSED': { label: 'Pausada', variant: 'outline' as const },
-      'Pausada': { label: 'Pausada', variant: 'outline' as const },
+      COMPLETED: { label: 'Concluída', variant: 'secondary' as const },
+      Concluída: { label: 'Concluída', variant: 'secondary' as const },
+      PAUSED: { label: 'Pausada', variant: 'outline' as const },
+      Pausada: { label: 'Pausada', variant: 'outline' as const },
     };
 
     const config = statusMap[status as keyof typeof statusMap] || { label: status, variant: 'outline' as const };
@@ -170,12 +173,8 @@ const OperationsPage = () => {
 
   // Calculate stats - usar operações filtradas por mês (mantendo funcionalidade do filtro)
   const totalOperations = filteredOperations.length;
-  const activeOperations = filteredOperations.filter(op =>
-    op.status === 'IN_PROGRESS' || op.status === 'Em Andamento',
-  ).length;
-  const completedOperations = filteredOperations.filter(op =>
-    op.status === 'COMPLETED' || op.status === 'Concluída',
-  ).length;
+  const activeOperations = filteredOperations.filter(op => op.status === 'IN_PROGRESS' || op.status === 'Em Andamento').length;
+  const completedOperations = filteredOperations.filter(op => op.status === 'COMPLETED' || op.status === 'Concluída').length;
   const totalFuelConsumption = filteredOperations.reduce((sum, op) => {
     // Suporte para ambos os campos durante a transição
     const opWithConsumption = op as unknown as { fuel_consumption?: number; gas_consumption?: number };
@@ -252,13 +251,13 @@ const OperationsPage = () => {
     {
       key: 'start_date',
       label: 'Data Início',
-      render: (value: unknown) => value ? formatDate(value as string) : '-',
+      render: (value: unknown) => (value ? formatDate(value as string) : '-'),
       className: 'min-w-[110px] hidden md:table-cell',
     },
     {
       key: 'end_date',
       label: 'Data Fim',
-      render: (value: unknown) => value ? formatDate(value as string) : '-',
+      render: (value: unknown) => (value ? formatDate(value as string) : '-'),
       className: 'min-w-[110px] hidden lg:table-cell',
     },
     {
@@ -273,7 +272,7 @@ const OperationsPage = () => {
       render: (value: unknown) => {
         // Suporte para ambos os campos durante a transição
         const rowWithConsumption = value as unknown as { fuel_consumption?: number; gas_consumption?: number };
-        const consumption = (value as number) || (rowWithConsumption?.gas_consumption) || 0;
+        const consumption = (value as number) || rowWithConsumption?.gas_consumption || 0;
         return consumption ? `${consumption}L` : '-';
       },
       className: 'min-w-[140px] hidden xl:table-cell',
@@ -325,10 +324,14 @@ const OperationsPage = () => {
         availableOperators={(employees as Employee[]).map(e => ({ id: e.id, name: e.name }))}
         availableVehicles={vehicles.map(v => ({ id: v.id, model: v.model }))}
         open={showDialog}
-        operation={editingOperation ? {
-          ...editingOperation,
-          status: editingOperation.status as OperationStatus,
-        } : null}
+        operation={
+          editingOperation
+            ? {
+                ...editingOperation,
+                status: editingOperation.status as OperationStatus,
+              }
+            : null
+        }
         onOpenChange={setShowDialog}
         onSave={handleSaveOperation}
       />

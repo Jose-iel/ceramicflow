@@ -15,19 +15,27 @@ export const Car = lazy(() => import('lucide-react/dist/esm/icons/car').then(m =
 export const Truck = lazy(() => import('lucide-react/dist/esm/icons/truck').then(m => ({ default: m.Truck })));
 export const Settings = lazy(() => import('lucide-react/dist/esm/icons/settings').then(m => ({ default: m.Settings })));
 export const Wrench = lazy(() => import('lucide-react/dist/esm/icons/wrench').then(m => ({ default: m.Wrench })));
-export const AlertTriangle = lazy(() => import('lucide-react/dist/esm/icons/alert-triangle').then(m => ({ default: m.AlertTriangle })));
+export const AlertTriangle = lazy(() =>
+  import('lucide-react/dist/esm/icons/alert-triangle').then(m => ({ default: m.AlertTriangle }))
+);
 export const Clock = lazy(() => import('lucide-react/dist/esm/icons/clock').then(m => ({ default: m.Clock })));
 export const MapPin = lazy(() => import('lucide-react/dist/esm/icons/map-pin').then(m => ({ default: m.MapPin })));
 export const Users = lazy(() => import('lucide-react/dist/esm/icons/users').then(m => ({ default: m.Users })));
 export const UserCheck = lazy(() => import('lucide-react/dist/esm/icons/user-check').then(m => ({ default: m.UserCheck })));
 export const Mountain = lazy(() => import('lucide-react/dist/esm/icons/mountain').then(m => ({ default: m.Mountain })));
 export const TreePine = lazy(() => import('lucide-react/dist/esm/icons/tree-pine').then(m => ({ default: m.TreePine })));
-export const ShoppingCart = lazy(() => import('lucide-react/dist/esm/icons/shopping-cart').then(m => ({ default: m.ShoppingCart })));
+export const ShoppingCart = lazy(() =>
+  import('lucide-react/dist/esm/icons/shopping-cart').then(m => ({ default: m.ShoppingCart }))
+);
 export const Flame = lazy(() => import('lucide-react/dist/esm/icons/flame').then(m => ({ default: m.Flame })));
-export const CalendarDays = lazy(() => import('lucide-react/dist/esm/icons/calendar-days').then(m => ({ default: m.CalendarDays })));
+export const CalendarDays = lazy(() =>
+  import('lucide-react/dist/esm/icons/calendar-days').then(m => ({ default: m.CalendarDays }))
+);
 export const ChevronDown = lazy(() => import('lucide-react/dist/esm/icons/chevron-down').then(m => ({ default: m.ChevronDown })));
 export const Download = lazy(() => import('lucide-react/dist/esm/icons/download').then(m => ({ default: m.Download })));
-export const FileBarChart = lazy(() => import('lucide-react/dist/esm/icons/file-bar-chart').then(m => ({ default: m.FileBarChart })));
+export const FileBarChart = lazy(() =>
+  import('lucide-react/dist/esm/icons/file-bar-chart').then(m => ({ default: m.FileBarChart }))
+);
 export const Eye = lazy(() => import('lucide-react/dist/esm/icons/eye').then(m => ({ default: m.Eye })));
 export const EyeOff = lazy(() => import('lucide-react/dist/esm/icons/eye-off').then(m => ({ default: m.EyeOff })));
 export const Home = lazy(() => import('lucide-react/dist/esm/icons/home').then(m => ({ default: m.Home })));
@@ -52,9 +60,13 @@ export const Building2 = lazy(() => import('lucide-react/dist/esm/icons/building
 export const RouteIcon = lazy(() => import('lucide-react/dist/esm/icons/route').then(m => ({ default: m.Route })));
 
 // UI component icons
-export const ChevronRight = lazy(() => import('lucide-react/dist/esm/icons/chevron-right').then(m => ({ default: m.ChevronRight })));
+export const ChevronRight = lazy(() =>
+  import('lucide-react/dist/esm/icons/chevron-right').then(m => ({ default: m.ChevronRight }))
+);
 export const ChevronLeft = lazy(() => import('lucide-react/dist/esm/icons/chevron-left').then(m => ({ default: m.ChevronLeft })));
-export const MoreHorizontal = lazy(() => import('lucide-react/dist/esm/icons/more-horizontal').then(m => ({ default: m.MoreHorizontal })));
+export const MoreHorizontal = lazy(() =>
+  import('lucide-react/dist/esm/icons/more-horizontal').then(m => ({ default: m.MoreHorizontal }))
+);
 export const ArrowLeft = lazy(() => import('lucide-react/dist/esm/icons/arrow-left').then(m => ({ default: m.ArrowLeft })));
 export const Check = lazy(() => import('lucide-react/dist/esm/icons/check').then(m => ({ default: m.Check })));
 

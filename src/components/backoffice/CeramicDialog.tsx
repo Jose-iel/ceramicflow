@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -62,19 +61,23 @@ const CeramicDialog: React.FC<CeramicDialogProps> = ({ open, onOpenChange, ceram
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
-            <Label className="text-sm font-medium" htmlFor="name">Nome da Cerâmica</Label>
+            <Label className="text-sm font-medium" htmlFor="name">
+              Nome da Cerâmica
+            </Label>
             <Input
               required
               className="text-sm"
               id="name"
               placeholder="Ex: Cerâmica São José"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={e => setFormData({ ...formData, name: e.target.value })}
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium" htmlFor="address">Endereço</Label>
+            <Label className="text-sm font-medium" htmlFor="address">
+              Endereço
+            </Label>
             <Textarea
               required
               className="text-sm min-h-[60px] resize-none"
@@ -82,24 +85,28 @@ const CeramicDialog: React.FC<CeramicDialogProps> = ({ open, onOpenChange, ceram
               placeholder="Endereço completo da cerâmica"
               rows={3}
               value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              onChange={e => setFormData({ ...formData, address: e.target.value })}
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium" htmlFor="phone">Telefone</Label>
+            <Label className="text-sm font-medium" htmlFor="phone">
+              Telefone
+            </Label>
             <Input
               required
               className="text-sm"
               id="phone"
               placeholder="(11) 1234-5678"
               value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              onChange={e => setFormData({ ...formData, phone: e.target.value })}
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium" htmlFor="email">Email</Label>
+            <Label className="text-sm font-medium" htmlFor="email">
+              Email
+            </Label>
             <Input
               required
               className="text-sm"
@@ -107,7 +114,7 @@ const CeramicDialog: React.FC<CeramicDialogProps> = ({ open, onOpenChange, ceram
               placeholder="contato@ceramica.com"
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={e => setFormData({ ...formData, email: e.target.value })}
             />
           </div>
 
@@ -115,9 +122,11 @@ const CeramicDialog: React.FC<CeramicDialogProps> = ({ open, onOpenChange, ceram
             <Switch
               checked={formData.is_active}
               id="isActive"
-              onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+              onCheckedChange={checked => setFormData({ ...formData, is_active: checked })}
             />
-            <Label className="text-sm font-medium" htmlFor="isActive">Cerâmica Ativa</Label>
+            <Label className="text-sm font-medium" htmlFor="isActive">
+              Cerâmica Ativa
+            </Label>
           </div>
 
           <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">

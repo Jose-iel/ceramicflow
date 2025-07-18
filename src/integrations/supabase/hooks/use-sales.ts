@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { SalesService } from '../api/sales';
@@ -47,8 +46,7 @@ export function useUpdateSale() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: ({ saleId, payload }: { saleId: string; payload: UpdateSalePayload }) =>
-      SalesService.updateSale(saleId, payload),
+    mutationFn: ({ saleId, payload }: { saleId: string; payload: UpdateSalePayload }) => SalesService.updateSale(saleId, payload),
     onSuccess: () => {
       toast({ title: 'Venda atualizada', description: 'Operação realizada com sucesso.' });
       queryClient.invalidateQueries({ queryKey: ['sales'] });

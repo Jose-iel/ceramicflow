@@ -56,11 +56,13 @@ export class OperationsService {
 
     const { data, error } = await supabase
       .from('operations')
-      .select(`
+      .select(
+        `
         *,
         vehicles:vehicle_id(model, type),
         employees:employee_id(name)
-      `)
+      `
+      )
       .eq('ceramic_id', ceramicId)
       .order('created_at', { ascending: false });
 
@@ -81,11 +83,7 @@ export class OperationsService {
       operation_type: payload.operation_type || 'manual',
     };
 
-    const { data, error } = await supabase
-      .from('operations')
-      .insert(operationData)
-      .select()
-      .single();
+    const { data, error } = await supabase.from('operations').insert(operationData).select().single();
 
     if (error) {
       throw new Error(error.message);
@@ -115,11 +113,7 @@ export class OperationsService {
   static async deleteOperation(operationId: string): Promise<void> {
     const ceramicId = await OperationsService.getCurrentUserCeramicId();
 
-    const { error } = await supabase
-      .from('operations')
-      .delete()
-      .eq('id', operationId)
-      .eq('ceramic_id', ceramicId);
+    const { error } = await supabase.from('operations').delete().eq('id', operationId).eq('ceramic_id', ceramicId);
 
     if (error) {
       throw new Error(error.message);

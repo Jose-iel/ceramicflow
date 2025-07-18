@@ -49,9 +49,7 @@ class ErrorBoundary extends Component<Props, State> {
                 <AlertTriangle className="h-6 w-6 text-red-600" />
               </div>
               <CardTitle className="text-xl">Algo deu errado</CardTitle>
-              <CardDescription>
-                Ocorreu um erro inesperado. Nossa equipe foi notificada.
-              </CardDescription>
+              <CardDescription>Ocorreu um erro inesperado. Nossa equipe foi notificada.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {process.env.NODE_ENV === 'development' && this.state.error && (
@@ -63,10 +61,7 @@ class ErrorBoundary extends Component<Props, State> {
               )}
 
               <div className="flex gap-2 justify-center">
-                <Button
-                  variant="outline"
-                  onClick={() => window.location.reload()}
-                >
+                <Button variant="outline" onClick={() => window.location.reload()}>
                   Recarregar Página
                 </Button>
                 <Button onClick={this.handleRetry}>
