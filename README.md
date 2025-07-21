@@ -1,69 +1,220 @@
-# Welcome to your Lovable project
+# 🏺 CeramicFlow
 
-## Project info
+Sistema completo de gestão para cerâmicas, desenvolvido com React, TypeScript e Supabase.
 
-**URL**: https://lovable.dev/projects/569a64aa-fd54-4462-a091-9529939f2136
+## 🎯 **Sobre o Projeto**
 
-## How can I edit this code?
+O CeramicFlow é uma aplicação web moderna para gestão completa de operações em cerâmicas, incluindo:
 
-There are several ways of editing your application.
+- 📊 **Dashboard Analytics** - KPIs e métricas em tempo real
+- 👥 **Gestão de Funcionários** - Controle de pessoal e funções
+- 🚛 **Gestão de Veículos** - Frota e manutenções
+- ⚙️ **Operações** - Registro de produção e consumo
+- 🧱 **Matéria-Prima** - Controle de argila e lenha
+- 💰 **Vendas** - Gestão comercial e estoque
+- 🔧 **Backoffice** - Administração do sistema
 
-**Use Lovable**
+## 🚀 **Demo**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/569a64aa-fd54-4462-a091-9529939f2136) and start prompting.
+**URL de Produção:** https://ceramicflow.vercel.app
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🛠️ **Stack Tecnológica**
 
-**Use your preferred IDE**
+### **Frontend**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **React 18** - Interface de usuário moderna
+- **TypeScript** - Tipagem estática
+- **Vite** - Build tool otimizado
+- **Tailwind CSS** - Estilização utilitária
+- **shadcn/ui** - Componentes base
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### **Backend**
 
-Follow these steps:
+- **Supabase** - Backend as a Service
+- **PostgreSQL** - Banco de dados
+- **Row Level Security** - Segurança de dados
+- **Real-time** - Atualizações em tempo real
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### **Estado e Cache**
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- **React Query** - Cache e estado servidor
+- **Context API** - Estado global
+- **Hooks centralizados** - Gerenciamento simplificado
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🏗️ **Como Executar**
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### **Pré-requisitos**
+
+- Node.js 18+
+- npm ou yarn
+- Conta no Supabase
+
+### **Instalação**
+
+```bash
+# 1. Clonar o repositório
+git clone https://github.com/Jose-iel/ceramicflow.git
+cd ceramicflow
+
+# 2. Instalar dependências
+npm install
+
+# 3. Configurar variáveis de ambiente
+# Criar arquivo .env.local com suas credenciais do Supabase
+
+# 4. Executar em desenvolvimento
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### **Variáveis de Ambiente**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+# .env.local
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_APP_ENV=development
+```
 
-**Use GitHub Codespaces**
+### **Scripts Disponíveis**
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+# Desenvolvimento
+npm run dev              # Inicia servidor de desenvolvimento
 
-## What technologies are used for this project?
+# Build
+npm run build           # Build para produção
+npm run preview         # Preview do build local
 
-This project is built with .
+# Qualidade
+npm run lint            # Verificar lint
+npm run type-check      # Verificar tipos TypeScript
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📁 **Estrutura do Projeto**
 
-## How can I deploy this project?
+```
+src/
+├── components/           # Componentes React organizados por funcionalidade
+│   ├── auth/            # Autenticação
+│   ├── common/          # Componentes reutilizáveis
+│   ├── dashboard/       # Dashboard principal
+│   ├── ui/              # Componentes base (shadcn/ui)
+│   └── ...              # Módulos específicos
+├── hooks/               # Hooks centralizados
+├── integrations/        # APIs e integrações (Supabase)
+├── pages/               # Páginas da aplicação
+├── types/               # Definições TypeScript
+└── utils/               # Funções utilitárias
+```
 
-Simply open [Lovable](https://lovable.dev/projects/569a64aa-fd54-4462-a091-9529939f2136) and click on Share -> Publish.
+## 🎨 **Características**
 
-## I want to use a custom domain - is that possible?
+### **🎯 Performance Otimizada**
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+- Bundle size: ~640KB (gzipped: ~200KB)
+- Code splitting automático
+- Lazy loading de páginas
+- Cache inteligente com React Query
+
+### **📱 Mobile-First**
+
+- Interface completamente responsiva
+- Touch-friendly navigation
+- Cards adaptáveis no mobile
+- Menu drawer otimizado
+
+### **🔧 Developer Experience**
+
+- Hooks centralizados para imports simples
+- Componentes reutilizáveis padronizados
+- TypeScript rigoroso
+- Hot reload rápido com Vite
+
+### **🔒 Segurança**
+
+- Row Level Security (RLS) no Supabase
+- Autenticação JWT
+- Filtros automáticos por cerâmica
+- Validação client e server-side
+
+## 📚 **Documentação**
+
+- 📋 **[Arquitetura](./docs/ARCHITECTURE.md)** - Visão geral da arquitetura
+- 🚀 **[Deploy](./docs/DEPLOYMENT.md)** - Guia de deploy e configuração
+- 🤝 **[Contribuição](./docs/CONTRIBUTING.md)** - Como contribuir
+- 🔧 **[Troubleshooting](./docs/TROUBLESHOOTING.md)** - Soluções para problemas comuns
+- 📝 **[Changelog](./docs/CHANGELOG.md)** - Histórico de mudanças
+- 🔌 **[API](./docs/API.md)** - Documentação das APIs
+- 🎨 **[Componentes](./docs/COMPONENTS.md)** - Guia dos componentes
+
+## 🚀 **Deploy**
+
+### **Deploy Automático (Vercel)**
+
+O projeto está configurado para deploy automático:
+
+- Push para `main` → Deploy em produção
+- Pull Requests → Deploy de preview
+
+### **Deploy Manual**
+
+```bash
+# Build para produção
+npm run build
+
+# Preview local do build
+npm run preview
+```
+
+Para configuração detalhada, consulte [DEPLOYMENT.md](./docs/DEPLOYMENT.md).
+
+## **Como Contribuir**
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
+3. Commit suas mudanças (`git commit -m 'feat: adicionar nova feature'`)
+4. Push para a branch (`git push origin feature/nova-feature`)
+5. Abra um Pull Request
+
+Consulte [CONTRIBUTING.md](./docs/CONTRIBUTING.md) para detalhes completos.
+
+## 📊 **Métricas do Projeto**
+
+- **Bundle Size:** ~640KB total
+- **Performance:** < 2s para carregamento inicial
+- **Mobile-friendly:** 100% responsivo
+- **TypeScript:** 100% tipado
+
+## 🛠️ **Troubleshooting**
+
+Problemas comuns e suas soluções estão documentados em [TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md).
+
+### **Problemas Frequentes:**
+
+- Erro de imports → Verificar hooks centralizados
+- Supabase connection → Verificar variáveis de ambiente
+- Build failed → Limpar cache e reinstalar dependências
+
+## 📄 **Licença**
+
+Este projeto é proprietário. Todos os direitos reservados.
+
+## 👥 **Equipe**
+
+- **Desenvolvedor Principal:** Jose-iel
+- **Arquitetura:** React + TypeScript + Supabase
+- **Design System:** Tailwind CSS + shadcn/ui
+
+---
+
+## 🎯 **Próximos Passos**
+
+- [ ] Implementar testes automatizados
+- [ ] Progressive Web App (PWA)
+- [ ] Notificações em tempo real
+- [ ] Analytics avançados
+- [ ] Modo offline
+
+Para ver o roadmap completo, consulte [CHANGELOG.md](./docs/CHANGELOG.md).---
+
+**CeramicFlow** - Sistema moderno e eficiente para gestão de cerâmicas 🏺
