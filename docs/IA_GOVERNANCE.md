@@ -463,6 +463,37 @@ const { data } = await supabase.from('employees').select('*'); // Ignores RLS!
 // ❌ Non-centralized hook exports
 export { useSpecificHook } from './some-file';
 // ✅ CORRECT: Export via src/hooks/index.ts only
+
+// ❌ Direct DOM queries in tests
+cy.get('.btn-primary').click();
+cy.get('#employee-form').submit();
+// ✅ CORRECT: cy.get('[data-testid="submit-button"]').click();
+
+// ❌ Hardcoded waits in tests
+cy.wait(3000);
+// ✅ CORRECT: cy.wait('@apiCall') or cy.get('[data-testid="loading"]').should('not.exist');
+
+// ❌ Tests without Page Object Model
+cy.get('[data-testid="name-input"]').type('test');
+cy.get('[data-testid="save-button"]').click();
+// ✅ CORRECT: Use employeesPage.fillForm() and employeesPage.save();
+
+// ❌ Not intercepting API calls in tests
+cy.get('[data-testid="submit"]').click();
+// Test continues without waiting for API
+// ✅ CORRECT: Setup intercepts and cy.wait('@createEmployee');
+
+// ❌ Using real API in tests
+// Tests should NEVER hit real backend
+// ✅ CORRECT: Mock all API calls with cy.intercept();
+
+// ❌ Shared state between tests
+let globalEmployee; // NEVER!
+// ✅ CORRECT: Generate fresh data in each test
+
+// ❌ Components without data-testid
+<button className="save-btn">Save</button>
+// ✅ CORRECT: <button data-testid="save-button">Save</button>
 ```
 
 ---
@@ -537,6 +568,138 @@ ALTER TABLE table_name ENABLE ROW LEVEL SECURITY;
 
 ---
 
+## 🧪 **TESTING PATTERNS - CYPRESS**
+
+### **Testing Architecture - CONSTITUTIONAL**
+
+```typescript
+// ✅ OBRIGATÓRIO - Page Object Model pattern
+export class EmployeesPage extends BasePage {
+  private readonly selectors = {
+    pageContent: 'employees-page-content',
+    addButton: 'employees-add-button',
+    searchInput: 'employees-search-input',
+    employeeRow: 'employee-row',
+  } as const;
+
+  visit(): void {
+    cy.visit('/employees');
+    this.isLoaded();
+  }
+
+  isLoaded(): void {
+    this.waitForPageLoad();
+    this.getByTestId(this.selectors.pageContent).should('be.visible');
+  }
+
+  // ✅ SEMPRE encapsular ações da página
+  searchEmployee(name: string): void {
+    this.getByTestId(this.selectors.searchInput).clear().type(name);
+    cy.wait('@searchEmployees');
+  }
+}
+```
+
+### **Custom Commands - MANDATORY**
+
+```typescript
+// ✅ OBRIGATÓRIO - Reutilização via commands
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      login(email?: string, password?: string): Chainable<void>;
+      loginAs(userType: 'admin' | 'manager' | 'operator'): Chainable<void>;
+      fillForm(formData: Record<string, any>): Chainable<void>;
+      waitForToast(type: 'success' | 'error', message?: string): Chainable<void>;
+      setupApiIntercepts(): Chainable<void>;
+    }
+  }
+}
+
+// ✅ PATTERN para authentication
+Cypress.Commands.add('loginAs', userType => {
+  cy.fixture(`users/${userType}.json`).then(user => {
+    cy.login(user.email, user.password);
+  });
+});
+```
+
+### **Data-testid ONLY Selectors**
+
+```typescript
+// ✅ ÚNICO seletor permitido
+cy.get('[data-testid="employee-name-input"]').type('João');
+cy.get('[data-testid="save-button"]').click();
+
+// ❌ FORBIDDEN selectors
+cy.get('.btn-primary'); // Classes CSS
+cy.get('#employee-form'); // IDs
+cy.get('button:nth-child(2)'); // Posição
+```
+
+### **API Intercepts - Centralized**
+
+```typescript
+// ✅ OBRIGATÓRIO - Centralized intercepts
+export class ApiIntercepts {
+  static setupEmployeesIntercepts(): void {
+    cy.intercept('GET', '**/employees**', { fixture: 'employees/list.json' }).as('getEmployees');
+
+    cy.intercept('POST', '**/employees**', { fixture: 'employees/created.json' }).as('createEmployee');
+  }
+
+  static setupAllIntercepts(): void {
+    this.setupAuthIntercepts();
+    this.setupEmployeesIntercepts();
+    this.setupDashboardIntercepts();
+  }
+}
+
+// ✅ USO OBRIGATÓRIO em beforeEach
+beforeEach(() => {
+  cy.setupApiIntercepts();
+  cy.loginAs('manager');
+});
+```
+
+### **Test Structure - AAA Pattern**
+
+```typescript
+// ✅ TEMPLATE OBRIGATÓRIO
+describe('Employee Management', () => {
+  let employeesPage: EmployeesPage;
+
+  beforeEach(() => {
+    cy.setupApiIntercepts();
+    cy.loginAs('manager');
+    employeesPage = new EmployeesPage();
+  });
+
+  afterEach(() => {
+    cy.logout();
+  });
+
+  it('should create employee successfully', () => {
+    // ✅ ARRANGE
+    const newEmployee = TestDataGenerator.generateEmployee({
+      name: 'Novo Funcionário',
+    });
+
+    // ✅ ACT
+    employeesPage.visit();
+    employeesPage.clickAddEmployee();
+    employeesPage.fillEmployeeForm(newEmployee);
+    employeesPage.saveEmployee();
+
+    // ✅ ASSERT
+    cy.waitForToast('success', 'Funcionário criado com sucesso');
+    employeesPage.getEmployeeRow(newEmployee.id).should('be.visible');
+  });
+});
+```
+
+---
+
 ## 🎯 **AI DEVELOPMENT GUIDELINES**
 
 ### **When Creating Components:**
@@ -549,6 +712,21 @@ ALTER TABLE table_name ENABLE ROW LEVEL SECURITY;
 6. ✅ Implement responsive design
 7. ✅ Use React Query for data fetching
 8. ✅ Validate all forms with Zod
+9. ✅ Add data-testid attributes for testing
+10. ✅ Ensure accessibility compliance
+
+### **When Creating Tests:**
+
+1. ✅ Use Page Object Model pattern always
+2. ✅ Implement custom commands for reusability
+3. ✅ Use data-testid selectors exclusively
+4. ✅ Centralize API intercepts
+5. ✅ Follow AAA pattern (Arrange, Act, Assert)
+6. ✅ Generate test data with TestDataGenerator
+7. ✅ Ensure test independence and cleanup
+8. ✅ Cover critical user flows end-to-end
+9. ✅ Mock all API calls with fixtures
+10. ✅ Validate error scenarios and edge cases
 
 ### **When Creating Hooks:**
 
@@ -576,6 +754,23 @@ ALTER TABLE table_name ENABLE ROW LEVEL SECURITY;
 4. ✅ Follow responsive design
 5. ✅ Include breadcrumbs
 6. ✅ Add proper loading states
+7. ✅ Add comprehensive data-testid attributes
+8. ✅ Create corresponding Page Object Model
+9. ✅ Implement critical flow tests
+10. ✅ Ensure accessibility standards
+
+### **When Writing Tests:**
+
+1. ✅ Create Page Object Model first
+2. ✅ Identify reusable custom commands
+3. ✅ Plan API intercepts strategy
+4. ✅ Prepare test data fixtures
+5. ✅ Follow constitutional test patterns
+6. ✅ Ensure test independence
+7. ✅ Cover happy path and error scenarios
+8. ✅ Validate performance targets
+9. ✅ Implement proper cleanup
+10. ✅ Document test coverage
 
 ---
 
@@ -600,6 +795,9 @@ ALTER TABLE table_name ENABLE ROW LEVEL SECURITY;
 - [ ] Common components reused when available
 - [ ] Proper sanitization applied
 - [ ] Environment variables used for secrets
+- [ ] Cypress tests implemented for critical flows
+- [ ] Data-testid attributes added to components
+- [ ] Page Object Model used in tests
 
 ### **File Structure Validation:**
 
@@ -618,6 +816,14 @@ src/
 ├── lib/                 # ✅ Utilities
 ├── pages/               # ✅ Page components
 └── types/               # ✅ TypeScript definitions
+
+cypress/                 # ✅ E2E Testing (CONSTITUTIONAL)
+├── e2e/                 # ✅ Tests organized by domain
+├── support/
+│   ├── commands/        # ✅ Custom commands by domain
+│   ├── pages/           # ✅ Page Object Models
+│   ├── fixtures/        # ✅ Test data
+│   └── intercepts/      # ✅ API mocks centralized
 ```
 
 ### **Testing Strategy (Future Implementation):**
@@ -658,6 +864,11 @@ bun check
 
 # Supabase local development
 supabase start
+
+# Cypress testing
+cypress open              # Open test runner
+cypress run               # Run tests headless
+bun test:e2e             # Run E2E tests with server
 ```
 
 ### **Essential Imports:**
@@ -690,6 +901,12 @@ import { EmployeesService } from '@/integrations/supabase/api';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
 import { sanitizeInput, sanitizeError } from '@/lib/security';
+
+// Testing (Cypress)
+/// <reference types="cypress" />
+import { BasePage } from '../support/pages/BasePage';
+import { TestDataGenerator } from '../support/utils/data-generators';
+import { ApiIntercepts } from '../support/intercepts/api-intercepts';
 ```
 
 ### **Domain Structure Reference:**
@@ -712,7 +929,30 @@ import { sanitizeInput, sanitizeError } from '@/lib/security';
 }
 ```
 
-### **Environment Variables Reference:**
+### **Data-testid Naming Convention:**
+
+````typescript
+// ✅ OBRIGATÓRIO - Naming pattern
+{
+  "pages": "[domain]-page-content",
+  "forms": "[domain]-form",
+  "inputs": "[field-name]-input",
+  "buttons": "[action]-button",
+  "modals": "[purpose]-modal",
+  "tables": "[domain]-table",
+  "rows": "[domain]-row-[id]",
+  "cards": "[domain]-card",
+  "loading": "[context]-loading",
+  "errors": "[context]-error"
+}
+
+// ✅ EXAMPLES:
+// data-testid="employees-page-content"
+// data-testid="employee-name-input"
+// data-testid="save-button"
+// data-testid="employee-row-123"
+// data-testid="create-employee-modal"
+```### **Environment Variables Reference:**
 
 ```bash
 # ✅ REQUIRED ENV VARS:
@@ -722,7 +962,7 @@ VITE_APP_ENV=development|production
 
 # ✅ DEPLOYMENT (Vercel):
 # Same variables configured in Vercel dashboard
-```
+````
 
 ---
 
@@ -763,7 +1003,7 @@ bun check      # TypeScript checking
 
 ### **Performance Monitoring:**
 
-```typescript
+````typescript
 // ✅ BUNDLE SIZE TARGETS:
 {
   "main": "< 500KB gzipped",
@@ -771,12 +1011,21 @@ bun check      # TypeScript checking
   "pages": "< 50KB each",
   "lighthouse": "> 90 performance score"
 }
-```
 
----
+// ✅ TESTING PERFORMANCE TARGETS:
+{
+  "testSuiteExecution": "< 5 minutes full suite",
+  "individualTest": "< 30 seconds per test",
+  "pageLoadTime": "< 3 seconds",
+  "apiResponseTime": "< 1 second (mocked)",
+  "parallelization": "4 threads minimum",
+  "retries": "Max 2 retries on failure"
+}
+```---
 
 **🤖 IA, memorize esta constituição. Ela é a lei suprema do projeto CeramicFlow. Qualquer código que viole estas regras deve ser rejeitado imediatamente.**
 
 **⚖️ Este documento substitui qualquer conflito com outros documentos. É a fonte única da verdade.**
 
 **🎯 Use este guia como referência definitiva para todas as decisões de desenvolvimento.**
+````
