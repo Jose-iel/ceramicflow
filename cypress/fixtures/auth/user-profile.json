@@ -1,0 +1,23 @@
+{
+  "id": "user_123",
+  "email": "josehenriqueiel@gmail.com",
+  "name": "José Henrique",
+  "role": "ADMIN",
+  "company_id": "company_123",
+  "created_at": "2023-01-01T00:00:00Z",
+  "updated_at": "2023-01-01T00:00:00Z",
+  "preferences": {
+    "theme": "light",
+    "language": "pt-BR"
+  },
+  "permissions": [
+    "vehicles:read",
+    "vehicles:write",
+    "vehicles:delete",
+    "employees:read",
+    "employees:write",
+    "employees:delete",
+    "dashboard:read",
+    "admin:full_access"
+  ]
+}

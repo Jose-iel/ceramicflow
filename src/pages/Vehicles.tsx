@@ -158,6 +158,7 @@ const VehiclesPage = () => {
       },
       icon: <Plus className="w-4 h-4" />,
       className: 'w-full sm:w-auto',
+      'data-testid': 'vehicles-add-button',
     },
   ];
 
@@ -176,12 +177,13 @@ const VehiclesPage = () => {
         // TODO: Implementar lógica de filtro por mês
       }}
       onSearchChange={setSearch}
+      data-testid="vehicles-page-content"
     >
       <div className="space-y-6">
         {/* Filters - mobile friendly */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4" data-testid="vehicles-filters">
           <Select value={type} onValueChange={setType}>
-            <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]" data-testid="vehicles-type-filter">
               <Filter className="w-4 h-4 mr-2" />
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
@@ -196,7 +198,7 @@ const VehiclesPage = () => {
           </Select>
 
           <Select value={status} onValueChange={setStatus}>
-            <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]" data-testid="vehicles-status-filter">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -211,9 +213,9 @@ const VehiclesPage = () => {
         </div>
 
         {/* Vehicles Grid - responsive */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6" data-testid="vehicles-grid">
           {filteredVehicles.map(vehicle => (
-            <div key={vehicle.id} className="relative group">
+            <div key={vehicle.id} className="relative group" data-testid={`vehicle-card-${vehicle.id}`}>
               <VehicleCard vehicle={vehicle} />
 
               {/* Action buttons overlay - touch friendly */}
@@ -223,6 +225,7 @@ const VehiclesPage = () => {
                   size="sm"
                   variant="secondary"
                   onClick={() => handleEditVehicle(vehicle)}
+                  data-testid={`vehicle-edit-button-${vehicle.id}`}
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
@@ -236,6 +239,7 @@ const VehiclesPage = () => {
                       className="h-9 w-9 p-0 bg-red-500/90 hover:bg-red-600 touch-manipulation"
                       size="sm"
                       variant="destructive"
+                      data-testid={`vehicle-delete-button-${vehicle.id}`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -248,7 +252,7 @@ const VehiclesPage = () => {
         </div>
 
         {filteredVehicles.length === 0 && (
-          <div className="text-center p-8 text-muted-foreground">
+          <div className="text-center p-8 text-muted-foreground" data-testid="vehicles-empty-state">
             <Car className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p className="text-lg font-medium mb-2">Nenhum veículo encontrado</p>
             <p className="text-sm">Tente ajustar os filtros ou adicione um novo veículo</p>
