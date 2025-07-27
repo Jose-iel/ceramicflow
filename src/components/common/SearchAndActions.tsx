@@ -12,6 +12,7 @@ interface ActionButtonConfig {
   variant?: 'default' | 'outline' | 'secondary' | 'ghost';
   icon?: React.ReactNode;
   className?: string;
+  dataTestId?: string;
 }
 
 interface SearchAndActionsProps {
@@ -19,6 +20,7 @@ interface SearchAndActionsProps {
   onSearchChange: (value: string) => void;
   searchPlaceholder?: string;
   actions: ActionButtonConfig[];
+  dataTestId?: string;
 }
 
 const SearchAndActions = ({ searchValue, onSearchChange, searchPlaceholder = 'Buscar...', actions }: SearchAndActionsProps) => {
@@ -44,6 +46,7 @@ const SearchAndActions = ({ searchValue, onSearchChange, searchPlaceholder = 'Bu
               className={`gap-2 text-sm ${action.className || ''}`}
               variant={action.variant || 'default'}
               onClick={action.onClick}
+              data-testid={action.dataTestId}
             >
               {action.icon || <Plus className="w-4 h-4" />}
               {isMobile && action.mobileLabel ? action.mobileLabel : action.label}

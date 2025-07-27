@@ -29,6 +29,7 @@ interface ActionButtonConfig {
   variant?: 'default' | 'outline' | 'secondary' | 'ghost';
   icon?: React.ReactNode;
   className?: string;
+  dataTestId?: string;
 }
 
 interface PageLayoutProps {
@@ -45,6 +46,7 @@ interface PageLayoutProps {
   isLoading?: boolean;
   showMonthFilter?: boolean;
   showSearch?: boolean;
+  dataTestId?: string;
 }
 
 const PageLayout = ({
@@ -61,6 +63,7 @@ const PageLayout = ({
   isLoading = false,
   showMonthFilter = true,
   showSearch = true,
+  dataTestId,
 }: PageLayoutProps) => {
   const isMobile = useIsMobile();
 
@@ -81,13 +84,13 @@ const PageLayout = ({
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-background" data-testid={dataTestId}>
       <Sidebar />
 
       <div className={cn('flex-1 flex flex-col min-w-0', !isMobile && 'ml-64')}>
         <Navbar subtitle={subtitle} title={title} />
 
-        <main className="flex-1 px-3 md:px-6 py-4 md:py-6 overflow-x-hidden space-y-6">
+        <main className="flex-1 px-3 md:px-6 py-4 md:py-6 overflow-x-hidden space-y-6" data-testid={dataTestId}>
           {showMonthFilter && <MonthFilter selectedMonth={selectedMonth} onMonthChange={onMonthChange} />}
 
           {/* Stats Cards */}

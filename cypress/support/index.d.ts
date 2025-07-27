@@ -7,10 +7,5 @@ declare namespace Cypress {
     loginAs(userType: 'admin' | 'manager' | 'operator'): Chainable<void>;
     logout(): Chainable<void>;
     checkAuthState(expected: 'authenticated' | 'unauthenticated'): Chainable<void>;
-
-    // API Intercepts - separados por responsabilidade
-    setupAuthIntercepts(): Chainable<void>;
-    setupApiIntercepts(): Chainable<void>;
-    setupAllApiIntercepts(): Chainable<void>;
   }
 }

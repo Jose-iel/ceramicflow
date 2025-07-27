@@ -12,6 +12,7 @@ export interface StatCardProps {
   isLoading?: boolean;
   description?: string;
   change?: number;
+  dataTestId?: string;
 }
 
 const StatsCard = ({
@@ -23,11 +24,12 @@ const StatsCard = ({
   iconColor = 'text-primary',
   iconBgColor = 'bg-primary/10',
   valueFormatter,
+  dataTestId,
 }: StatCardProps) => {
   const formattedValue = valueFormatter ? valueFormatter(value) : value;
 
   return (
-    <div className="bg-card border rounded-lg p-3 md:p-4 shadow">
+    <div className="bg-card border rounded-lg p-3 md:p-4 shadow" data-testid={dataTestId}>
       <h3 className="text-xs md:text-sm font-medium text-muted-foreground mb-2">{title}</h3>
       <div className="flex items-center justify-between">
         <div>

@@ -40,8 +40,8 @@ export function useCreateVehicleOptimized() {
       await queryClient.cancelQueries({ queryKey: ['vehicles'] });
       await queryClient.cancelQueries({ queryKey: ['trucks'] });
 
-      const previousVehicles = queryClient.getQueryData(['vehicles']);
-      const previousTrucks = queryClient.getQueryData(['trucks']);
+      const previousVehicles = queryClient.getQueryData(['vehicles']) ?? [];
+      const previousTrucks = queryClient.getQueryData(['trucks']) ?? [];
 
       const optimisticVehicleId = `temp-${Date.now()}`;
       const optimisticVehicle = {
@@ -63,7 +63,12 @@ export function useCreateVehicleOptimized() {
         queryClient.setQueryData(['trucks'], [optimisticTruck, ...(previousTrucks as TruckData[])]);
       }
 
-      return { previousVehicles, previousTrucks, optimisticVehicleId };
+      // Tipagem explícita do contexto retornado
+      return {
+        previousVehicles: previousVehicles as Vehicle[],
+        previousTrucks: previousTrucks as TruckData[],
+        optimisticVehicleId,
+      };
     },
     onSuccess: (data, variables, context) => {
       queryClient.setQueryData(['vehicles'], (old: Vehicle[] = []) =>

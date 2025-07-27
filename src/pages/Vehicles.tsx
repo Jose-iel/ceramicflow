@@ -126,24 +126,28 @@ const VehiclesPage = () => {
       value: totalVehicles.toString(),
       subtitle: 'veículos cadastrados',
       icon: Car,
+      dataTestId: 'vehicles-total-count',
     },
     {
       title: 'Veículos em Operação',
       value: activeVehicles.toString(),
       subtitle: 'em operação',
       icon: Truck,
+      dataTestId: 'vehicles-active-count',
     },
     {
       title: 'Em Manutenção',
       value: maintenanceVehicles.toString(),
       subtitle: 'necessitam reparo',
       icon: Settings,
+      dataTestId: 'vehicles-maintenance-count',
     },
     {
       title: 'Veículos Parados',
       value: stoppedVehicles.toString(),
       subtitle: 'fora de operação',
       icon: AlertTriangle,
+      dataTestId: 'vehicles-stopped-count',
     },
   ];
 
@@ -158,7 +162,7 @@ const VehiclesPage = () => {
       },
       icon: <Plus className="w-4 h-4" />,
       className: 'w-full sm:w-auto',
-      'data-testid': 'vehicles-add-button',
+      dataTestId: 'vehicles-add-button',
     },
   ];
 
@@ -177,7 +181,7 @@ const VehiclesPage = () => {
         // TODO: Implementar lógica de filtro por mês
       }}
       onSearchChange={setSearch}
-      data-testid="vehicles-page-content"
+      dataTestId="vehicles-page-content"
     >
       <div className="space-y-6">
         {/* Filters - mobile friendly */}
@@ -225,7 +229,7 @@ const VehiclesPage = () => {
                   size="sm"
                   variant="secondary"
                   onClick={() => handleEditVehicle(vehicle)}
-                  data-testid={`vehicle-edit-button-${vehicle.id}`}
+                  data-testid={`vehicle-edit-button`}
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
@@ -239,7 +243,7 @@ const VehiclesPage = () => {
                       className="h-9 w-9 p-0 bg-red-500/90 hover:bg-red-600 touch-manipulation"
                       size="sm"
                       variant="destructive"
-                      data-testid={`vehicle-delete-button-${vehicle.id}`}
+                      data-testid={`vehicle-delete-button`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

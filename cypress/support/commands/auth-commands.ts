@@ -24,9 +24,25 @@ Cypress.Commands.add('login', (email?: string, password?: string) => {
   cy.get('[data-testid="password-input"]').type(credentials.password);
   cy.get('[data-testid="submit-button"]').click();
 
-  cy.wait('@login');
+  cy.contains('Login realizado com sucesso!').should('be.visible');
   cy.url().should('not.include', '/login');
-  cy.get('[data-testid="toast-success"]').should('be.visible');
+
+  cy.window().then(win => {
+    for (let i = 0; i < win.localStorage.length; i++) {
+      const key = win.localStorage.key(i);
+      const value = win.localStorage.getItem(key);
+      try {
+        const obj = JSON.parse(value || '{}');
+        if (obj.access_token) {
+          Cypress.env('authKey', key);
+          Cypress.env('authToken', value);
+          break;
+        }
+      } catch (e) {
+        console.log(`Erro ao analisar o valor do localStorage para a chave ${key}:`, e);
+      }
+    }
+  });
 });
 
 Cypress.Commands.add('loginAs', (userType: 'admin' | 'manager' | 'operator') => {

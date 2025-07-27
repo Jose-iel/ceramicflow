@@ -52,17 +52,22 @@ export function DeleteConfirmationDialog({
               <AlertTriangle className="h-5 w-5 text-destructive" />
             </div>
             <div>
-              <AlertDialogTitle className="text-left">Confirmar exclusão</AlertDialogTitle>
+              <AlertDialogTitle className="text-left" data-testid="delete-confirmation-dialog-title">
+                Confirmar exclusão
+              </AlertDialogTitle>
             </div>
           </div>
         </AlertDialogHeader>
         <AlertDialogDescription className="text-left leading-relaxed">{description || defaultDescription}</AlertDialogDescription>
         <AlertDialogFooter className="flex flex-col-reverse sm:flex-row gap-2">
-          <AlertDialogCancel disabled={isLoading}>{cancelText}</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading} data-testid="delete-cancel-dialog-button">
+            {cancelText}
+          </AlertDialogCancel>
           <AlertDialogAction
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             disabled={isLoading}
             onClick={onConfirm}
+            data-testid="delete-confirmation-dialog"
           >
             {isLoading ? (
               <div className="flex items-center gap-2">
