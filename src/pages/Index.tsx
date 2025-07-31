@@ -42,48 +42,56 @@ const generateStatsCards = (data: DashboardData | undefined): StatCardProps[] =>
       value: kpis.sales.totalRevenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
       icon: DollarSign,
       description: 'Receita no período',
+      dataTestId: 'total-revenue-dashboard-card',
     },
     {
       title: 'Vendas Totais',
       value: kpis.sales.totalSalesCount.toString(),
       icon: ShoppingCart,
       description: 'Vendas no período',
+      dataTestId: 'total-sales-dashboard-card',
     },
     {
       title: 'Operações Concluídas',
       value: kpis.operations.completedOperationsCount.toString(),
       icon: Truck,
       description: 'Concluídas no período',
+      dataTestId: 'completed-operations-dashboard-card',
     },
     {
       title: 'Funcionários',
       value: kpis.employees.totalCount.toString(),
       icon: Users,
       description: 'Total de funcionários ativos',
+      dataTestId: 'total-employees-dashboard-card',
     },
     {
       title: 'Consumo de Lenha (m³)',
       value: kpis.wood.totalWoodConsumed.toLocaleString('pt-BR'),
       icon: Fuel,
       description: 'Consumo no período',
+      dataTestId: 'total-wood-consumed-dashboard-card',
     },
     {
       title: 'Terra e Barro',
       value: `${kpis.terra_e_barro.totalTrucks} Caminhões`,
       icon: Package,
       description: 'Entradas no período',
+      dataTestId: 'total-trucks-dashboard-card',
     },
     {
       title: 'Veículos em Manutenção',
       value: kpis.vehicles.maintenanceCount.toString(),
       icon: Wrench,
       description: 'Veículos atualmente em manutenção',
+      dataTestId: 'vehicles-in-maintenance-dashboard-card',
     },
     {
       title: 'Férias a Vencer',
       value: `${kpis.employees.expiredCount + kpis.employees.expiringSoonCount}`,
       icon: HardHat,
       description: `${kpis.employees.expiredCount} vencida(s), ${kpis.employees.expiringSoonCount} a vencer`,
+      dataTestId: 'vacations-expiring-dashboard-card',
     },
   ];
 };
@@ -129,6 +137,7 @@ const Index = () => {
       subtitle={subtitle}
       title="Dashboard"
       onMonthChange={setSelectedMonth}
+      dataTestId="dashboard-page-content"
       actions={[
         {
           label: 'Atualizar Dados',

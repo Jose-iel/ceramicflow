@@ -1,10 +1,12 @@
-import { VehiclePage } from '../../support/pages/VehiclePage';
+import { VehiclePage, DashboardPage } from '../../support/pages';
 
 describe('Página de Veículos', () => {
   let vehiclePage: VehiclePage;
+  let dashboardPage: DashboardPage;
 
   before(() => {
     vehiclePage = new VehiclePage();
+    dashboardPage = new DashboardPage();
     cy.login();
   });
 
@@ -39,7 +41,7 @@ describe('Página de Veículos', () => {
     });
 
     it('deve verificar se o card de veículo em operação foi atualizado', () => {
-      vehiclePage.verifyVehicleCard('vehicles-total-count', '1');
+      vehiclePage.verifyVehicleCard('vehicles-active-count', '1');
     });
 
     it('deve editar um veículo para o status em manutenção', () => {
@@ -57,6 +59,11 @@ describe('Página de Veículos', () => {
 
     it('deve verificar se o card de veículo em manutenção foi atualizado', () => {
       vehiclePage.verifyVehicleCard('vehicles-maintenance-count', '1');
+    });
+
+    it('deve verificar se o card de veículo em manutenção foi atualizado no dashboard', () => {
+      dashboardPage.visit();
+      dashboardPage.verifyVehiclesInMaintenance('1');
     });
 
     it('deve editar um veiculo para o status parado', () => {

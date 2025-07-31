@@ -144,11 +144,11 @@ const ClayConsumptionDialog = ({ open, onOpenChange, onSave, consumption }: Clay
                 </SelectTrigger>
                 <SelectContent>
                   {isLoadingTrucks ? (
-                    <SelectItem disabled value="">
+                    <SelectItem disabled value="loading">
                       Carregando caminhões...
                     </SelectItem>
                   ) : trucks.length === 0 ? (
-                    <SelectItem disabled value="">
+                    <SelectItem disabled value="none">
                       Nenhum caminhão cadastrado
                     </SelectItem>
                   ) : (

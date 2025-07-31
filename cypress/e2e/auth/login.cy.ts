@@ -1,4 +1,4 @@
-import { LoginPage } from '../../support/pages/LoginPage';
+import { LoginPage } from '../../support/pages';
 
 describe('Página de Login', () => {
   let loginPage: LoginPage;
