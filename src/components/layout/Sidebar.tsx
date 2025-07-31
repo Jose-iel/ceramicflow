@@ -63,7 +63,7 @@ const Sidebar: React.FC = () => {
     { to: '/sales', icon: ShoppingCart, label: 'Vendas' },
     { to: '/wood', icon: TreePine, label: 'Lenha' },
     { to: '/raw-material', icon: Mountain, label: 'Matéria-Prima' },
-    { to: '/reports', icon: FileText, label: 'Relatórios' },
+    // { to: '/reports', icon: FileText, label: 'Relatórios' },
   ];
 
   return (
