@@ -4,7 +4,7 @@ import {
   ClipboardList,
   TreePine,
   Settings,
-  FileText,
+  // FileText,
   LayoutDashboard,
   Menu,
   X,
