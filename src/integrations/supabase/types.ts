@@ -1,6 +1,6 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
-export interface Database {
+export type Database = {
   // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
@@ -91,48 +91,100 @@ export interface Database {
           },
         ];
       };
+      employee_absences: {
+        Row: {
+          absence_date: string;
+          ceramic_id: string;
+          created_at: string | null;
+          created_by: string | null;
+          employee_id: string;
+          id: string;
+          notes: string | null;
+          reason: string | null;
+        };
+        Insert: {
+          absence_date: string;
+          ceramic_id: string;
+          created_at?: string | null;
+          created_by?: string | null;
+          employee_id: string;
+          id?: string;
+          notes?: string | null;
+          reason?: string | null;
+        };
+        Update: {
+          absence_date?: string;
+          ceramic_id?: string;
+          created_at?: string | null;
+          created_by?: string | null;
+          employee_id?: string;
+          id?: string;
+          notes?: string | null;
+          reason?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'employee_absences_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'employee_absences_employee_id_fkey';
+            columns: ['employee_id'];
+            isOneToOne: false;
+            referencedRelation: 'employees';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'employee_absences_employee_id_fkey';
+            columns: ['employee_id'];
+            isOneToOne: false;
+            referencedRelation: 'employees_with_absences';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       employees: {
         Row: {
-          aso_expiration_date: string | null;
+          admission_date: string | null;
           ceramic_id: string;
           contact: string | null;
           cpf: string | null;
           created_at: string | null;
           id: string;
           name: string;
-          nr_expiration_date: string | null;
-          registration_date: string | null;
           role: string;
           shift: string | null;
           updated_at: string | null;
+          vacation_due_date: string | null;
         };
         Insert: {
-          aso_expiration_date?: string | null;
+          admission_date?: string | null;
           ceramic_id: string;
           contact?: string | null;
           cpf?: string | null;
           created_at?: string | null;
           id?: string;
           name: string;
-          nr_expiration_date?: string | null;
-          registration_date?: string | null;
           role: string;
           shift?: string | null;
           updated_at?: string | null;
+          vacation_due_date?: string | null;
         };
         Update: {
-          aso_expiration_date?: string | null;
+          admission_date?: string | null;
           ceramic_id?: string;
           contact?: string | null;
           cpf?: string | null;
           created_at?: string | null;
           id?: string;
           name?: string;
-          nr_expiration_date?: string | null;
-          registration_date?: string | null;
           role?: string;
           shift?: string | null;
           updated_at?: string | null;
+          vacation_due_date?: string | null;
         };
         Relationships: [
           {
@@ -264,6 +316,7 @@ export interface Database {
           employee_id: string | null;
           end_date: string | null;
           end_time: string | null;
+          fuel_consumption: number | null;
           gas_consumption: number | null;
           id: string;
           initial_hour_meter: number | null;
@@ -285,6 +338,7 @@ export interface Database {
           employee_id?: string | null;
           end_date?: string | null;
           end_time?: string | null;
+          fuel_consumption?: number | null;
           gas_consumption?: number | null;
           id?: string;
           initial_hour_meter?: number | null;
@@ -306,6 +360,7 @@ export interface Database {
           employee_id?: string | null;
           end_date?: string | null;
           end_time?: string | null;
+          fuel_consumption?: number | null;
           gas_consumption?: number | null;
           id?: string;
           initial_hour_meter?: number | null;
@@ -332,6 +387,13 @@ export interface Database {
             columns: ['employee_id'];
             isOneToOne: false;
             referencedRelation: 'employees';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'operations_employee_id_fkey';
+            columns: ['employee_id'];
+            isOneToOne: false;
+            referencedRelation: 'employees_with_absences';
             referencedColumns: ['id'];
           },
           {
@@ -676,8 +738,99 @@ export interface Database {
         ];
       };
     };
-    Views: Record<never, never>;
+    Views: {
+      employees_with_absences: {
+        Row: {
+          admission_date: string | null;
+          attendance_notes: string | null;
+          ceramic_id: string | null;
+          contact: string | null;
+          cpf: string | null;
+          created_at: string | null;
+          id: string | null;
+          last_absence_date: string | null;
+          name: string | null;
+          role: string | null;
+          shift: string | null;
+          total_absences_month: number | null;
+          updated_at: string | null;
+          vacation_due_date: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'employees_ceramic_id_fkey';
+            columns: ['ceramic_id'];
+            isOneToOne: false;
+            referencedRelation: 'ceramics';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+    };
     Functions: {
+      create_employee_absence: {
+        Args: {
+          p_employee_id: string;
+          p_ceramic_id: string;
+          p_absence_date: string;
+          p_reason?: string;
+          p_notes?: string;
+        };
+        Returns: {
+          absence_date: string;
+          ceramic_id: string;
+          created_at: string | null;
+          created_by: string | null;
+          employee_id: string;
+          id: string;
+          notes: string | null;
+          reason: string | null;
+        };
+      };
+      delete_employee_absence: {
+        Args: { p_absence_id: string; p_ceramic_id: string };
+        Returns: undefined;
+      };
+      get_employee_absence_stats: {
+        Args: { emp_id: string };
+        Returns: {
+          total_absences_month: number;
+          last_absence_date: string;
+          latest_notes: string;
+        }[];
+      };
+      get_employee_absences: {
+        Args: { p_employee_id: string; p_ceramic_id: string };
+        Returns: {
+          absence_date: string;
+          ceramic_id: string;
+          created_at: string | null;
+          created_by: string | null;
+          employee_id: string;
+          id: string;
+          notes: string | null;
+          reason: string | null;
+        }[];
+      };
+      get_employees_with_absences: {
+        Args: { ceramic_id_param: string };
+        Returns: {
+          id: string;
+          ceramic_id: string;
+          name: string;
+          role: string;
+          cpf: string;
+          contact: string;
+          shift: string;
+          admission_date: string;
+          created_at: string;
+          updated_at: string;
+          vacation_due_date: string;
+          total_absences_month: number;
+          last_absence_date: string;
+          attendance_notes: string;
+        }[];
+      };
       is_admin: {
         Args: { user_id: string };
         Returns: boolean;
@@ -687,10 +840,14 @@ export interface Database {
         Returns: boolean;
       };
     };
-    Enums: Record<never, never>;
-    CompositeTypes: Record<never, never>;
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
   };
-}
+};
 
 type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>;
 

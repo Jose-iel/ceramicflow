@@ -63,3 +63,15 @@ export {
   useDeleteWoodPurchaseOptimized as useDeleteWoodPurchase,
   useDeleteWoodConsumptionOptimized as useDeleteWoodConsumption,
 } from '@/integrations/supabase/hooks/use-wood-optimized';
+
+// Employee absences hooks
+export {
+  useEmployeeAbsences,
+  useAllEmployeeAbsences,
+  useEmployeeAbsenceById,
+  useEmployeeAbsencesByPeriod,
+  useCreateEmployeeAbsence,
+  useUpdateEmployeeAbsence,
+  useDeleteEmployeeAbsence,
+  useCheckAbsenceExists,
+} from '@/integrations/supabase/hooks/use-employee-absences';

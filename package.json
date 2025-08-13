@@ -16,7 +16,8 @@
     "type-check": "tsc --noEmit",
     "code-quality": "npm run lint:check && npm run type-check",
     "preview": "vite preview",
-    "cypress:open": "cypress open"
+    "cypress:open": "cypress open",
+    "update-types": "npx supabase gen types typescript --project-id xvzrvzhmppkjydvefcnt > src/integrations/supabase/types.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
