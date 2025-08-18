@@ -46,6 +46,9 @@ export interface DashboardData {
       operationalCount: number;
       maintenanceCount: number;
     };
+    total_absences: {
+      totalAbsences: number;
+    };
   };
   recentActivities: {
     latestSales: RecentSale[];

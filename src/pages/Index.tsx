@@ -1,5 +1,17 @@
 import { useMemo } from 'react';
-import { DollarSign, ShoppingCart, Truck, Users, HardHat, Fuel, Package, Wrench, LucideIcon, RefreshCw } from 'lucide-react';
+import {
+  DollarSign,
+  ShoppingCart,
+  Truck,
+  Users,
+  HardHat,
+  Fuel,
+  Package,
+  Wrench,
+  LucideIcon,
+  RefreshCw,
+  UserX,
+} from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import PageLayout from '@/components/common/PageLayout';
@@ -36,6 +48,8 @@ const generateStatsCards = (data: DashboardData | undefined): StatCardProps[] =>
 
   const { kpis } = data;
 
+  console.log(kpis);
+
   return [
     {
       title: 'Receita Total',
@@ -59,13 +73,6 @@ const generateStatsCards = (data: DashboardData | undefined): StatCardProps[] =>
       dataTestId: 'completed-operations-dashboard-card',
     },
     {
-      title: 'Funcionários',
-      value: kpis.employees.totalCount.toString(),
-      icon: Users,
-      description: 'Total de funcionários ativos',
-      dataTestId: 'total-employees-dashboard-card',
-    },
-    {
       title: 'Consumo de Lenha (m³)',
       value: kpis.wood.totalWoodConsumed.toLocaleString('pt-BR'),
       icon: Fuel,
@@ -87,11 +94,25 @@ const generateStatsCards = (data: DashboardData | undefined): StatCardProps[] =>
       dataTestId: 'vehicles-in-maintenance-dashboard-card',
     },
     {
+      title: 'Funcionários',
+      value: kpis.employees.totalCount.toString(),
+      icon: Users,
+      description: 'Total de funcionários ativos',
+      dataTestId: 'total-employees-dashboard-card',
+    },
+    {
       title: 'Férias a Vencer',
       value: `${kpis.employees.expiredCount + kpis.employees.expiringSoonCount}`,
       icon: HardHat,
       description: `${kpis.employees.expiredCount} vencida(s), ${kpis.employees.expiringSoonCount} a vencer`,
       dataTestId: 'vacations-expiring-dashboard-card',
+    },
+    {
+      title: 'Faltas no mês',
+      value: kpis.total_absences.totalAbsences.toString(),
+      icon: UserX,
+      description: 'Total de faltas no mês',
+      dataTestId: 'total-absenses-dashboard-card',
     },
   ];
 };

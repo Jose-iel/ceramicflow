@@ -32,6 +32,7 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
     brickQuantity: '',
     pricePerThousand: '',
     totalValue: '',
+    brickType: '',
     notes: '',
     recordedBy: '',
   });
@@ -45,6 +46,7 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
         brickQuantity: sale.brick_quantity.toString(),
         pricePerThousand: sale.price_per_thousand.toString(),
         totalValue: sale.total_value.toString(),
+        brickType: sale.brick_type || '',
         notes: sale.notes || '',
         recordedBy: sale.recorded_by,
       });
@@ -56,6 +58,7 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
         brickQuantity: '',
         pricePerThousand: '',
         totalValue: '',
+        brickType: '',
         notes: '',
         recordedBy: '',
       });
@@ -95,6 +98,7 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
       brick_quantity: quantity,
       price_per_thousand: pricePerThousand,
       total_value: totalValue,
+      brick_type: formData.brickType || undefined,
       notes: formData.notes || undefined,
       recorded_by: formData.recordedBy,
     };
@@ -206,7 +210,8 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
           <div className="space-y-4">
             <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Detalhes da Venda</h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Primeira linha: Quantidade e Tipo */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="brickQuantity">Quantidade de Tijolos *</Label>
                 <Input
@@ -220,6 +225,19 @@ const SaleDialog: React.FC<SaleDialogProps> = ({ open, onOpenChange, sale, onSav
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="brickType">Tipo do Tijolo</Label>
+                <Input
+                  id="brickType"
+                  placeholder="Ex: Comum, Laminado, Furado..."
+                  value={formData.brickType}
+                  onChange={e => handleChange('brickType', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Segunda linha: Preço e Total */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="pricePerThousand">Preço por Milheiro (R$) *</Label>
                 <Input

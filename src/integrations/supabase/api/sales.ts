@@ -11,6 +11,7 @@ export interface Sale {
   brick_quantity: number;
   price_per_thousand: number;
   total_value: number;
+  brick_type?: string;
   notes?: string;
   recorded_by: string;
   created_at: string;
@@ -24,6 +25,7 @@ export interface CreateSalePayload {
   brick_quantity: number;
   price_per_thousand: number;
   total_value: number;
+  brick_type?: string;
   notes?: string;
   recorded_by: string;
 }
@@ -63,7 +65,7 @@ export class SalesService {
     }
   }
 
-  static async createSale(payload: CreateSalePayload): Promise<void> {
+  static async createSale(payload: CreateSalePayload): Promise<Sale> {
     try {
       const ceramicId = await SalesService.getCurrentUserCeramicId();
 
@@ -72,12 +74,14 @@ export class SalesService {
         ...payload,
       };
 
-      const { error } = await supabase.from('sales').insert(insertData);
+      const { data, error } = await supabase.from('sales').insert(insertData).select().single();
 
       if (error) {
         console.error('Erro do Supabase ao criar venda:', error);
         throw new Error(error.message);
       }
+
+      return data;
     } catch (error) {
       console.error('Erro completo ao criar venda:', error);
       throw error;

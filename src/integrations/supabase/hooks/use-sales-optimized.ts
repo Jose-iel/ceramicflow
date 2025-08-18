@@ -41,8 +41,12 @@ export function useCreateSaleOptimized() {
       const previousSales = queryClient.getQueryData(['sales']);
 
       const optimisticSaleId = `temp-${Date.now()}`;
+      // Obter o ceramic_id para a venda otimística
+      const ceramicId = await SalesService.getCurrentUserCeramicId();
+
       const optimisticSale = {
         id: optimisticSaleId,
+        ceramic_id: ceramicId,
         ...newSale,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

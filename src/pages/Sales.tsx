@@ -24,13 +24,18 @@ const Sales = () => {
 
   // Filter sales by month and search
   const filteredSales = useMemo(() => {
-    // First filter by month using the sale_date field
-    const monthFiltered = filterDataByMonth(sales.map(sale => ({ ...sale, date: sale.sale_date })));
+    // First filter by month using the sale_date field, with safety check
+    const monthFiltered = filterDataByMonth(
+      sales
+        .filter(sale => sale && sale.sale_date) // Ensure sale and sale_date exist
+        .map(sale => ({ ...sale, date: sale.sale_date }))
+    );
     // Then filter by search
     return monthFiltered.filter(
       sale =>
         sale.customer_name?.toLowerCase().includes(search.toLowerCase()) ||
-        sale.recorded_by?.toLowerCase().includes(search.toLowerCase())
+        sale.recorded_by?.toLowerCase().includes(search.toLowerCase()) ||
+        sale.brick_type?.toLowerCase().includes(search.toLowerCase())
     );
   }, [sales, search, filterDataByMonth]);
 
@@ -62,6 +67,23 @@ const Sales = () => {
     }
     setEditingSale(null);
     setDialogOpen(false);
+  };
+
+  // Function to generate expansion data for sales with notes
+  const getSaleNotesForExpansion = (sale: Sale) => {
+    // If sale has no notes, don't show expansion
+    if (!sale.notes || sale.notes.trim() === '') {
+      return [];
+    }
+
+    // Return formatted data for expansion
+    return [
+      {
+        data: format(new Date(sale.sale_date), 'dd/MM/yyyy', { locale: ptBR }),
+        motivo: 'Observações da Venda',
+        observacoes: sale.notes,
+      },
+    ];
   };
 
   const formatCurrency = (value: number) => {
@@ -105,6 +127,20 @@ const Sales = () => {
   // Table columns configuration
   const columns = [
     {
+      key: 'notes_indicator',
+      label: 'Obs.',
+      render: (value: unknown, sale: Sale) => (
+        <div className="text-center">
+          {sale.notes && sale.notes.trim() !== '' ? (
+            <div className="w-2 h-2 bg-blue-500 rounded-full mx-auto" title="Possui observações" />
+          ) : (
+            <div className="w-2 h-2 bg-gray-300 rounded-full mx-auto" title="Sem observações" />
+          )}
+        </div>
+      ),
+      className: 'w-16 text-center',
+    },
+    {
       key: 'customer_name',
       label: 'Cliente',
       render: (value: unknown, sale: Sale) => (
@@ -127,6 +163,12 @@ const Sales = () => {
       render: (value: unknown, sale: Sale) => (
         <div className="text-sm text-gray-900">{formatNumber(sale.brick_quantity)} tijolos</div>
       ),
+    },
+    {
+      key: 'brick_type',
+      label: 'Tipo',
+      render: (value: unknown, sale: Sale) => <div className="text-sm text-gray-900">{sale.brick_type || 'Comum'}</div>,
+      className: 'min-w-[100px]',
     },
     {
       key: 'price_per_thousand',
@@ -188,6 +230,8 @@ const Sales = () => {
         columns={columns as never}
         data={filteredSales as unknown as Record<string, unknown>[]}
         emptyMessage="Nenhuma venda encontrada"
+        expandable={true}
+        expandedRowData={sale => getSaleNotesForExpansion(sale as unknown as Sale)}
         minWidth="800px"
       />
 
